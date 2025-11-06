@@ -40,7 +40,7 @@
     <footer>
         <div style=" color: white; text-align: center">
             &copy; Copyright <a style="color:darkorange"
-               href="https://riacad.com/"><strong>RiaCAD Systems</strong></a>. Todos los Derechos
+               href="https://juanchehin.github.io/ci/"><strong>senda Systems</strong></a>. Todos los Derechos
             Reservados
         </div>
 

@@ -16,7 +16,7 @@ return [
 
     'title' => '',
     'title_prefix' => '',
-    'title_postfix' => '| RiaCAD',
+    'title_postfix' => '| senda',
 
     /*
     |--------------------------------------------------------------------------
@@ -307,6 +307,92 @@ return [
             'icon'  => 'fas fa-fw fa-tachometer-alt',
             'can'   => 'admin.home',
         ],
+        // FACTURACIÓN
+        [
+            'text'    => 'Facturación',
+            'icon'    => 'fas fa-fw fa-file-invoice-dollar',
+            'can'     => 'ver facturas',
+            'submenu' => [
+                [
+                    'text'  => 'Cargar Factura / Nota Débito',
+                    'route' => 'facturas.create',
+                    'icon'  => 'fas fa-fw fa-plus-circle',
+                    'can'   => 'crear facturas',
+                ],
+                [
+                    'text'  => 'Listado de Comprobantes',
+                    'route' => 'facturas.index',
+                    'icon'  => 'fas fa-fw fa-list',
+                    'can'   => 'ver facturas',
+                ],
+                [
+                    'text'  => 'Pendientes de Revisión',
+                    'route' => 'facturas.pendientes',
+                    'icon'  => 'fas fa-fw fa-hourglass-half',
+                    'can'   => 'aprobar facturas',
+                ],
+                [
+                    'text'  => 'Enviar a AFIP / ARCA',
+                    'route' => 'facturas.afip',
+                    'icon'  => 'fas fa-fw fa-paper-plane',
+                    'can'   => 'enviar afip',
+                ],
+            ],
+        ],
+
+        // ÓRDENES DE COMPRA
+        [
+            'text'    => 'Órdenes de Compra',
+            'icon'    => 'fas fa-fw fa-shopping-cart',
+            'can'     => 'ver ordenes',
+            'submenu' => [
+                [
+                    'text'  => 'Nueva Orden de Compra',
+                    'route' => 'ordenes.create',
+                    'icon'  => 'fas fa-fw fa-plus-circle',
+                    'can'   => 'crear ordenes',
+                ],
+                [
+                    'text'  => 'Listado de Órdenes',
+                    'route' => 'ordenes.index',
+                    'icon'  => 'fas fa-fw fa-list',
+                    'can'   => 'ver ordenes',
+                ],
+            ],
+        ],
+        // CONFIGURACIÓN (solo administrador)
+        [
+            'text'    => 'Configuración',
+            'icon'    => 'fas fa-fw fa-cog',
+            'can'     => 'administrar usuarios',
+            'submenu' => [
+                [
+                    'text'  => 'Usuarios',
+                    'route' => 'admin.users.index',
+                    'icon'  => 'fas fa-fw fa-user',
+                    'can'   => 'administrar usuarios',
+                ],
+                [
+                    'text'  => 'Roles',
+                    'route' => 'admin.roles.index',
+                    'icon'  => 'fas fa-fw fa-users-cog',
+                    'can'   => 'administrar roles',
+                ],
+                [
+                    'text'  => 'Permisos',
+                    'route' => 'admin.permissions.index',
+                    'icon'  => 'fas fa-fw fa-lock',
+                    'can'   => 'administrar permisos',
+                ],
+                [
+                    'text'  => 'Datos de la Empresa',
+                    'route' => 'configuracion.empresa',
+                    'icon'  => 'fas fa-fw fa-building',
+                    'can'   => 'configurar empresa',
+                ],
+            ],
+        ],
+
         [
             'text'  => 'Configuración',
             'icon'  => 'fas fa-fw fa-cog',

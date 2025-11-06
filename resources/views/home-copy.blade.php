@@ -828,7 +828,7 @@
                 <div class="row">
 
                     <div class="col-lg-4 col-md-6 footer-info">
-                        <h3>RiaCAD Systems</h3>
+                        <h3>senda Systems</h3>
                         <p>Cras fermentum odio eu feugiat lide par naso tierra. Justo eget nada terra videa magna derita
                             valies darta donna mare fermentum iaculis eu non diam phasellus. Scelerisque felis imperdiet
                             proin fermentum leo. Amet volutpat consequat mauris nunc congue.</p>
@@ -881,7 +881,7 @@
         <div class="container">
             <div class="copyright">
                 &copy; Copyright <a style="color:darkorange"
-                   href="https://riacad.com/"><strong>RiaCAD Systems</strong></a>. Todos los Derechos
+                   href="https://juanchehin.github.io/ci/"><strong>senda Systems</strong></a>. Todos los Derechos
                 Reservados
             </div>
         </div>
