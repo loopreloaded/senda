@@ -392,32 +392,6 @@ return [
                 ],
             ],
         ],
-
-        [
-            'text'  => 'Configuración',
-            'icon'  => 'fas fa-fw fa-cog',
-            'can'   => 'admin.users.index',
-            'submenu'   => [
-                [
-                    'text'  => 'Usuarios',
-                    'route' => 'admin.users.index',
-                    'icon'  => 'fas fa-fw fa-user',
-                    'can'   => 'admin.users.index',
-                ],
-                [
-                    'text'  => 'Roles',
-                    'route' => 'admin.roles.index',
-                    'icon'  => 'fas fa-fw fa-users-cog',
-                    'can'   => 'admin.roles.index',
-                ],
-                [
-                    'text'  => 'Permisos',
-                    'route' => 'admin.permissions.index',
-                    'icon'  => 'fas fa-fw fa-lock',
-                    'can'   => 'admin.permissions.index',
-                ]
-            ],
-        ],
         ['header'   => 'account_settings'],
         [
             'text'  => 'Mi Cuenta',

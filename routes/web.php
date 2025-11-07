@@ -30,7 +30,7 @@ Auth::routes();
 | SECCIÓN: SECRETARÍA
 | - Puede crear facturas, órdenes, cargar clientes, enviar a AFIP
 ============================================================ */
-Route::middleware(['auth', 'role:secretaria'])->group(function() {
+Route::middleware(['auth', 'role:secretaria|admin'])->group(function() {
 
     // FACTURAS
     Route::resource('facturas', FacturaController::class);
