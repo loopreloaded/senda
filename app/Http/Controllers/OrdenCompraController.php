@@ -7,59 +7,83 @@ use Illuminate\Http\Request;
 
 class OrdenCompraController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $ordenes = OrdenCompra::orderBy('created_at', 'desc')->paginate(10);
+        return view('admin.ordenes.index', compact('ordenes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('admin.ordenes.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'numero_oc'         => 'required|string|max:191|unique:orden_compras,numero_oc',
+            'fecha'             => 'required|date',
+            'proveedor'         => 'required|string|max:191',
+            'cuit'              => 'required|digits:11',
+            'moneda'            => 'required|string|max:10',
+            'condicion_compra'  => 'required|string|max:191',
+            'subtotal'          => 'required|numeric|min:0',
+            'descuento'         => 'nullable|numeric|min:0',
+            'total'             => 'required|numeric|min:0',
+        ]);
+
+        // Estado inicial siempre "pendiente"
+        $validated['estado'] = 'pendiente';
+
+        OrdenCompra::create($validated);
+
+        return redirect()
+            ->route('ordenes.index')
+            ->with('success', 'Orden de compra creada correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrdenCompra $ordenCompra)
+    public function show($id)
     {
-        //
+        $orden = OrdenCompra::findOrFail($id);
+        return view('admin.ordenes.show', compact('orden'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(OrdenCompra $ordenCompra)
+    public function edit($id)
     {
-        //
+        $orden = OrdenCompra::findOrFail($id);
+        return view('admin.ordenes.edit', compact('orden'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrdenCompra $ordenCompra)
+    public function update(Request $request, $id)
     {
-        //
+        $orden = OrdenCompra::findOrFail($id);
+
+        $validated = $request->validate([
+            'numero_oc'         => 'required|string|max:191|unique:orden_compras,numero_oc,' . $orden->id,
+            'fecha'             => 'required|date',
+            'proveedor'         => 'required|string|max:191',
+            'cuit'              => 'required|digits:11',
+            'moneda'            => 'required|string|max:10',
+            'condicion_compra'  => 'required|string|max:191',
+            'subtotal'          => 'required|numeric|min:0',
+            'descuento'         => 'nullable|numeric|min:0',
+            'total'             => 'required|numeric|min:0',
+        ]);
+
+        $orden->update($validated);
+
+        return redirect()
+            ->route('ordenes.index')
+            ->with('success', 'Orden de compra actualizada correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrdenCompra $ordenCompra)
+    public function destroy($id)
     {
-        //
+        $orden = OrdenCompra::findOrFail($id);
+        $orden->delete();
+
+        return redirect()
+            ->route('ordenes.index')
+            ->with('success', 'Orden de compra eliminada correctamente.');
     }
 }
