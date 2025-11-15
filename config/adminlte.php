@@ -325,18 +325,6 @@ return [
                     'icon'  => 'fas fa-fw fa-list',
                     'can'   => 'ver facturas',
                 ],
-                [
-                    'text'  => 'Pendientes de Revisión',
-                    'route' => 'facturas.pendientes',
-                    'icon'  => 'fas fa-fw fa-hourglass-half',
-                    'can'   => 'aprobar facturas',
-                ],
-                // [
-                //     'text'  => 'Enviar a AFIP / ARCA',
-                //     'route' => 'facturas.afip',
-                //     'icon'  => 'fas fa-fw fa-paper-plane',
-                //     'can'   => 'enviar afip',
-                // ],
             ],
         ],
 
