@@ -301,6 +301,13 @@ class FacturaController extends Controller
                     $cae = $respuestaDetalle->CAE ?? null;
                     $vto = $respuestaDetalle->CAEFchVto ?? null;
 
+                    // 🔥 ACTUALIZAR FACTURA EN BD
+                    $factura->estado = "aprobada";
+                    $factura->cae = $cae;
+                    $factura->vto_cae = $vto;
+                    $factura->aprobado_por = Auth::id();
+                    $factura->save();
+
                     $mensajeUsuario = "Factura autorizada por AFIP. CAE: {$cae} (Venc: {$vto})";
 
                     Log::info("✅ Factura autorizada por AFIP - CAE {$cae}", [
