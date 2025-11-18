@@ -129,15 +129,20 @@
             </p>
 
             {{-- BOTONES --}}
-            <div class="mt-4 d-flex justify-content-between">
+            <div class="mt-4 d-flex justify-content-between align-items-center">
+
+                {{-- Botón Volver --}}
                 <a href="{{ route('facturas.index') }}" class="btn btn-secondary">
-                    Volver
+                    <i class="fas fa-arrow-left"></i> Volver
                 </a>
 
-                <div>
-                    {{-- Botón para enviar AFIP si está pendiente --}}
-                    @if($factura->estado === 'pendiente')
-                        <form action="{{ route('facturas.afip', $factura->id) }}" method="POST" onsubmit="return confirm('¿Enviar factura a AFIP?')">
+                <div class="d-flex gap-2">
+
+                    {{-- BOTÓN: Enviar a AFIP (solo Admin o Ingeniero y si está pendiente) --}}
+                    @if($factura->estado === 'pendiente' && auth()->user()->hasAnyRole(['admin','ingeniero']))
+                        <form action="{{ route('facturas.afip', $factura->id) }}"
+                            method="POST"
+                            onsubmit="return confirm('¿Enviar factura a AFIP?')">
                             @csrf
                             <button class="btn btn-primary">
                                 <i class="fas fa-paper-plane"></i> Enviar a AFIP
@@ -145,12 +150,14 @@
                         </form>
                     @endif
 
-
-                    <a href="{{ route('facturas.edit', $factura->id) }}" class="btn btn-primary">
+                    {{-- BOTÓN: Editar factura --}}
+                    <a href="{{ route('facturas.edit', $factura->id) }}" class="btn btn-warning">
                         <i class="fas fa-edit"></i> Editar
                     </a>
+
                 </div>
             </div>
+
 
         </div>
     </div>
