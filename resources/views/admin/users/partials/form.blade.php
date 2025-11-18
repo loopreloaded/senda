@@ -29,12 +29,13 @@
     <div class="col-xs-12 col-sm-12 col-md-6">
         <div class="form-group">
             <label for="password">{{ __('Confirm Password') }}</label>
-            <input class="form-control" type="password" name="confirm-password" id="confirm-password" autocomplete="new-password">
-            @error('confirm-password')
+            <input class="form-control" type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password">
+            @error('password_confirmation')
                 <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
     </div>
+
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
             <div>

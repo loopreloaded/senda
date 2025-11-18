@@ -28,24 +28,31 @@ class UserController extends Controller
         return view('admin.users.create', compact('roles'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
-            'roles' => 'required'
+        $validated = $request->validate([
+            'name'     => 'required',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+            'roles'    => 'required|array',
         ]);
 
-        $input = $request->all();
-        $input['password'] = Hash::make($input['password']);
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => bcrypt($validated['password']),
+        ]);
 
-        $user = User::create($input);
-        $user->assignRole($request->input('roles'));
+        // 🔥 Convertir IDs enviados → nombres de roles
+        $roles = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
+
+        // 🔥 Asignar roles correctamente
+        $user->syncRoles($roles);
 
         return redirect()->route('admin.users.index')
-            ->with('info', __('Add successfully'));
+            ->with('success', 'Usuario creado correctamente');
     }
+
 
 
     public function show(User $user): View
