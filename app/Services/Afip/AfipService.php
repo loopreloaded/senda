@@ -215,4 +215,120 @@ class AfipService
         }
     }
 
+    public function enviarNotaDebito($nota)
+    {
+        // =======================
+        // 1) Conectar a WSFE
+        // =======================
+        $ta = $this->obtenerToken();
+        $wsfe = new \SoapClient($this->wsfeWsdl, [
+            'soap_version' => SOAP_1_2,
+            'exceptions'   => true,
+            'trace'        => 1,
+        ]);
+
+        $auth = [
+            'Token'  => $ta['token'],
+            'Sign'   => $ta['sign'],
+            'Cuit'   => $this->cuit,
+        ];
+
+        // =======================
+        // 2) Determinar tipo de ND
+        // =======================
+        // A -> 2, B -> 3
+        if (stripos($nota->tipo_comprobante, 'A') !== false) {
+            $cbteTipo = 2;  // Nota de Débito A
+        } else {
+            $cbteTipo = 3;  // Nota de Débito B
+        }
+
+        // =======================
+        // 3) Traer último autorizado
+        // =======================
+        $ultimo = $wsfe->FECompUltimoAutorizado([
+            'Auth'    => $auth,
+            'PtoVta'  => 4,         // punto de venta fijo
+            'CbteTipo'=> $cbteTipo
+        ]);
+
+        $cbteDesde = $ultimo->FECompUltimoAutorizadoResult->CbteNro + 1;
+
+        // =======================
+        // 4) Datos del cliente
+        // =======================
+        $cliente = $nota->cliente;
+
+        $docTipo = 80; // CUIT
+        $docNro  = intval(preg_replace('/[^\d]/', '', $cliente->cuit));
+
+        // =======================
+        // 5) Comprobante asociado
+        // =======================
+        $factura = $nota->factura;
+
+        // Mapear tipo de factura AFIP (1 = A, 6 = B)
+        if (stripos($factura->tipo_comprobante, 'A') !== false) {
+            $cbteTipoFactura = 1; // Factura A
+        } else {
+            $cbteTipoFactura = 6; // Factura B
+        }
+
+        $cbteAsoc = [
+            [
+                'Tipo'   => $cbteTipoFactura,
+                'PtoVta' => intval($factura->punto_venta),
+                'Nro'    => intval($factura->numero),
+            ]
+        ];
+
+        // =======================
+        // 6) Importes
+        // =======================
+        $importeTotal = floatval($nota->importe_total);
+        $importeNeto  = $importeTotal; // si es todo gravado
+        $importeIva   = 0;             // si querés sumar IVA explícito, se ajusta luego
+
+        // =======================
+        // 7) Armar datos AFIP (simple)
+        // =======================
+        $fechaCbte = date('Ymd', strtotime($nota->fecha_emision));
+
+        $data = [
+            'Auth' => $auth,
+            'FeCAEReq' => [
+                'FeCabReq' => [
+                    'CantReg' => 1,
+                    'PtoVta'  => 4,
+                    'CbteTipo'=> $cbteTipo,
+                ],
+                'FeDetReq' => [
+                    'FECAEDetRequest' => [
+                        'Concepto'   => $nota->concepto ?? 1,
+                        'DocTipo'    => $docTipo,
+                        'DocNro'     => $docNro,
+                        'CbteDesde'  => $cbteDesde,
+                        'CbteHasta'  => $cbteDesde,
+                        'CbteFch'    => $fechaCbte,
+                        'ImpTotal'   => $importeTotal,
+                        'ImpTotConc' => 0,
+                        'ImpNeto'    => $importeNeto,
+                        'ImpOpEx'    => 0,
+                        'ImpIVA'     => $importeIva,
+                        'ImpTrib'    => 0,
+                        'MonId'      => 'PES',
+                        'MonCotiz'   => 1,
+                        'CbtesAsoc'  => $cbteAsoc,
+                    ]
+                ]
+            ]
+        ];
+
+        // =======================
+        // 8) Solicitud AFIP
+        // =======================
+        return $wsfe->FECAESolicitar($data);
+    }
+
+
 }

@@ -314,11 +314,18 @@ return [
             'can'     => 'ver facturas',
             'submenu' => [
                 [
-                    'text'  => 'Cargar Factura / Nota Débito',
+                    'text'  => 'Cargar Factura',
                     'route' => 'facturas.create',
                     'icon'  => 'fas fa-fw fa-plus-circle',
                     'can'   => 'crear facturas',
                 ],
+                [
+                    'text'  => 'Cargar Nota de Débito',
+                    'route' => 'notasdebito.create',
+                    'icon'  => 'fas fa-fw fa-file-invoice',
+                    'can'   => 'crear notas de debito',
+                ],
+
                 [
                     'text'  => 'Listado de Comprobantes',
                     'route' => 'facturas.index',
@@ -327,6 +334,7 @@ return [
                 ],
             ],
         ],
+
 
         // ÓRDENES DE COMPRA
         [

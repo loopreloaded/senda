@@ -9,6 +9,7 @@ use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\OrdenCompraController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Controllers\NotaDebitoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,13 @@ Route::middleware(['auth', 'role:secretaria|admin'])->group(function() {
     // routes/web.php
     Route::post('/facturas/{id}/enviar-afip', [FacturaController::class, 'enviarAfip'])
         ->name('facturas.enviarAfip');
+
+    //
+    Route::resource('notasdebito', NotaDebitoController::class)->middleware('can:ver notas de debito');
+
+    Route::post('notasdebito/{id}/afip', [NotaDebitoController::class, 'enviar_nd'])
+        ->name('notasdebito.afip')
+        ->middleware('can:enviar nota de debito afip');
 
 
     // ÓRDENES DE COMPRA
