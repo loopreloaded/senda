@@ -50,7 +50,7 @@ Route::middleware(['auth', 'role:secretaria|admin'])->group(function() {
         ->name('facturas.enviarAfip');
 
     //
-    Route::resource('notasdebito', NotaDebitoController::class)->middleware('can:ver notas de debito');
+    Route::resource('notasdebito', NotaDebitoController::class);
 
     Route::post('notasdebito/{id}/afip', [NotaDebitoController::class, 'enviar_nd'])
         ->name('notasdebito.afip')

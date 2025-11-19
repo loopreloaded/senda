@@ -325,7 +325,6 @@ return [
                     'icon'  => 'fas fa-fw fa-file-invoice',
                     'can'   => 'crear notas de debito',
                 ],
-
                 [
                     'text'  => 'Listado de Comprobantes',
                     'route' => 'facturas.index',

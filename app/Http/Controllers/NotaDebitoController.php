@@ -31,7 +31,7 @@ class NotaDebitoController extends Controller
     public function index()
     {
         $notas = NotaDebito::orderBy('id', 'DESC')->paginate(20);
-        return view('notasdebito.index', compact('notas'));
+        return view('notas_debito.index', compact('notas'));
     }
 
     // ---------------------------------------------------
@@ -39,10 +39,11 @@ class NotaDebitoController extends Controller
     // ---------------------------------------------------
     public function create()
     {
-        $clientes = Cliente::orderBy('razon_social')->get();
-        $facturas = Factura::orderBy('id', 'DESC')->get();
-        return view('notasdebito.create', compact('clientes', 'facturas'));
+        $facturas = Factura::with('cliente')->get();
+
+        return view('admin.notas_debito.create', compact('facturas'));
     }
+
 
     // ---------------------------------------------------
     // GUARDAR NUEVA ND
@@ -91,7 +92,7 @@ class NotaDebitoController extends Controller
             ]);
         }
 
-        return redirect()->route('notasdebito.index')->with('success', 'Nota de Débito creada correctamente.');
+        return redirect()->route('notas_debito.index')->with('success', 'Nota de Débito creada correctamente.');
     }
 
     // ---------------------------------------------------
@@ -100,7 +101,7 @@ class NotaDebitoController extends Controller
     public function show($id)
     {
         $nota = NotaDebito::with('items', 'cliente')->findOrFail($id);
-        return view('notasdebito.show', compact('nota'));
+        return view('notas_debito.show', compact('nota'));
     }
 
     // ---------------------------------------------------
@@ -110,7 +111,7 @@ class NotaDebitoController extends Controller
     {
         $nota = NotaDebito::with('items')->findOrFail($id);
         $clientes = Cliente::all();
-        return view('notasdebito.edit', compact('nota', 'clientes'));
+        return view('notas_debito.edit', compact('nota', 'clientes'));
     }
 
     // ---------------------------------------------------
