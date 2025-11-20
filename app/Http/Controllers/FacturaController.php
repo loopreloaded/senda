@@ -53,7 +53,6 @@ class FacturaController extends Controller
 
             // Datos de la factura
             'tipo_comprobante' => 'required|in:A,B',
-            'punto_venta'      => 'required|numeric|min:1',
             'fecha_emision'    => 'required|date',
             'concepto'         => 'required|in:1,2,3',
             'condicion_venta'  => 'required|string|max:100',
@@ -68,7 +67,7 @@ class FacturaController extends Controller
 
         DB::beginTransaction();
         try {
-            // Buscar o crear cliente (por CUIT)
+            // Buscar o crear cliente
             $cliente = Cliente::firstOrCreate(
                 ['cuit' => $validated['cuit']],
                 [
@@ -83,7 +82,10 @@ class FacturaController extends Controller
             $factura = new Factura();
             $factura->cliente_id       = $cliente->id;
             $factura->tipo_comprobante = $validated['tipo_comprobante'];
-            $factura->punto_venta      = $validated['punto_venta'];
+
+            // 👉 Punto de venta fijo
+            $factura->punto_venta      = 4;
+
             $factura->fecha_emision    = $validated['fecha_emision'];
             $factura->concepto         = $validated['concepto'];
             $factura->condicion_venta  = $validated['condicion_venta'];
@@ -97,12 +99,12 @@ class FacturaController extends Controller
                 $subtotal = $item['cantidad'] * $item['precio'] * (1 + ($item['iva'] ?? 0) / 100);
 
                 FacturaItem::create([
-                    'factura_id'   => $factura->id,
-                    'descripcion'  => $item['descripcion'],
-                    'cantidad'     => $item['cantidad'],
+                    'factura_id'      => $factura->id,
+                    'descripcion'     => $item['descripcion'],
+                    'cantidad'        => $item['cantidad'],
                     'precio_unitario' => $item['precio'],
-                    'iva'          => $item['iva'] ?? 0,
-                    'subtotal'     => $subtotal,
+                    'iva'             => $item['iva'] ?? 0,
+                    'subtotal'        => $subtotal,
                 ]);
 
                 $total += $subtotal;
@@ -116,14 +118,14 @@ class FacturaController extends Controller
 
             return redirect()
                 ->route('facturas.index')
-                ->with('success', 'Factura creada correctamente y marcada como pendiente.');
-
+                ->with('success', 'Factura creada correctamente con punto de venta 4.');
 
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Ocurrió un error al guardar la factura: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Aprobar factura (Ingeniero)
@@ -137,92 +139,6 @@ class FacturaController extends Controller
 
         return redirect()->route('admin.facturas.index')
                          ->with('success', 'Factura aprobada correctamente.');
-    }
-
-    /**
-     * Enviar factura aprobada a ARCA / AFIP
-     */
-    public function enviar_afip($id)
-    {
-        SystemLog::create([
-            'context' => 'AFIP',
-            'action' => 'inicio_enviar',
-            'message' => 'Entrando al método enviarAfip con ID: ' . $id,
-            'level' => 'debug',
-            'user_id' => Auth::id(),
-        ]);
-
-        $factura = Factura::findOrFail($id);
-
-        SystemLog::create([
-            'context' => 'AFIP',
-            'action' => 'factura_encontrada',
-            'message' => 'Factura encontrada, estado: ' . $factura->estado,
-            'level' => 'debug',
-            'related_id' => $factura->id,
-            'related_type' => 'App\Models\Factura',
-        ]);
-
-        try {
-            // 1️⃣ Generar XML del comprobante
-            $xml = view('afip.xml.factura', compact('factura'))->render();
-            $xmlPath = storage_path("app/afip/wsaa.xml");
-            file_put_contents($xmlPath, $xml);
-
-            // 2️⃣ Firmar XML con OpenSSL
-            $signed = $this->firmarXML($xmlPath);
-
-            // 3️⃣ Enviar a AFIP
-            $endpoint = config('app.env') === 'production'
-                ? env('AFIP_URL_PROD')
-                : env('AFIP_URL_HOMO');
-
-            $soap = new \SoapClient($endpoint, [
-                'trace' => 1,
-                'exceptions' => true,
-            ]);
-
-            $response = $soap->__soapCall('FECAESolicitar', [
-                ['FeCAEReq' => $signed]
-            ]);
-
-            SystemLog::create([
-                'servicio' => 'WSFEv1',
-                'accion' => 'FECAESolicitar',
-                'factura_id' => $factura->id,
-                'request' => $soap->__getLastRequest(),
-                'response' => $soap->__getLastResponse(),
-            ]);
-
-
-            // 5 Actualizar factura si fue aprobada
-            $resultado = $response->FeDetResp->FECAEDetResponse[0] ?? null;
-            if ($resultado && $resultado->Resultado === 'A') {
-                $factura->update([
-                    'estado' => 'aprobada',
-                    'cae' => $resultado->CAE,
-                    'vto_cae' => $resultado->CAEFchVto,
-                ]);
-            } else {
-                throw new \Exception('Rechazada por AFIP');
-            }
-
-            return back()->with('success', 'Factura enviada y aprobada.');
-        } catch (\Exception $e) {
-           SystemLog::create([
-                'contexto' => 'AFIP',
-                'accion' => 'FECAESolicitar',
-                'detalle' => 'Factura enviada a AFIP',
-                'referencia_id' => $factura->id,
-                'datos_request' => $soap->__getLastRequest(),
-                'datos_response' => $soap->__getLastResponse(),
-                'nivel' => 'info',
-            ]);
-
-
-            Log::error('Error AFIP: '.$e->getMessage());
-            return back()->with('error', 'Error al enviar la factura: '.$e->getMessage());
-        }
     }
 
     public function enviarAfip($id)

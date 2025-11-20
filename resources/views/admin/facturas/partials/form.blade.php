@@ -15,19 +15,6 @@
         </div>
     </div>
 
-    {{-- Punto de Venta --}}
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="punto_venta">Punto de Venta</label>
-            <input type="number"
-                name="punto_venta"
-                id="punto_venta"
-                class="form-control"
-                value="4"
-                readonly>
-        </div>
-    </div>
-
 
     {{-- Fecha de Emisión --}}
     <div class="col-md-4">
