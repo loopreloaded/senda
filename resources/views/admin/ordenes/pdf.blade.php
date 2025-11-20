@@ -37,7 +37,7 @@
 <body>
 
 <div class="header">
-    <div class="title">ORDEN DE COMPRA</div>
+    <div class="title">ORDEN DE COMPRA - SECAR</div>
     <div>Nº {{ $orden->numero_oc }}</div>
 </div>
 
