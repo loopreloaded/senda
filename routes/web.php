@@ -59,7 +59,7 @@ Route::middleware(['auth', 'role:secretaria|admin'])->group(function() {
 
     // ÓRDENES DE COMPRA
     Route::resource('ordenes', OrdenCompraController::class);
-    Route::get('ordenes/{orden}/pdf', [OrdenCompraController::class, 'pdf'])->name('ordenes.pdf');
+    Route::get('ordenes/{orden}/pdf', [OrdenCompraController::class, 'orden_pdf'])->name('ordenes.pdf');
 
     // CLIENTES
     Route::resource('clientes', ClienteController::class);

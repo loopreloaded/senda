@@ -35,12 +35,36 @@
                 <td>${{ number_format($orden->total, 2) }}</td>
                 <td>{{ ucfirst($orden->estado) }}</td>
                 <td>
-                    <a href="{{ route('ordenes.edit', $orden->id) }}" class="btn btn-sm btn-warning">Editar</a>
-                    <form action="{{ route('ordenes.destroy', $orden->id) }}" method="POST" style="display:inline">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta orden?')">Eliminar</button>
+                    <!-- Editar -->
+                    <a href="{{ route('ordenes.edit', $orden->id) }}"
+                    class="btn btn-sm btn-warning"
+                    title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+
+                    <!-- PDF -->
+                    <a href="{{ route('ordenes.pdf', $orden->id) }}"
+                    class="btn btn-sm btn-light"
+                    title="Imprimir PDF"
+                    target="_blank">
+                        <i class="fas fa-file-pdf" style="color:#d9534f;"></i>
+                    </a>
+
+                    <!-- Eliminar -->
+                    <form action="{{ route('ordenes.destroy', $orden->id) }}"
+                        method="POST"
+                        style="display:inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="btn btn-sm btn-danger"
+                                title="Eliminar"
+                                onclick="return confirm('¿Eliminar esta orden?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </form>
                 </td>
+
             </tr>
         @endforeach
     </tbody>

@@ -24,4 +24,10 @@ class OrdenCompra extends Model
         'estado',
         'firma_digital',
     ];
+
+    public function items()
+    {
+        return $this->hasMany(OrdenItem::class, 'orden_compra_id');
+    }
+
 }
