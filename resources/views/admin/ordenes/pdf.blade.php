@@ -242,31 +242,96 @@
     </tbody>
 </table>
 
+{{-- SECCIÓN DE OBSERVACIONES --}}
+<div style="margin-top:10px; width:100%; font-size:10px;">
 
-{{-- TOTALES --}}
-<table class="totales-table">
+    {{-- TÍTULO --}}
+    <div style="font-weight:bold; margin-bottom:3px;">
+        Observaciones:
+    </div>
+
+    {{-- CUADRO DE OBSERVACIONES (muy grande como en TOTVS) --}}
+    <div style="
+        width:100%;
+        height:120mm;
+        border:1px solid #000;
+        padding:5px;
+        box-sizing:border-box;
+        font-size:9px;
+        line-height:13px;
+    ">
+        {!! nl2br(e($orden->observaciones ?? '')) !!}
+    </div>
+
+</div>
+
+{{-- LÍNEA HORIZONTAL --}}
+<div style="width:100%; border-bottom:1px solid #000; margin-top:6px; margin-bottom:6px;"></div>
+
+
+{{-- SECCIÓN OBSERVACIONES DEL PROVEEDOR + TOTALES --}}
+<table style="width:100%; font-size:10px; border-collapse:collapse;">
+
     <tr>
-        <td style="text-align:right; font-weight:bold;">SUBTOTAL:</td>
-        <td style="border:1px solid #000; text-align:right;">
-            {{ number_format($orden->subtotal, 2, ',', '.') }}
+        {{-- OBSERVACIONES DEL PROVEEDOR --}}
+        <td style="width:60%; vertical-align:top;">
+            <div style="font-weight:bold; margin-bottom:3px;">Observaciones del Proveedor:</div>
+
+            <div style="
+                width:100%;
+                height:25mm;
+                border:1px solid #000;
+                padding:5px;
+                font-size:9px;
+                box-sizing:border-box;
+            "></div>
         </td>
-    </tr>
 
-    <tr>
-        <td style="text-align:right; font-weight:bold;">DESCUENTO:</td>
-        <td style="border:1px solid #000; text-align:right;">
-            {{ number_format($orden->descuento, 2, ',', '.') }}
-        </td>
-    </tr>
+        {{-- TOTALES A LA DERECHA --}}
+        <td style="width:40%; vertical-align:top;">
 
-    <tr>
-        <td style="text-align:right; font-weight:bold;">TOTAL:</td>
-        <td style="border:1px solid #000; text-align:right;">
-            {{ number_format($orden->total, 2, ',', '.') }}
+            <table style="width:100%; font-size:10px; border-collapse:collapse;">
+                <tr>
+                    <td style="text-align:right; font-weight:bold;">SUBTOTAL:</td>
+                    <td style="border:1px solid #000; padding:3px; text-align:right;">
+                        {{ number_format($orden->subtotal, 2, ',', '.') }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="text-align:right; font-weight:bold;">DESCUENTO:</td>
+                    <td style="border:1px solid #000; padding:3px; text-align:right;">
+                        {{ number_format($orden->descuento, 2, ',', '.') }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="text-align:right; font-weight:bold;">TOTAL:</td>
+                    <td style="border:1px solid #000; padding:3px; text-align:right;">
+                        {{ number_format($orden->total, 2, ',', '.') }}
+                    </td>
+                </tr>
+            </table>
+
         </td>
     </tr>
 </table>
 
+
+{{-- ÚLTIMA LÍNEA HORIZONTAL --}}
+<div style="width:100%; border-bottom:1px solid #000; margin-top:8px;"></div>
+
+
+{{-- TABLA DE 5 CELDAS VACÍAS (como el PDF TOTVS) --}}
+<table style="width:100%; border-collapse:collapse; margin-top:0px;">
+    <tr>
+        <td style="border:1px solid #000; height:12mm;"></td>
+        <td style="border:1px solid #000; height:12mm;"></td>
+        <td style="border:1px solid #000; height:12mm;"></td>
+        <td style="border:1px solid #000; height:12mm;"></td>
+        <td style="border:1px solid #000; height:12mm;"></td>
+    </tr>
+</table>
 
 {{-- FIRMA --}}
 <div style="clear:both; margin-top:40px; text-align:right;">
