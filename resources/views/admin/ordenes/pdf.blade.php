@@ -5,18 +5,45 @@
     <title>Orden de Compra</title>
 
     <style>
-        @page { margin: 15mm 10mm; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 10px; }
+        @page { margin: 15mm; }
 
-        .header-box {
-            border: 1px solid #000;
-            border-radius: 8px;
-            padding: 6px 8px;
-            margin-bottom: 8px;
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
         }
 
-        table { border-collapse: collapse; width: 100%; }
-        .info-table td { padding: 2px 3px; font-size: 9px; }
+        /* PROHIBIR SALTOS DE PÁGINA */
+        * { page-break-inside: avoid !important; }
+        table { page-break-inside: avoid !important; }
+        tr { page-break-inside: avoid !important; }
+        td, th { page-break-inside: avoid !important; }
+
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 10px;
+        }
+
+        /* Marco exterior */
+        .contenedor-total {
+            border: 1.5px solid #000;
+            border-radius: 12px;
+            padding: 15px 20px;
+
+            /* Agrega separación del borde del papel */
+            margin: 5mm;
+
+            min-height: 250mm;
+            box-sizing: border-box;
+        }
+
+
+        table { width: 100%; border-collapse: collapse; }
+
+        .info-table td {
+            padding: 2px 3px;
+            font-size: 9px;
+        }
         .info-table .label { font-weight: bold; }
 
         .items-table th, .items-table td {
@@ -24,19 +51,34 @@
             padding: 3px;
             font-size: 8px;
         }
-        .items-table th { background: #f2f2f2; }
 
-        .totales-table { width: 40%; float: right; margin-top: 10px; }
-        .totales-table td { padding: 3px; font-size: 9px; }
+        .items-table th {
+            background: #f2f2f2;
+            font-weight: bold;
+        }
 
-        .firma img { max-height: 50px; }
+        .totales-table {
+            width: 40%;
+            float: right;
+            margin-top: 10px;
+        }
+
+        .totales-table td {
+            padding: 3px;
+            font-size: 9px;
+        }
+
+        .firma img {
+            max-height: 50px;
+        }
     </style>
 </head>
 
 <body>
 
+<div class="contenedor-total">
+
 @php
-    // Empresa emisora fija
     $empresa = [
         'nombre' => 'SECAR',
         'direccion' => 'Entre Ríos 751',
@@ -45,74 +87,104 @@
         'telefono' => '3812564909'
     ];
 
-    // Formato seguro de fecha (string -> Carbon)
     $fecha = $orden->fecha ? \Carbon\Carbon::parse($orden->fecha)->format('d/m/Y') : '-';
-
 @endphp
 
 
 {{-- ENCABEZADO --}}
-<div class="header-box">
+{{-- ENCABEZADO TOTVS --}}
+<table style="width:100%; margin-bottom:6px;">
+    <tr>
+        {{-- LOGO IZQUIERDA --}}
+        <td style="width:22%; vertical-align:top;">
+            <img src="{{ public_path('assets/img/logo-ingenio.png') }}"
+                 style="max-height:70px; margin-left:5px;">
+        </td>
 
-    <table>
-        <tr>
-            <td width="40%">
-                <img src="{{ public_path('assets/img/logo.png') }}" style="max-height:45px;">
-            </td>
-            <td width="60%" style="text-align:right;">
-                <div style="font-size:15px; font-weight:bold;">Orden de compra</div>
-                <div style="font-size:12px;">N° {{ $orden->numero_oc }}</div>
-            </td>
-        </tr>
-    </table>
+        {{-- TEXTO DEL PROVEEDOR --}}
+        <td style="width:48%; vertical-align:top; font-size:10px; line-height:14px;">
+            <strong style="font-size:13px;">INGENIO CRUZ ALTA</strong><br>
+            Av. Jose M. Landaio s/n LA FLORIDA - CRUZ ALTA<br>
+            TUCUMAN - ARGENTINA<br>
+            CUIT: 30675415087<br>
+            TEL:<br>
+            compras@balcanes.com.ar
+        </td>
 
-    <table class="info-table" style="margin-top:5px;">
-        <tr>
-            <td class="label">Fecha:</td>
-            <td>{{ $fecha }}</td>
+        {{-- BLOQUE ORDEN DE COMPRA --}}
+        <td style="width:30%; text-align:right; vertical-align:top;">
+            <div style="font-size:14px; font-weight:bold;">Orden de compra</div>
+            <div style="font-size:9px; margin-top:-2px;">Purchase Order</div>
 
-            <td class="label">CUIT Empresa:</td>
-            <td>{{ $empresa['cuit'] }}</td>
+            <div style="margin-top:8px; font-size:10px;">
+                <strong>N°</strong>
+                <span style="font-size:14px; margin-left:5px;">
+                    {{ str_pad($orden->numero_oc, 6, '0', STR_PAD_LEFT) }}
+                </span>
+            </div>
 
-            <td class="label">Condición compra:</td>
-            <td>{{ $orden->condicion_compra ?? '-' }}</td>
-        </tr>
+            <div style="font-size:10px; margin-top:5px;">
+                <strong>Fecha / Date:</strong>
+                {{ $fecha }}
+            </div>
+        </td>
+    </tr>
+</table>
 
-        <tr>
-            <td class="label">Proveedor:</td>
-            <td colspan="3">{{ $orden->proveedor ?: '-' }}</td>
-
-            <td class="label">Moneda:</td>
-            <td>{{ $orden->moneda ? strtoupper($orden->moneda) : '-' }}</td>
-        </tr>
-
-        <tr>
-            <td class="label">CUIT Proveedor:</td>
-            <td>{{ $orden->cuit ?: '-' }}</td>
-
-            <td class="label">País:</td>
-            <td>ARGENTINA</td>
-
-            <td class="label">Código Prov.:</td>
-            <td>-</td>
-        </tr>
-    </table>
-
-    <table class="info-table">
-        <tr>
-            <td>
-                <strong>{{ $empresa['nombre'] }}</strong><br>
-                {{ $empresa['direccion'] }}<br>
-                {{ $empresa['email'] }}<br>
-                Tel: {{ $empresa['telefono'] }}
-            </td>
-        </tr>
-    </table>
-</div>
+{{-- LÍNEA HORIZONTAL --}}
+<div style="width:100%; border-bottom:1px solid #000; margin-top:4px; margin-bottom:8px;"></div>
 
 
-{{-- TABLA DE ITEMS --}}
-<table class="items-table">
+
+{{-- DATOS GENERALES --}}
+<table class="info-table" style="margin-top:5px;">
+    <tr>
+        <td class="label">Fecha:</td>
+        <td>{{ $fecha }}</td>
+
+        <td class="label">CUIT Empresa:</td>
+        <td>{{ $empresa['cuit'] }}</td>
+
+        <td class="label">Condición compra:</td>
+        <td>{{ $orden->condicion_compra ?? '-' }}</td>
+    </tr>
+
+    <tr>
+        <td class="label">Proveedor:</td>
+        <td colspan="3">{{ $orden->proveedor ?: '-' }}</td>
+
+        <td class="label">Moneda:</td>
+        <td>{{ $orden->moneda ? strtoupper($orden->moneda) : '-' }}</td>
+    </tr>
+
+    <tr>
+        <td class="label">CUIT Proveedor:</td>
+        <td>{{ $orden->cuit ?: '-' }}</td>
+
+        <td class="label">País:</td>
+        <td>ARGENTINA</td>
+
+        <td class="label">Código Prov.:</td>
+        <td>-</td>
+    </tr>
+</table>
+
+
+{{-- EMPRESA --}}
+<table class="info-table" style="margin-top:2px;">
+    <tr>
+        <td>
+            <strong>{{ $empresa['nombre'] }}</strong><br>
+            {{ $empresa['direccion'] }}<br>
+            {{ $empresa['email'] }}<br>
+            Tel: {{ $empresa['telefono'] }}
+        </td>
+    </tr>
+</table>
+
+
+{{-- ITEMS --}}
+<table class="items-table" style="margin-top:10px;">
     <thead>
         <tr>
             <th width="6%">Item</th>
@@ -168,15 +240,16 @@
 </table>
 
 
-<div style="clear:both; margin-top:30px;"></div>
-
 {{-- FIRMA --}}
-<div style="text-align:right; margin-top:20px;">
+<div style="clear:both; margin-top:40px; text-align:right;">
     <img src="{{ public_path('firma.png') }}" alt="Firma">
     <div style="border-top:1px solid #000; display:inline-block; padding-top:3px; font-size:9px;">
         Firma autorizada
     </div>
 </div>
+
+
+</div> {{-- FIN DEL MARCO --}}
 
 </body>
 </html>
