@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Orden de Compra</title>
+    <title>Secar</title>
 
     <style>
         @page { margin: 15mm; }
@@ -103,12 +103,12 @@
 
         {{-- TEXTO DEL PROVEEDOR --}}
         <td style="width:48%; vertical-align:top; font-size:10px; line-height:14px;">
-            <strong style="font-size:13px;">INGENIO CRUZ ALTA</strong><br>
-            Av. Jose M. Landaio s/n LA FLORIDA - CRUZ ALTA<br>
+            <strong style="font-size:13px;">SECAR</strong><br>
+            Entre Ríos 751 - SAN MIGUEL DE TUCUMAN<br>
             TUCUMAN - ARGENTINA<br>
-            CUIT: 30675415087<br>
-            TEL:<br>
-            compras@balcanes.com.ar
+            CUIT: 30-61513606-5<br>
+            TEL: 3812564909<br>
+            secarsrl@gmail.com
         </td>
 
         {{-- BLOQUE ORDEN DE COMPRA --}}
@@ -135,53 +135,81 @@
 <div style="width:100%; border-bottom:1px solid #000; margin-top:4px; margin-bottom:8px;"></div>
 
 
-
-{{-- DATOS GENERALES --}}
-<table class="info-table" style="margin-top:5px;">
+{{-- SECCIÓN INFORMACIÓN DEL PROVEEDOR / PARA / TO --}}
+<table style="width:100%; font-size:9px; margin-bottom:6px;">
     <tr>
-        <td class="label">Fecha:</td>
-        <td>{{ $fecha }}</td>
+        {{-- COLUMNA IZQUIERDA --}}
+        <td style="width:55%; vertical-align:top;">
 
-        <td class="label">CUIT Empresa:</td>
-        <td>{{ $empresa['cuit'] }}</td>
+            <table style="width:100%; font-size:9px;">
+                <tr>
+                    <td style="font-weight:bold;">Para / To:</td>
+                    <td>
+                        {{-- Código proveedor + nombre (si no existe, se muestra "-") --}}
+                        {{ '-' }} - {{ $orden->proveedor ?: '-' }}
+                    </td>
+                </tr>
 
-        <td class="label">Condición compra:</td>
-        <td>{{ $orden->condicion_compra ?? '-' }}</td>
-    </tr>
+                <tr>
+                    <td style="font-weight:bold;">Condición de compra / Payment Terms:</td>
+                    <td>{{ $orden->condicion_compra ?: '-' }}</td>
+                </tr>
 
-    <tr>
-        <td class="label">Proveedor:</td>
-        <td colspan="3">{{ $orden->proveedor ?: '-' }}</td>
+                <tr>
+                    <td style="font-weight:bold;">Tel / Phone:</td>
+                    <td>-</td>
+                </tr>
 
-        <td class="label">Moneda:</td>
-        <td>{{ $orden->moneda ? strtoupper($orden->moneda) : '-' }}</td>
-    </tr>
+                <tr>
+                    <td style="font-weight:bold;">Email:</td>
+                    <td>-</td>
+                </tr>
 
-    <tr>
-        <td class="label">CUIT Proveedor:</td>
-        <td>{{ $orden->cuit ?: '-' }}</td>
+                <tr>
+                    <td style="font-weight:bold;">CUIT:</td>
+                    <td>{{ $orden->cuit ?: '-' }}</td>
+                </tr>
+            </table>
 
-        <td class="label">País:</td>
-        <td>ARGENTINA</td>
+        </td>
 
-        <td class="label">Código Prov.:</td>
-        <td>-</td>
-    </tr>
-</table>
+        {{-- COLUMNA DERECHA --}}
+        <td style="width:45%; vertical-align:top;">
 
+            <table style="width:100%; font-size:9px;">
+                <tr>
+                    <td style="font-weight:bold;">Dirección / Address:</td>
+                    <td>-</td>
+                </tr>
 
-{{-- EMPRESA --}}
-<table class="info-table" style="margin-top:2px;">
-    <tr>
-        <td>
-            <strong>{{ $empresa['nombre'] }}</strong><br>
-            {{ $empresa['direccion'] }}<br>
-            {{ $empresa['email'] }}<br>
-            Tel: {{ $empresa['telefono'] }}
+                <tr>
+                    <td style="font-weight:bold;">País / Country:</td>
+                    <td>ARGENTINA</td>
+                </tr>
+
+                <tr>
+                    <td style="font-weight:bold;">Moneda / Currency:</td>
+                    <td>
+                        @if($orden->moneda)
+                            {{ strtoupper($orden->moneda) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="font-weight:bold;">Solicitud de compras / Purchasing request:</td>
+                    <td>{{ str_pad($orden->id, 6, '0', STR_PAD_LEFT) }}</td>
+                </tr>
+            </table>
+
         </td>
     </tr>
 </table>
 
+{{-- LÍNEA HORIZONTAL DEBAJO --}}
+<div style="width:100%; border-bottom:1px solid #000; margin-top:2px; margin-bottom:8px;"></div>
 
 {{-- ITEMS --}}
 <table class="items-table" style="margin-top:10px;">
