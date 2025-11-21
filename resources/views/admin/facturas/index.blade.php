@@ -45,6 +45,7 @@
                         <th>Tipo</th>
                         <th>Punto Venta</th>
                         <th>Fecha</th>
+                        <th>Fecha creacion</th>
                         <th>Importe Total</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -58,6 +59,7 @@
                             <td>{{ $factura->tipo_comprobante ?? '—' }}</td>
                             <td>{{ $factura->punto_venta ?? '—' }}</td>
                             <td>{{ \Carbon\Carbon::parse($factura->fecha_emision)->format('d/m/Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($factura->created_at)->format('d/m/Y') }}</td>
                             <td>${{ number_format($factura->importe_total, 2, ',', '.') }}</td>
                             <td>
                                 @if($factura->estado == 'pendiente')
