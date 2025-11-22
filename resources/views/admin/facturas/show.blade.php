@@ -36,9 +36,9 @@
             <h5 class="mb-3"><strong>Datos del Comprobante</strong></h5>
             <div class="row">
                 <div class="col-md-6">
-                    <strong>Emisor:</strong> Razon S.A.<br>
-                    <strong>CUIT:</strong> 30-12345678-9<br>
-                    <strong>Domicilio:</strong> Av. X 123<br>
+                    <strong>Emisor:</strong> Secar <br>
+                    <strong>CUIT:</strong> 30-61513606-5<br>
+                    <strong>Domicilio:</strong> Entre Rios 751<br>
                     <strong>Pto. Venta:</strong> {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}
                 </div>
                 <div class="col-md-6">
