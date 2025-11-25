@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Secar</title>
+    <title>Orden de Compra</title>
 
     <style>
         @page { margin: 15mm; }
@@ -13,7 +13,6 @@
             padding: 0;
         }
 
-        /* PROHIBIR SALTOS DE PÁGINA */
         * { page-break-inside: avoid !important; }
         table { page-break-inside: avoid !important; }
         tr { page-break-inside: avoid !important; }
@@ -24,27 +23,16 @@
             font-size: 10px;
         }
 
-        /* Marco exterior */
         .contenedor-total {
             border: 1.5px solid #000;
             border-radius: 12px;
             padding: 15px 20px;
-
-            /* Agrega separación del borde del papel */
             margin: 5mm;
-
             min-height: 250mm;
             box-sizing: border-box;
         }
 
-
         table { width: 100%; border-collapse: collapse; }
-
-        .info-table td {
-            padding: 2px 3px;
-            font-size: 9px;
-        }
-        .info-table .label { font-weight: bold; }
 
         .items-table th, .items-table td {
             border: 1px solid #000;
@@ -56,21 +44,6 @@
             background: #f2f2f2;
             font-weight: bold;
         }
-
-        .totales-table {
-            width: 40%;
-            float: right;
-            margin-top: 10px;
-        }
-
-        .totales-table td {
-            padding: 3px;
-            font-size: 9px;
-        }
-
-        .firma img {
-            max-height: 50px;
-        }
     </style>
 </head>
 
@@ -80,38 +53,35 @@
 
 @php
     $empresa = [
-        'nombre' => 'SECAR',
-        'direccion' => 'Entre Ríos 751',
+        'nombre' => 'SECAR SRL',
+        'direccion' => 'Entre Ríos 751 - San Miguel de Tucumán',
         'cuit' => '30-61513606-5',
         'email' => 'secarsrl@gmail.com',
         'telefono' => '3812564909'
     ];
 
     $fecha = $orden->fecha ? \Carbon\Carbon::parse($orden->fecha)->format('d/m/Y') : '-';
+    $fecha_entrega = $orden->fecha_entrega ? \Carbon\Carbon::parse($orden->fecha_entrega)->format('d/m/Y') : '-';
 @endphp
 
 
 {{-- ENCABEZADO --}}
-{{-- ENCABEZADO TOTVS --}}
 <table style="width:100%; margin-bottom:6px;">
     <tr>
-        {{-- LOGO IZQUIERDA --}}
+
         <td style="width:22%; vertical-align:top;">
             <img src="{{ public_path('assets/img/logo-ingenio.png') }}"
                  style="max-height:70px; margin-left:5px;">
         </td>
 
-        {{-- TEXTO DEL PROVEEDOR --}}
         <td style="width:48%; vertical-align:top; font-size:10px; line-height:14px;">
-            <strong style="font-size:13px;">SECAR</strong><br>
-            Entre Ríos 751 - SAN MIGUEL DE TUCUMAN<br>
-            TUCUMAN - ARGENTINA<br>
-            CUIT: 30-61513606-5<br>
-            TEL: 3812564909<br>
-            secarsrl@gmail.com
+            <strong style="font-size:13px;">SECAR SRL</strong><br>
+            {{ $empresa['direccion'] }}<br>
+            CUIT: {{ $empresa['cuit'] }}<br>
+            TEL: {{ $empresa['telefono'] }}<br>
+            {{ $empresa['email'] }}
         </td>
 
-        {{-- BLOQUE ORDEN DE COMPRA --}}
         <td style="width:30%; text-align:right; vertical-align:top;">
             <div style="font-size:14px; font-weight:bold;">Orden de compra</div>
             <div style="font-size:9px; margin-top:-2px;">Purchase Order</div>
@@ -124,92 +94,78 @@
             </div>
 
             <div style="font-size:10px; margin-top:5px;">
-                <strong>Fecha / Date:</strong>
-                {{ $fecha }}
+                <strong>Fecha / Date:</strong> {{ $fecha }}
             </div>
+
         </td>
     </tr>
 </table>
 
-{{-- LÍNEA HORIZONTAL --}}
 <div style="width:100%; border-bottom:1px solid #000; margin-top:4px; margin-bottom:8px;"></div>
 
 
-{{-- SECCIÓN INFORMACIÓN DEL PROVEEDOR / PARA / TO --}}
+{{-- INFORMACIÓN DEL PROVEEDOR --}}
 <table style="width:100%; font-size:9px; margin-bottom:6px;">
     <tr>
-        {{-- COLUMNA IZQUIERDA --}}
+
+        {{-- IZQUIERDA --}}
         <td style="width:55%; vertical-align:top;">
 
             <table style="width:100%; font-size:9px;">
                 <tr>
-                    <td style="font-weight:bold;">Para / To:</td>
-                    <td>
-                        {{-- Código proveedor + nombre (si no existe, se muestra "-") --}}
-                        {{ '-' }} - {{ $orden->proveedor ?: '-' }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="font-weight:bold;">Condición de compra / Payment Terms:</td>
-                    <td>{{ $orden->condicion_compra ?: '-' }}</td>
-                </tr>
-
-                <tr>
-                    <td style="font-weight:bold;">Tel / Phone:</td>
-                    <td>-</td>
-                </tr>
-
-                <tr>
-                    <td style="font-weight:bold;">Email:</td>
-                    <td>-</td>
+                    <td style="font-weight:bold;">Proveedor / Supplier:</td>
+                    <td>{{ $orden->proveedor ?: '-' }}</td>
                 </tr>
 
                 <tr>
                     <td style="font-weight:bold;">CUIT:</td>
                     <td>{{ $orden->cuit ?: '-' }}</td>
                 </tr>
-            </table>
 
+                <tr>
+                    <td style="font-weight:bold;">Teléfono:</td>
+                    <td>{{ $orden->telefono ?: '-' }}</td>
+                </tr>
+
+                <tr>
+                    <td style="font-weight:bold;">Email:</td>
+                    <td>{{ $orden->email ?: '-' }}</td>
+                </tr>
+
+                <tr>
+                    <td style="font-weight:bold;">Condición de compra:</td>
+                    <td>{{ $orden->condicion_compra ?: '-' }}</td>
+                </tr>
+            </table>
         </td>
 
-        {{-- COLUMNA DERECHA --}}
+        {{-- DERECHA --}}
         <td style="width:45%; vertical-align:top;">
 
             <table style="width:100%; font-size:9px;">
                 <tr>
-                    <td style="font-weight:bold;">Dirección / Address:</td>
-                    <td>-</td>
+                    <td style="font-weight:bold;">Dirección:</td>
+                    <td>{{ $orden->direccion ?: '-' }}</td>
                 </tr>
 
                 <tr>
-                    <td style="font-weight:bold;">País / Country:</td>
-                    <td>ARGENTINA</td>
+                    <td style="font-weight:bold;">Moneda:</td>
+                    <td>{{ strtoupper($orden->moneda) }}</td>
                 </tr>
 
                 <tr>
-                    <td style="font-weight:bold;">Moneda / Currency:</td>
-                    <td>
-                        @if($orden->moneda)
-                            {{ strtoupper($orden->moneda) }}
-                        @else
-                            -
-                        @endif
-                    </td>
+                    <td style="font-weight:bold;">Solicitud de compra:</td>
+                    <td>{{ $orden->solicitud_compra ?: '-' }}</td>
                 </tr>
 
-                <tr>
-                    <td style="font-weight:bold;">Solicitud de compras / Purchasing request:</td>
-                    <td>{{ str_pad($orden->id, 6, '0', STR_PAD_LEFT) }}</td>
-                </tr>
             </table>
-
         </td>
+
     </tr>
 </table>
 
-{{-- LÍNEA HORIZONTAL DEBAJO --}}
 <div style="width:100%; border-bottom:1px solid #000; margin-top:2px; margin-bottom:8px;"></div>
+
 
 {{-- ITEMS --}}
 <table class="items-table" style="margin-top:10px;">
@@ -218,6 +174,7 @@
             <th width="6%">Item</th>
             <th width="12%">Código</th>
             <th width="40%">Descripción</th>
+            <th width="12%">Fecha Entrega</th>
             <th width="10%">U.M.</th>
             <th width="8%">Cantidad</th>
             <th width="12%">Precio Unit.</th>
@@ -232,6 +189,7 @@
             <td>{{ $index + 1 }}</td>
             <td>{{ $item->codigo ?: '-' }}</td>
             <td>{{ $item->descripcion ?: '-' }}</td>
+            <td>{{ $item->fecha_entrega ? \Carbon\Carbon::parse($item->fecha_entrega)->format('d/m/Y') : '-' }}</td>
             <td>{{ $item->unidad ?: '-' }}</td>
             <td>{{ number_format($item->cantidad, 2, ',', '.') }}</td>
             <td>{{ number_format($item->precio_unitario, 2, ',', '.') }}</td>
@@ -242,40 +200,37 @@
     </tbody>
 </table>
 
-{{-- SECCIÓN DE OBSERVACIONES --}}
+
+{{-- OBSERVACIONES --}}
 <div style="margin-top:10px; width:100%; font-size:10px;">
+    <div style="font-weight:bold; margin-bottom:3px;">Observaciones:</div>
 
-    {{-- TÍTULO --}}
-    <div style="font-weight:bold; margin-bottom:3px;">
-        Observaciones:
-    </div>
-
-    {{-- CUADRO DE OBSERVACIONES (muy grande como en TOTVS) --}}
     <div style="
         width:100%;
-        height:120mm;
+        min-height:120mm;
         border:1px solid #000;
         padding:5px;
         box-sizing:border-box;
-        font-size:9px;
-        line-height:13px;
+        font-size:10px;
+        line-height:14px;
+        white-space:pre-wrap;
     ">
-        {!! nl2br(e($orden->observaciones ?? '')) !!}
+        {{ $orden->observaciones ? $orden->observaciones : '—' }}
     </div>
 
 </div>
 
-{{-- LÍNEA HORIZONTAL --}}
 <div style="width:100%; border-bottom:1px solid #000; margin-top:6px; margin-bottom:6px;"></div>
 
 
-{{-- SECCIÓN OBSERVACIONES DEL PROVEEDOR + TOTALES --}}
+{{-- TOTALES --}}
 <table style="width:100%; font-size:10px; border-collapse:collapse;">
-
     <tr>
-        {{-- OBSERVACIONES DEL PROVEEDOR --}}
         <td style="width:60%; vertical-align:top;">
-            <div style="font-weight:bold; margin-bottom:3px;">Observaciones del Proveedor:</div>
+
+            <div style="font-weight:bold; margin-bottom:3px;">
+                Observaciones del Proveedor:
+            </div>
 
             <div style="
                 width:100%;
@@ -285,23 +240,16 @@
                 font-size:9px;
                 box-sizing:border-box;
             "></div>
+
         </td>
 
-        {{-- TOTALES A LA DERECHA --}}
         <td style="width:40%; vertical-align:top;">
-
             <table style="width:100%; font-size:10px; border-collapse:collapse;">
+
                 <tr>
                     <td style="text-align:right; font-weight:bold;">SUBTOTAL:</td>
                     <td style="border:1px solid #000; padding:3px; text-align:right;">
                         {{ number_format($orden->subtotal, 2, ',', '.') }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="text-align:right; font-weight:bold;">DESCUENTO:</td>
-                    <td style="border:1px solid #000; padding:3px; text-align:right;">
-                        {{ number_format($orden->descuento, 2, ',', '.') }}
                     </td>
                 </tr>
 
@@ -311,18 +259,16 @@
                         {{ number_format($orden->total, 2, ',', '.') }}
                     </td>
                 </tr>
-            </table>
 
+            </table>
         </td>
     </tr>
 </table>
 
-
-{{-- ÚLTIMA LÍNEA HORIZONTAL --}}
 <div style="width:100%; border-bottom:1px solid #000; margin-top:8px;"></div>
 
 
-{{-- TABLA DE 5 CELDAS VACÍAS (como el PDF TOTVS) --}}
+{{-- BLOQUE SIMPLE VACÍO --}}
 <table style="width:100%; border-collapse:collapse; margin-top:0px;">
     <tr>
         <td style="border:1px solid #000; height:12mm;"></td>
@@ -333,16 +279,15 @@
     </tr>
 </table>
 
+
 {{-- FIRMA --}}
 <div style="clear:both; margin-top:40px; text-align:right;">
-    <img src="{{ public_path('firma.png') }}" alt="Firma">
+    <img src="{{ public_path('firma.png') }}" alt="Firma" style="max-height:50px;">
     <div style="border-top:1px solid #000; display:inline-block; padding-top:3px; font-size:9px;">
         Firma autorizada
     </div>
 </div>
 
-
-</div> {{-- FIN DEL MARCO --}}
-
+</div>
 </body>
 </html>

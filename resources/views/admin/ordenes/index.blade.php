@@ -21,7 +21,6 @@
             <th>Proveedor</th>
             <th>Fecha</th>
             <th>Total</th>
-            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -33,7 +32,6 @@
                 <td>{{ $orden->proveedor }}</td>
                 <td>{{ $orden->fecha }}</td>
                 <td>${{ number_format($orden->total, 2) }}</td>
-                <td>{{ ucfirst($orden->estado) }}</td>
                 <td>
                     <!-- Editar -->
                     <a href="{{ route('ordenes.edit', $orden->id) }}"

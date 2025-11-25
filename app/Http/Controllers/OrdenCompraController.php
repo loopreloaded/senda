@@ -24,7 +24,6 @@ class OrdenCompraController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // Datos generales
             'numero_oc'         => 'required|string|max:191|unique:orden_compras,numero_oc',
             'fecha'             => 'required|date',
             'proveedor'         => 'required|string|max:191',
@@ -33,46 +32,51 @@ class OrdenCompraController extends Controller
             'telefono'          => 'nullable|string|max:50',
             'email'             => 'nullable|email|max:191',
             'moneda'            => 'required|string|max:10',
+            'fecha_entrega'     => 'nullable|date',
             'condicion_compra'  => 'required|string|max:191',
             'solicitud_compra'  => 'nullable|string|max:191',
+            'observaciones'     => 'nullable|string',
 
-            // Totales
-            'total'             => 'required|numeric|min:0',
-
-            // Adjuntos
-            'adjunto_pdf'       => 'nullable|file|mimes:pdf|max:2048',
-
-            // Ítems
             'items'                         => 'required|array|min:1',
             'items.*.codigo'                => 'nullable|string|max:191',
             'items.*.descripcion'           => 'required|string|max:500',
             'items.*.cantidad'              => 'required|numeric|min:0',
             'items.*.unidad'                => 'nullable|string|max:50',
             'items.*.precio_unitario'       => 'required|numeric|min:0',
+            'items.*.fecha_entrega' => 'nullable|date',
             'items.*.descuento'             => 'nullable|numeric|min:0',
-            'items.*.total'                 => 'required|numeric|min:0',
         ]);
 
-        // Guardar adjunto si existe
-        if ($request->hasFile('adjunto_pdf')) {
-            $validated['adjunto_pdf'] = $request->file('adjunto_pdf')->store('ordenes_adjuntos', 'public');
+        // 🔥 CALCULAR SUBTOTAL Y TOTAL EN BACKEND
+        $subtotal = 0;
+
+        foreach ($request->items as $item) {
+            $totalLinea = ($item['cantidad'] * $item['precio_unitario']) - ($item['descuento'] ?? 0);
+            $subtotal += $totalLinea;
         }
 
-        // Estado inicial
+        $validated['subtotal'] = $subtotal;
+        $validated['total'] = $subtotal;
+
+        // 🔥 Estado inicial
         $validated['estado'] = 'pendiente';
 
         // Crear OC
         $orden = OrdenCompra::create($validated);
 
         // Guardar ítems
-        foreach ($request->items as $itemData) {
-            $itemData['orden_compra_id'] = $orden->id;
-            OrdenItem::create($itemData);
+        foreach ($request->items as $item) {
+            $item['orden_compra_id'] = $orden->id;
+            $item['total'] = ($item['cantidad'] * $item['precio_unitario']) - ($item['descuento'] ?? 0);
+            $item['fecha_entrega'] = $item['fecha_entrega'] ?? null;
+
+            OrdenItem::create($item);
         }
 
         return redirect()->route('ordenes.index')
             ->with('success', 'Orden de compra creada correctamente.');
     }
+
 
     public function show($id)
     {
@@ -101,10 +105,7 @@ class OrdenCompraController extends Controller
             'moneda'            => 'required|string|max:10',
             'condicion_compra'  => 'required|string|max:191',
             'solicitud_compra'  => 'nullable|string|max:191',
-            'total'             => 'required|numeric|min:0',
             'observaciones'     => 'nullable|string',
-
-            'adjunto_pdf'       => 'nullable|file|mimes:pdf|max:2048',
 
             'items'                         => 'required|array|min:1',
             'items.*.codigo'                => 'nullable|string|max:191',
@@ -112,32 +113,38 @@ class OrdenCompraController extends Controller
             'items.*.cantidad'              => 'required|numeric|min:0',
             'items.*.unidad'                => 'nullable|string|max:50',
             'items.*.precio_unitario'       => 'required|numeric|min:0',
+            'items.*.fecha_entrega' => 'nullable|date',
             'items.*.descuento'             => 'nullable|numeric|min:0',
-            'items.*.total'                 => 'required|numeric|min:0',
         ]);
 
-        // Reemplazar adjunto si se sube uno nuevo
-        if ($request->hasFile('adjunto_pdf')) {
-            if ($orden->adjunto_pdf) {
-                Storage::disk('public')->delete($orden->adjunto_pdf);
-            }
-            $validated['adjunto_pdf'] = $request->file('adjunto_pdf')->store('ordenes_adjuntos', 'public');
+        // 🔥 RECALCULAR SUBTOTAL Y TOTAL
+        $subtotal = 0;
+
+        foreach ($request->items as $item) {
+            $totalLinea = ($item['cantidad'] * $item['precio_unitario']) - ($item['descuento'] ?? 0);
+            $subtotal += $totalLinea;
         }
 
+        $validated['subtotal'] = $subtotal;
+        $validated['total'] = $subtotal;
+
+        // Actualizar OC principal
         $orden->update($validated);
 
-        // Borrar ítems anteriores
+        // 🔥 REEMPLAZAR ITEMS
         OrdenItem::where('orden_compra_id', $orden->id)->delete();
 
-        // Crear los nuevos ítems
-        foreach ($request->items as $itemData) {
-            $itemData['orden_compra_id'] = $orden->id;
-            OrdenItem::create($itemData);
+        foreach ($request->items as $item) {
+            $item['orden_compra_id'] = $orden->id;
+            $item['total'] = ($item['cantidad'] * $item['precio_unitario']) - ($item['descuento'] ?? 0);
+
+            OrdenItem::create($item);
         }
 
         return redirect()->route('ordenes.index')
             ->with('success', 'Orden de compra actualizada correctamente.');
     }
+
 
     public function destroy($id)
     {

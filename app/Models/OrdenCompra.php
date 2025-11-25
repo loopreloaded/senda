@@ -14,16 +14,21 @@ class OrdenCompra extends Model
     protected $fillable = [
         'numero_oc',
         'fecha',
+        'fecha_entrega',
         'proveedor',
         'cuit',
+        'direccion',
+        'telefono',
+        'email',
         'moneda',
         'condicion_compra',
+        'solicitud_compra',
         'subtotal',
-        'descuento',
         'total',
-        'estado',
-        'firma_digital',
+        'observaciones',
+        'estado'
     ];
+
 
     public function items()
     {

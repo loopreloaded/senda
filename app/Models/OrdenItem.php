@@ -17,6 +17,7 @@ class OrdenItem extends Model
         'precio_unitario',
         'descuento',
         'total',
+        'fecha_entrega'
     ];
 
     public function orden()
