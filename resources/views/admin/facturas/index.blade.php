@@ -77,19 +77,23 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
 
-                                <a href="{{ route('facturas.edit', $factura->id) }}" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                @role('admin|ingeniero')
+                                    <button class="btn btn-sm btn-warning btn-observacion"
+                                            data-id="{{ $factura->id }}"
+                                            data-observacion="{{ $factura->observaciones ?? '' }}">
+                                        <i class="fas fa-comment-dots"></i>
+                                    </button>
+                                @endrole
                                 {{-- BOTÓN PDF (activo o deshabilitado según estado) --}}
                                 @if($factura->estado === 'aprobada')
                                     {{-- Activo --}}
-                                    <a href="{{ route('facturas.pdf', $factura->id) }}" 
+                                    <a href="{{ route('facturas.pdf', $factura->id) }}"
                                     class="btn btn-sm btn-danger" target="_blank" title="Descargar PDF">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
                                 @else
                                     {{-- Deshabilitado gris --}}
-                                    <button class="btn btn-sm btn-secondary" 
+                                    <button class="btn btn-sm btn-secondary"
                                             style="pointer-events: none; opacity: 0.5;"
                                             title="Disponible solo cuando la factura esté aprobada">
                                         <i class="fas fa-file-pdf"></i>
@@ -111,6 +115,42 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL PARA CARGAR OBSERVACIÓN -->
+    <div class="modal fade" id="modalObservacion" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+        <div class="modal-header bg-warning">
+            <h5 class="modal-title"><i class="fas fa-comment"></i> Agregar/Editar Observación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <form id="formObservacion" method="POST" action="">
+            @csrf
+            @method('PUT')
+
+            <div class="modal-body">
+            <label><strong>Observación:</strong></label>
+            <textarea name="observaciones" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="modal-footer">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                Cancelar
+            </button>
+
+            </div>
+
+        </form>
+
+        </div>
+    </div>
+</div>
+
 @stop
 
 @section('css')
@@ -119,6 +159,19 @@
 
 @section('js')
     <script>
-        console.log("Listado de facturas cargado correctamente");
+    document.querySelectorAll(".btn-observacion").forEach(boton => {
+        boton.addEventListener("click", function() {
+
+            let id = this.dataset.id;
+            let observacion = this.dataset.observacion;
+
+            // Ruta automática al update
+            document.getElementById("formObservacion").action = `/facturas/${id}/observacion`;
+            document.querySelector("#formObservacion textarea").value = observacion || "";
+
+            new bootstrap.Modal(document.getElementById('modalObservacion')).show();
+        });
+    });
     </script>
+
 @stop

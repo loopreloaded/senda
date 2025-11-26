@@ -362,4 +362,14 @@ class FacturaController extends Controller
         return $signed;
     }
 
+    public function guardarObservacion(Request $request, $id)
+    {
+        $factura = Factura::findOrFail($id);
+        $factura->observaciones = $request->observaciones;
+        $factura->save();
+
+        return back()->with('success','Observación guardada correctamente.');
+    }
+
+
 }

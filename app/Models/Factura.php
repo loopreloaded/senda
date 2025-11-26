@@ -15,6 +15,7 @@ class Factura extends Model
         'condicion_venta',
         'importe_total',
         'estado',
+        'observaciones',
         'creado_por',
         'aprobado_por'
     ];

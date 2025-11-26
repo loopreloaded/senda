@@ -128,6 +128,20 @@
                 </span>
             </p>
 
+            {{-- OBSERVACIONES --}}
+            <h5><strong>Observaciones</strong></h5>
+            <div style="
+                border: 1px solid #ccc;
+                padding:10px;
+                border-radius:6px;
+                background:#fafafa;
+                white-space:pre-wrap;
+                font-size:14px;
+            ">
+                {{ $factura->observaciones }}
+            </div>
+
+
             {{-- BOTONES --}}
             <div class="mt-4 d-flex justify-content-between align-items-center">
 
@@ -151,10 +165,11 @@
                     @endif
 
                     {{-- BOTÓN: Editar factura --}}
-                    <a href="{{ route('facturas.edit', $factura->id) }}" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Editar
-                    </a>
-
+                    @if($factura->estado != 'aprobada')
+                        <a href="{{ route('facturas.edit', $factura->id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    @endif
                 </div>
             </div>
 

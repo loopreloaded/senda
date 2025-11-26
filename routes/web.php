@@ -41,6 +41,10 @@ Route::middleware(['auth', 'role:secretaria|admin'])->group(function() {
     // ->name('facturas.afip');
     Route::post('facturas/{factura}/afip', [FacturaController::class, 'enviarAfip'])->name('facturas.afip');
 
+    Route::put('/facturas/{id}/observacion', [FacturaController::class, 'guardarObservacion'])
+     ->name('facturas.observacion');
+
+
 
     // Route::post('facturas/afip', [FacturaController::class, 'afip'])->name('facturas.afip');
     // Route::post('facturas/{id}/afip', [FacturaController::class, 'enviar_afip'])->name('facturas.enviar_afip');
