@@ -70,12 +70,12 @@
     <tr>
 
         <td style="width:22%; vertical-align:top;">
-            <img src="{{ public_path('assets/img/logo-ingenio.png') }}"
+            <img src="{{ public_path('assets/img/logo-secar.png') }}"
                  style="max-height:70px; margin-left:5px;">
         </td>
 
         <td style="width:48%; vertical-align:top; font-size:10px; line-height:14px;">
-            <strong style="font-size:13px;">SECAR SRL</strong><br>
+            <strong style="font-size:13px;">SECAR INGENIERIA ELECTRICA SRL</strong><br>
             {{ $empresa['direccion'] }}<br>
             CUIT: {{ $empresa['cuit'] }}<br>
             TEL: {{ $empresa['telefono'] }}<br>
@@ -224,6 +224,16 @@
 
 
 {{-- TOTALES --}}
+@php
+    $subtotal_items = 0;
+    $total_descuentos = 0;
+
+    foreach ($orden->items as $i) {
+        $subtotal_items += $i->cantidad * $i->precio_unitario;
+        $total_descuentos += $i->descuento ?? 0;
+    }
+@endphp
+
 <table style="width:100%; font-size:10px; border-collapse:collapse;">
     <tr>
         <td style="width:60%; vertical-align:top;">
@@ -249,12 +259,19 @@
                 <tr>
                     <td style="text-align:right; font-weight:bold;">SUBTOTAL:</td>
                     <td style="border:1px solid #000; padding:3px; text-align:right;">
-                        {{ number_format($orden->subtotal, 2, ',', '.') }}
+                        {{ number_format($subtotal_items, 2, ',', '.') }}
                     </td>
                 </tr>
 
                 <tr>
-                    <td style="text-align:right; font-weight:bold;">TOTAL:</td>
+                    <td style="text-align:right; font-weight:bold;">DESCUENTOS TOTALES:</td>
+                    <td style="border:1px solid #000; padding:3px; text-align:right;">
+                        {{ number_format($total_descuentos, 2, ',', '.') }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="text-align:right; font-weight:bold;">TOTAL FINAL:</td>
                     <td style="border:1px solid #000; padding:3px; text-align:right;">
                         {{ number_format($orden->total, 2, ',', '.') }}
                     </td>
@@ -264,6 +281,7 @@
         </td>
     </tr>
 </table>
+
 
 <div style="width:100%; border-bottom:1px solid #000; margin-top:8px;"></div>
 

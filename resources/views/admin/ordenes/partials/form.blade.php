@@ -112,77 +112,90 @@
     </div>
 </div>
 
+
 <script>
-let row = {{ isset($orden) ? count($orden->items) : 1 }};
+    let row = {{ isset($orden) ? count($orden->items) : 1 }};
 
-document.getElementById('add-row').addEventListener('click', function() {
-    let table = document.getElementById('items-table');
+    document.getElementById('add-row').addEventListener('click', function() {
+        var table = document.getElementById('items-table');
 
-    let newRow = `
-        <tr>
-            <td><input type="text" name="items[${row}][codigo]" class="form-control"></td>
-            <td><input type="text" name="items[${row}][descripcion]" class="form-control"></td>
-            <td><input type="number" step="0.01" name="items[${row}][cantidad]" class="form-control"></td>
-            <td><input type="text" name="items[${row}][unidad]" class="form-control"></td>
-            <td><input type="number" step="0.01" name="items[${row}][precio_unitario]" class="form-control"></td>
-            <td><input type="number" step="0.01" name="items[${row}][descuento]" class="form-control" value="0"></td>
-            <td><input type="date" name="items[${row}][fecha_entrega]" class="form-control"></td>
-            <td><input type="number" step="0.01" name="items[${row}][total]" class="form-control item-total" readonly></td>
-            <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
-        </tr>
-    `;
+        var newRow = ''
+        + '<tr>'
+        + '  <td><input type="text" name="items['+row+'][codigo]" class="form-control"></td>'
+        + '  <td><input type="text" name="items['+row+'][descripcion]" class="form-control"></td>'
+        + '  <td><input type="number" step="0.01" name="items['+row+'][cantidad]" class="form-control"></td>'
+        + '  <td><input type="text" name="items['+row+'][unidad]" class="form-control"></td>'
+        + '  <td><input type="number" step="0.01" name="items['+row+'][precio_unitario]" class="form-control"></td>'
+        + '  <td><input type="number" step="0.01" name="items['+row+'][descuento]" class="form-control" value="0"></td>'
+        + '  <td><input type="date" name="items['+row+'][fecha_entrega]" class="form-control"></td>'
+        + '  <td><input type="number" step="0.01" name="items['+row+'][total]" class="form-control item-total" readonly></td>'
+        + '  <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>'
+        + '</tr>';
 
-    table.insertAdjacentHTML('beforeend', newRow);
-    row++;
+        table.insertAdjacentHTML('beforeend', newRow);
+        row++;
 
-    calcularTotales();
-});
-
-
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('remove-row')) {
-        e.target.closest('tr').remove();
         calcularTotales();
-    }
-});
-
-document.addEventListener('input', function(e) {
-    if (
-        e.target.name.includes('[cantidad]') ||
-        e.target.name.includes('[precio_unitario]') ||
-        e.target.name.includes('[descuento]')
-    ) {
-        calcularTotales();
-    }
-});
-
-function calcularTotales() {
-    document.querySelectorAll('#items-table tr').forEach(function(row) {
-
-        let cantidad = parseFloat(row.querySelector('input[name*="[cantidad]"]')?.value) || 0;
-        let precio = parseFloat(row.querySelector('input[name*="[precio_unitario]"]')?.value) || 0;
-        let descuento = parseFloat(row.querySelector('input[name*="[descuento]"]')?.value) || 0;
-
-        let total = (cantidad * precio) - descuento;
-
-        let totalInput = row.querySelector('input[name*="[total]"]');
-        if (totalInput) totalInput.value = total.toFixed(2);
     });
 
-    calcularTotalGeneral();
-}
-
-function calcularTotalGeneral() {
-    let subtotal = 0;
-
-    document.querySelectorAll('.item-total').forEach(t => {
-        subtotal += parseFloat(t.value) || 0;
+    // Eliminar fila
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-row')) {
+            e.target.closest('tr').remove();
+            calcularTotales();
+        }
     });
 
-    document.querySelector('input[name="subtotal"]').value = subtotal.toFixed(2);
-    document.querySelector('input[name="total"]').value = subtotal.toFixed(2);
-}
+    document.addEventListener('input', function(e) {
+        if (!e.target.name) return;
 
-// ejecutar al cargar vista (edición)
-calcularTotales();
+        if (
+            e.target.name.indexOf('[cantidad]') !== -1 ||
+            e.target.name.indexOf('[precio_unitario]') !== -1 ||
+            e.target.name.indexOf('[descuento]') !== -1
+        ) {
+            calcularTotales();
+        }
+    });
+
+    function calcularTotales() {
+        var filas = document.querySelectorAll('#items-table tr');
+        var subtotal = 0;
+        var totalGeneral = 0;
+
+        filas.forEach(function(row) {
+            var inputCantidad  = row.querySelector('input[name*="[cantidad]"]');
+            var inputPrecio    = row.querySelector('input[name*="[precio_unitario]"]');
+            var inputDescuento = row.querySelector('input[name*="[descuento]"]');
+            var inputTotal     = row.querySelector('input[name*="[total]"]');
+
+            if (!inputCantidad || !inputPrecio || !inputTotal) {
+                return;
+            }
+
+            var cantidad  = parseFloat(inputCantidad.value)  || 0;
+            var precio    = parseFloat(inputPrecio.value)    || 0;
+            var descuento = inputDescuento ? (parseFloat(inputDescuento.value) || 0) : 0;
+
+            var totalSinDesc = cantidad * precio;
+            var totalConDesc = totalSinDesc - descuento;
+
+            inputTotal.value = totalConDesc.toFixed(2);
+
+            subtotal     += totalSinDesc;
+            totalGeneral += totalConDesc;
+        });
+
+        var inputSubtotal = document.querySelector('input[name="subtotal"]');
+        var inputTotal    = document.querySelector('input[name="total"]');
+
+        if (inputSubtotal) inputSubtotal.value = subtotal.toFixed(2);
+        if (inputTotal)    inputTotal.value    = totalGeneral.toFixed(2);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcularTotales);
+    } else {
+        calcularTotales();
+    }
 </script>
