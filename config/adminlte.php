@@ -405,6 +405,7 @@ return [
         [
             'text'  => 'Mi Cuenta',
             'icon'  => 'fas fa-fw fa-cog',
+            'can'     => 'admin',
             'submenu'   => [
                 [
                     'text'  => 'profile',
