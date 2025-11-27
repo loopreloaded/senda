@@ -171,19 +171,17 @@
         filas.forEach(function(row) {
             var inputCantidad  = row.querySelector('input[name*="[cantidad]"]');
             var inputPrecio    = row.querySelector('input[name*="[precio_unitario]"]');
-            var inputDescuento = row.querySelector('input[name*="[descuento]"]');
+            var inputDescuento = row.querySelector('input[name*="[descuento]"]'); // AHORA ES PORCENTAJE
             var inputTotal     = row.querySelector('input[name*="[total]"]');
 
-            if (!inputCantidad || !inputPrecio || !inputTotal) {
-                return;
-            }
+            if (!inputCantidad || !inputPrecio || !inputTotal) return;
 
             var cantidad  = parseFloat(inputCantidad.value)  || 0;
             var precio    = parseFloat(inputPrecio.value)    || 0;
-            var descuento = inputDescuento ? (parseFloat(inputDescuento.value) || 0) : 0;
+            var descuento = parseFloat(inputDescuento.value) || 0; // %
 
             var totalSinDesc = cantidad * precio;
-            var totalConDesc = totalSinDesc - descuento;
+            var totalConDesc = totalSinDesc - (totalSinDesc * (descuento / 100)); // 🔥 DESCUENTO %
 
             inputTotal.value = totalConDesc.toFixed(2);
 
@@ -191,12 +189,10 @@
             totalGeneral += totalConDesc;
         });
 
-        var inputSubtotal = document.querySelector('input[name="subtotal"]');
-        var inputTotal    = document.querySelector('input[name="total"]');
-
-        if (inputSubtotal) inputSubtotal.value = subtotal.toFixed(2);
-        if (inputTotal)    inputTotal.value    = totalGeneral.toFixed(2);
+        document.querySelector('input[name="subtotal"]').value = subtotal.toFixed(2);
+        document.querySelector('input[name="total"]').value    = totalGeneral.toFixed(2);
     }
+
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', calcularTotales);

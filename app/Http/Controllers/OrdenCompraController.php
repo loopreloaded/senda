@@ -43,31 +43,40 @@ class OrdenCompraController extends Controller
             'items.*.cantidad'              => 'required|numeric|min:0',
             'items.*.unidad'                => 'nullable|string|max:50',
             'items.*.precio_unitario'       => 'required|numeric|min:0',
-            'items.*.fecha_entrega' => 'nullable|date',
-            'items.*.descuento'             => 'nullable|numeric|min:0',
+            'items.*.fecha_entrega'         => 'nullable|date',
+            'items.*.descuento'             => 'nullable|numeric|min:0|max:100',  // 🔥 % máximo razonable
         ]);
 
-        // 🔥 CALCULAR SUBTOTAL Y TOTAL EN BACKEND
+        // 🔥 CALCULAR SUBTOTAL Y TOTAL CON % DE DESCUENTO
         $subtotal = 0;
+        $total_final = 0;
 
         foreach ($request->items as $item) {
-            $totalLinea = ($item['cantidad'] * $item['precio_unitario']) - ($item['descuento'] ?? 0);
-            $subtotal += $totalLinea;
+
+            $subtotal_item = $item['cantidad'] * $item['precio_unitario'];
+            $descuento_item = $subtotal_item * (($item['descuento'] ?? 0) / 100);
+            $total_item = $subtotal_item - $descuento_item;
+
+            $subtotal += $subtotal_item;
+            $total_final += $total_item;
         }
 
         $validated['subtotal'] = $subtotal;
-        $validated['total'] = $subtotal;
+        $validated['total'] = $total_final;
 
-        // 🔥 Estado inicial
         $validated['estado'] = 'pendiente';
 
-        // Crear OC
+        // CREAR ORDEN
         $orden = OrdenCompra::create($validated);
 
-        // Guardar ítems
+        // DETALLE DE ITEMS
         foreach ($request->items as $item) {
+
+            $subtotal_item = $item['cantidad'] * $item['precio_unitario'];
+            $descuento_item = $subtotal_item * (($item['descuento'] ?? 0) / 100);
+
             $item['orden_compra_id'] = $orden->id;
-            $item['total'] = ($item['cantidad'] * $item['precio_unitario']) - ($item['descuento'] ?? 0);
+            $item['total'] = $subtotal_item - $descuento_item;  // 🔥 total con % desc
             $item['fecha_entrega'] = $item['fecha_entrega'] ?? null;
 
             OrdenItem::create($item);
@@ -76,6 +85,7 @@ class OrdenCompraController extends Controller
         return redirect()->route('ordenes.index')
             ->with('success', 'Orden de compra creada correctamente.');
     }
+
 
 
     public function show($id)
