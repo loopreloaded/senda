@@ -40,8 +40,13 @@
 <div class="row mt-3">
     <div class="col-md-4">
         <label>Moneda</label>
-        <input type="text" name="moneda" class="form-control" value="{{ old('moneda', $orden->moneda ?? 'ARS') }}" required>
+        <select name="moneda" class="form-control" required>
+            <option value="ARS" {{ old('moneda', $orden->moneda ?? 'ARS') == 'ARS' ? 'selected' : '' }}>ARS - Peso Argentino</option>
+            <option value="USD" {{ old('moneda', $orden->moneda ?? '') == 'USD' ? 'selected' : '' }}>USD - Dólar Estadounidense</option>
+        </select>
     </div>
+
+
 
     <div class="col-md-4">
         <label>Condición de Compra</label>
