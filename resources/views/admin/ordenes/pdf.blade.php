@@ -201,24 +201,32 @@
 </table>
 
 
-{{-- OBSERVACIONES --}}
-<div style="margin-top:10px; width:100%; font-size:10px;">
-    <div style="font-weight:bold; margin-bottom:3px;">Observaciones:</div>
+{{-- OBSERVACIONES (ANCHO FIJO + ALINEADO CORRECTO) --}}
+@if($orden->observaciones)
+<div style="margin-top:12px; width:100%; font-size:10px;">
+
+    <div style="font-weight:bold; margin-bottom:4px;">Observaciones:</div>
 
     <div style="
-        width:100%;
-        min-height:120mm;
         border:1px solid #000;
-        padding:5px;
+        padding:7px 10px;
+        border-radius:4px;
+        white-space:pre-wrap;
+        width: 95%;
+        margin-left: 1%;
+        margin-right: 1%;
         box-sizing:border-box;
         font-size:10px;
         line-height:14px;
-        white-space:pre-wrap;
+        display:block;
     ">
-        {{ $orden->observaciones ? $orden->observaciones : '—' }}
+        {{ $orden->observaciones }}
     </div>
-
 </div>
+@endif
+
+
+
 
 <div style="width:100%; border-bottom:1px solid #000; margin-top:6px; margin-bottom:6px;"></div>
 
