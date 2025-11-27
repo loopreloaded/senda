@@ -181,4 +181,19 @@ class OrdenCompraController extends Controller
 
         return $pdf->stream("Orden_Compra_{$orden->numero_oc}.pdf");
     }
+
+    public function updateObservaciones(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:orden_compras,id',
+            'observaciones' => 'nullable|string'
+        ]);
+
+        $orden = OrdenCompra::findOrFail($request->id);
+        $orden->observaciones = $request->observaciones;
+        $orden->save();
+
+        return back()->with('success', 'Observaciones actualizadas.');
+    }
+
 }

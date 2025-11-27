@@ -33,35 +33,40 @@
                 <td>{{ $orden->fecha }}</td>
                 <td>${{ number_format($orden->total, 2) }}</td>
                 <td>
-                    <!-- Editar -->
-                    <a href="{{ route('ordenes.edit', $orden->id) }}"
-                    class="btn btn-sm btn-warning"
-                    title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </a>
 
-                    <!-- PDF -->
-                    <a href="{{ route('ordenes.pdf', $orden->id) }}"
+                {{-- BOTÓN OBSERVACIONES (solo admin o ingeniero) --}}
+                @hasanyrole('admin|ingeniero')
+                <button class="btn btn-sm btn-warning btn-observacion"
+                        data-id="{{ $orden->id }}"
+                        data-observaciones="{{ $orden->observaciones ?? '' }}">
+                    <i class="fas fa-comment-dots"></i>
+                </button>
+                @endhasanyrole
+
+                {{-- PDF --}}
+                <a href="{{ route('ordenes.pdf', $orden->id) }}"
                     class="btn btn-sm btn-light"
                     title="Imprimir PDF"
                     target="_blank">
-                        <i class="fas fa-file-pdf" style="color:#d9534f;"></i>
-                    </a>
+                    <i class="fas fa-file-pdf" style="color:#d9534f;"></i>
+                </a>
 
-                    <!-- Eliminar -->
-                    <form action="{{ route('ordenes.destroy', $orden->id) }}"
-                        method="POST"
-                        style="display:inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                class="btn btn-sm btn-danger"
-                                title="Eliminar"
-                                onclick="return confirm('¿Eliminar esta orden?')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
-                </td>
+                {{-- ELIMINAR --}}
+                @hasanyrole('admin|ingeniero')
+                <form action="{{ route('ordenes.destroy', $orden->id) }}"
+                    method="POST"
+                    style="display:inline">
+                    @csrf @method('DELETE')
+                    <button type="submit"
+                            class="btn btn-sm btn-danger"
+                            onclick="return confirm('¿Eliminar esta orden?')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+                @endhasanyrole
+
+            </td>
+
 
             </tr>
         @endforeach
@@ -69,4 +74,59 @@
 </table>
 
 {{ $ordenes->links() }}
+
+<!-- MODAL OBSERVACIONES -->
+<div class="modal fade" id="modalObservaciones" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form method="POST" action="{{ route('ordenes.observaciones.update') }}">
+            @csrf
+            <input type="hidden" name="id" id="obs_id">
+
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">Agregar Observaciones</h5>
+
+                    {{-- ✨ Bootstrap 4: botón de cerrar --}}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <textarea name="observaciones" id="obs_textarea" class="form-control"
+                              rows="5" placeholder="Escriba las observaciones aquí..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    {{-- ✨ Bootstrap 4: cerrar modal --}}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="btn btn-success">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 @stop
+
+
+@section('js')
+<script>
+    // Usamos jQuery porque AdminLTE 3 + Bootstrap 4 lo trae por defecto
+    $(document).on('click', '.btn-observacion', function () {
+        var btn = $(this);
+
+        $('#obs_id').val(btn.data('id'));
+        $('#obs_textarea').val(btn.data('observaciones') || '');
+
+        $('#modalObservaciones').modal('show');
+    });
+</script>
+@endsection
+

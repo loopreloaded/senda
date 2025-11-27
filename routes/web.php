@@ -68,6 +68,10 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function()
     Route::resource('ordenes', OrdenCompraController::class);
     Route::get('ordenes/{orden}/pdf', [OrdenCompraController::class, 'orden_pdf'])->name('ordenes.pdf');
 
+    Route::post('/ordenes/observaciones/update', [OrdenCompraController::class, 'updateObservaciones'])
+      ->name('ordenes.observaciones.update')
+      ->middleware('role:admin|ingeniero');
+
     // CLIENTES
     Route::resource('clientes', ClienteController::class);
 
