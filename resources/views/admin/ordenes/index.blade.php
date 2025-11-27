@@ -9,6 +9,51 @@
 @section('content')
 <a href="{{ route('ordenes.create') }}" class="btn btn-primary mb-3">Nueva Orden de Compra</a>
 
+{{-- FILTRO DE ÓRDENES --}}
+<form method="GET" action="{{ route('ordenes.index') }}" class="mb-3">
+
+    <div class="row">
+
+        {{-- Buscar por número de OC --}}
+        <div class="col-md-3">
+            <label>Número OC</label>
+            <input type="text" name="numero" class="form-control"
+                   value="{{ request('numero') }}" placeholder="Ej: OC-00125">
+        </div>
+
+        {{-- Buscar por proveedor --}}
+        <div class="col-md-4">
+            <label>Proveedor</label>
+            <input type="text" name="proveedor" class="form-control"
+                   value="{{ request('proveedor') }}" placeholder="Nombre del proveedor">
+        </div>
+
+        {{-- Fecha --}}
+        <div class="col-md-3">
+            <label>Fecha</label>
+            <input type="date" name="fecha" class="form-control"
+                   value="{{ request('fecha') }}">
+        </div>
+
+        {{-- Botones --}}
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+            <a href="{{ route('ordenes.index') }}"
+               class="btn btn-secondary w-100" title="Limpiar filtros">
+                <i class="fas fa-broom"></i>
+            </a>
+        </div>
+
+    </div>
+
+</form>
+
+
 @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
 @endif

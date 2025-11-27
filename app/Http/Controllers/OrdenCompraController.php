@@ -10,11 +10,29 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrdenCompraController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $ordenes = OrdenCompra::orderBy('created_at', 'desc')->paginate(10);
+        $query = OrdenCompra::query();
+
+        if($request->filled('numero')){
+            $query->where('numero_oc', 'LIKE', '%'.$request->numero.'%');
+        }
+
+        if($request->filled('proveedor')){
+            $query->where('proveedor', 'LIKE', '%'.$request->proveedor.'%');
+        }
+
+        if($request->filled('fecha')){
+            $query->whereDate('fecha', $request->fecha);
+        }
+
+        $ordenes = $query->orderBy('fecha','desc')
+                        ->paginate(10)
+                        ->appends($request->query());
+
         return view('admin.ordenes.index', compact('ordenes'));
     }
+
 
     public function create()
     {
