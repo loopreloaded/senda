@@ -48,15 +48,16 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // Crear roles
-        $admin = Role::firstOrCreate(['name' => 'Admin']);
-        $ingeniero = Role::firstOrCreate(['name' => 'Ingeniero']);
-        $secretaria = Role::firstOrCreate(['name' => 'Secretaria']);
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $ingeniero = Role::firstOrCreate(['name' => 'ingeniero']);
+        $secretaria = Role::firstOrCreate(['name' => 'secretaria']);
 
         // Asignar permisos
         $admin->syncPermissions(Permission::all());
 
         $ingeniero->syncPermissions([
             'ver facturas',
+            'crear facturas',
             'aprobar facturas',
             'ver ordenes',
             'ver reportes',
