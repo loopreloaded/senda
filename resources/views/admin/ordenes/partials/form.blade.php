@@ -171,17 +171,17 @@
         filas.forEach(function(row) {
             var inputCantidad  = row.querySelector('input[name*="[cantidad]"]');
             var inputPrecio    = row.querySelector('input[name*="[precio_unitario]"]');
-            var inputDescuento = row.querySelector('input[name*="[descuento]"]'); // AHORA ES PORCENTAJE
+            var inputDescuento = row.querySelector('input[name*="[descuento]"]');
             var inputTotal     = row.querySelector('input[name*="[total]"]');
 
             if (!inputCantidad || !inputPrecio || !inputTotal) return;
 
             var cantidad  = parseFloat(inputCantidad.value)  || 0;
             var precio    = parseFloat(inputPrecio.value)    || 0;
-            var descuento = parseFloat(inputDescuento.value) || 0; // %
+            var descuento = parseFloat(inputDescuento.value) || 0;
 
             var totalSinDesc = cantidad * precio;
-            var totalConDesc = totalSinDesc - (totalSinDesc * (descuento / 100)); // 🔥 DESCUENTO %
+            var totalConDesc = totalSinDesc - (totalSinDesc * (descuento / 100));
 
             inputTotal.value = totalConDesc.toFixed(2);
 

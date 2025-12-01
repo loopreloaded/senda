@@ -237,9 +237,17 @@
     $total_descuentos = 0;
 
     foreach ($orden->items as $i) {
-        $subtotal_items += $i->cantidad * $i->precio_unitario;
-        $total_descuentos += $i->descuento ?? 0;
+
+        // subtotal por ítem
+        $subtotal_item = $i->cantidad * $i->precio_unitario;
+
+        // descuento en pesos (no porcentaje)
+        $descuento_real = $subtotal_item * (($i->descuento ?? 0) / 100);
+
+        $subtotal_items += $subtotal_item;
+        $total_descuentos += $descuento_real;
     }
+
 @endphp
 
 <table style="width:100%; font-size:10px; border-collapse:collapse;">
