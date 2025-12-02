@@ -361,5 +361,40 @@
         }
     });
 
+    // ============================
+    // HABILITAR / DESHABILITAR VALOR DÓLAR SEGÚN MONEDA
+    // ============================
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const moneda = document.getElementById('moneda');
+        const valorDolar = document.getElementById('valor_dolar');
+
+        function actualizarCampoDolar() {
+            if (moneda.value === "USD") {
+                // Habilitar campo
+                valorDolar.disabled = false;
+                valorDolar.required = true;
+            } else {
+                // Deshabilitar campo
+                valorDolar.disabled = true;
+                valorDolar.required = false;
+                valorDolar.value = 1; // valor fijo si no es USD
+            }
+        }
+
+        // Ejecutar al cargar
+        actualizarCampoDolar();
+
+        // Detectar cambios (normal)
+        moneda.addEventListener('change', actualizarCampoDolar);
+
+        // Detectar cambios si usa Select2
+        if (typeof $ !== 'undefined' && $(moneda).data('select2')) {
+            $(moneda).on('select2:select', actualizarCampoDolar);
+        }
+    });
+
+
 
 </script>

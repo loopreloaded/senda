@@ -89,7 +89,9 @@ class FacturaController extends Controller
             'fecha_emision'    => 'required|date',
             'concepto'         => 'required|in:1,2,3',
             'condicion_venta'  => 'required|string|max:100',
-            'valor_dolar'      => 'required|numeric|min:0',
+            'moneda' => 'required|in:ARS,USD',
+            'valor_dolar' => 'required_if:moneda,USD|numeric|min:0',
+
 
             // Campos adicionales SOLO para Servicios
             'fecha_desde'      => 'required_if:concepto,2|nullable|date',
@@ -129,6 +131,7 @@ class FacturaController extends Controller
             $factura->fecha_emision    = $validated['fecha_emision'];
             $factura->concepto         = $validated['concepto'];
             $factura->condicion_venta  = $validated['condicion_venta'];
+            $factura->moneda = $validated['moneda'];
             $factura->estado           = 'pendiente';
             $factura->creado_por       = Auth::id();
 

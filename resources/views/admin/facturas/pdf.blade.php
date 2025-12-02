@@ -119,6 +119,10 @@
 
         <p class="total">Importe Total: ${{ number_format($factura->importe_total, 2, ',', '.') }}</p>
 
+        <p class="total" style="font-size: 12px;">
+            Moneda: <strong>{{ $factura->moneda }}</strong>
+        </p>
+
         <p class="total" style="font-size: 11px; font-weight: normal;">
             Tipo de Cambio Aplicado:
             <strong>${{ number_format($factura->valor_dolar, 2, ',', '.') }}</strong>
