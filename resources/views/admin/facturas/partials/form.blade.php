@@ -183,11 +183,8 @@
             <input type="number" step="0.01" name="valor_dolar" id="valor_dolar"
                    class="form-control" value="{{ old('valor_dolar', 1) }}" required>
 
-            <button type="button" class="btn btn-info" id="btn-cargar-dolar">
-                <i class="fa fa-sync"></i>
-            </button>
         </div>
-        <small class="text-muted">Click para actualizar automáticamente desde API</small>
+        <small class="text-muted">Chequear valor en <a href="https://www.bna.com.ar/Personas">BNA</a></small>
     </div>
 
 </div>
@@ -315,22 +312,5 @@
         });
         document.getElementById('importe_total').value = total.toFixed(2);
     }
-
-    // =============
-    // Cargar cotización dólar mayorista desde API
-    // =============
-    document.getElementById('btn-cargar-dolar').addEventListener('click', function () {
-        fetch("https://api.bluelytics.com.ar/v2/latest")
-            .then(r => r.json())
-            .then(data => {
-                if (data?.oficial?.value_sell){
-                    document.getElementById('valor_dolar').value = data.oficial.value_sell; // << CORRECTO
-                } else {
-                    alert("No se pudo obtener el dólar oficial");
-                }
-            })
-            .catch(e => alert("Error consultando API"));
-    });
-
 
 </script>
