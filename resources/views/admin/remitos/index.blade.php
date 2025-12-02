@@ -29,7 +29,7 @@
         @foreach ($remitos as $remito)
             <tr>
                 <td>{{ $remito->id }}</td>
-                <td>{{ $remito->cliente->razon_social }}</td>
+                <td>{{ $remito->razon_social }}</td>
                 <td>{{ $remito->fecha }}</td>
                 <td><span class="badge badge-info">{{ $remito->estado }}</span></td>
                 <td>

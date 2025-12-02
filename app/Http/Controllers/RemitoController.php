@@ -6,7 +6,7 @@ use App\Models\Remito;
 use App\Models\RemitoItem;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RemitoController extends Controller
 {
@@ -21,7 +21,8 @@ class RemitoController extends Controller
 
     public function index()
     {
-        $remitos = Remito::with('cliente')->orderBy('id', 'desc')->get();
+        $remitos = Remito::with('items')->get();
+
         return view('admin.remitos.index', compact('remitos'));
     }
 
@@ -34,30 +35,53 @@ class RemitoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
-            'fecha'      => 'required|date',
-            'items.*.descripcion' => 'required',
-            'items.*.cantidad' => 'required|numeric|min:1',
+            'fecha'         => 'required|date',
+            'razon_social'  => 'required|string|max:255',
+            'domicilio'     => 'required|string|max:255',
+            'localidad'     => 'required|string|max:150',
+            'orden_compra'  => 'nullable|string|max:100',
+            'cuit'          => 'required|digits:11',
+
+            'items' => 'required|array|min:1',
+            'items.*.articulo'    => 'required|string|max:20',
+            'items.*.cantidad'    => 'required|numeric|min:1',
+            'items.*.descripcion' => 'required|string|max:255',
         ]);
 
-        $remito = Remito::create([
-            'cliente_id' => $request->cliente_id,
-            'creado_por' => Auth::id(),
-            'fecha'      => $request->fecha,
-            'estado'     => 'pendiente',
-            'observaciones' => $request->observaciones,
-        ]);
+        DB::beginTransaction();
 
-        foreach ($request->items as $item) {
-            RemitoItem::create([
-                'remito_id'   => $remito->id,
-                'descripcion' => $item['descripcion'],
-                'cantidad'    => $item['cantidad'],
+        try {
+
+            $remito = Remito::create([
+                'fecha'         => $request->fecha,
+                'razon_social'  => $request->razon_social,
+                'domicilio'     => $request->domicilio,
+                'localidad'     => $request->localidad,
+                'orden_compra'  => $request->orden_compra,
+                'cuit'          => $request->cuit,
+                'estado'        => 'pendiente',
+                'creado_por'    => auth()->id(),
             ]);
-        }
 
-        return redirect()->route('remitos.index')->with('success', 'Remito creado correctamente.');
+            foreach ($request->items as $item) {
+                RemitoItem::create([
+                    'remito_id'   => $remito->id,
+                    'articulo'    => $item['articulo'],
+                    'cantidad'    => $item['cantidad'],
+                    'descripcion' => $item['descripcion'],
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('remitos.index')->with('success', 'Remito creado correctamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['msg' => $e->getMessage()]);
+        }
     }
+
+
 
     public function show($id)
     {
@@ -105,15 +129,16 @@ class RemitoController extends Controller
         return back()->with('success', 'Remito aprobado.');
     }
 
-    public function generar_pdf_remito($id)
+   public function generar_pdf_remito($id)
     {
-        $remito = Remito::with('cliente', 'items')->findOrFail($id);
+        // Cargar remito con sus items (NO existe 'cliente')
+        $remito = Remito::with('items')->findOrFail($id);
 
-        // PDF
+        // Generar PDF
         $pdf = \PDF::loadView('admin.remitos.pdf', compact('remito'));
 
-        //
         return $pdf->stream("Remito-{$remito->id}.pdf");
     }
+
 
 }
