@@ -117,7 +117,7 @@ class FacturaController extends Controller
             $factura->cliente_id       = $cliente->id;
             $factura->tipo_comprobante = $validated['tipo_comprobante'];
 
-            // 👉 Punto de venta fijo
+            // Punto de venta fijo
             $factura->punto_venta      = 4;
             $factura->valor_dolar      = $validated['valor_dolar'];
 
