@@ -147,7 +147,7 @@
 
     {{-- Tipo de cambio + botón refrescar --}}
     <div class="col-md-4">
-        <label for="valor_dolar">Tipo de Cambio (USD Mayorista)</label>
+        <label for="valor_dolar">Tipo de Cambio (USD)</label>
         <div class="input-group">
             <input type="number" step="0.01" name="valor_dolar" id="valor_dolar"
                    class="form-control" value="{{ old('valor_dolar', 1) }}" required>
