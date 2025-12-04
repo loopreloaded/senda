@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Remito</title>
+    <title>Recibo</title>
 
     <style>
         @page { margin: 15px; }

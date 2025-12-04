@@ -10,7 +10,7 @@ use App\Http\Controllers\OrdenCompraController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\NotaDebitoController;
-use App\Http\Controllers\RemitoController;
+use App\Http\Controllers\ReciboController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,14 +76,14 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function()
     // CLIENTES
     Route::resource('clientes', ClienteController::class);
 
-    // remitos
-    Route::resource('remitos', RemitoController::class);
+    // recibos
+    Route::resource('recibos', ReciboController::class);
 
-    Route::post('/remitos/{id}/aprobar', [RemitoController::class, 'aprobar'])
-        ->name('remitos.aprobar');
+    Route::post('/recibos/{id}/aprobar', [ReciboController::class, 'aprobar'])
+        ->name('recibos.aprobar');
 
-    Route::get('/remitos/{id}/pdf', [RemitoController::class, 'generar_pdf_remito'])
-        ->name('remitos.pdf');
+    Route::get('/recibos/{id}/pdf', [ReciboController::class, 'generar_pdf_recibo'])
+        ->name('recibos.pdf');
 
 
 });

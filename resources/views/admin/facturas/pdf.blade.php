@@ -62,7 +62,7 @@
         <div class="encabezado">
             <h2>FACTURA {{ $factura->tipo_comprobante }}</h2>
             <p>Punto de Venta: {{ $factura->punto_venta }} - Comprobante N°: {{ $factura->numero_comprobante }}</p>
-            <p>Fecha de Remito: {{ \Carbon\Carbon::parse($factura->fecha_emision)->format('d/m/Y') }}</p>
+            <p>Fecha de Recibo: {{ \Carbon\Carbon::parse($factura->fecha_emision)->format('d/m/Y') }}</p>
             <p><strong>Estado:</strong> {{ $factura->estado ?? '-' }}</p>
 
         </div>
@@ -129,7 +129,7 @@
                         <th>#</th>
                         <th>Pto. Venta</th>
                         <th>Comprobante</th>
-                        <th>Fecha de Remito</th>
+                        <th>Fecha de Recibo</th>
                     </tr>
                 </thead>
                 <tbody>

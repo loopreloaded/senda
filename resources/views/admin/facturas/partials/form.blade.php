@@ -16,10 +16,10 @@
     </div>
 
 
-    {{-- Fecha de Remito --}}
+    {{-- Fecha de Recibo --}}
     <div class="col-md-4">
         <div class="form-group">
-            <label for="fecha_emision">Fecha Remito</label>
+            <label for="fecha_emision">Fecha Recibo</label>
             <input type="date" name="fecha_emision" id="fecha_emision"
                    value="{{ old('fecha_emision', date('Y-m-d')) }}"
                    class="form-control" required>
@@ -131,7 +131,7 @@
     <tr>
         <th style="width: 150px;">Pto. Venta</th>
         <th style="width: 180px;">Comprobante</th>
-        <th style="width: 180px;">Fecha Remito</th>
+        <th style="width: 180px;">Fecha Recibo</th>
         <th style="width: 60px;"></th>
     </tr>
     </thead>
@@ -141,7 +141,7 @@
     </tbody>
 </table>
 
-<button type="button" class="btn btn-secondary btn-sm" id="agregar-remito">Agregar Remito</button>
+<button type="button" class="btn btn-secondary btn-sm" id="agregar-remito">Agregar Recibo</button>
 
 
 
