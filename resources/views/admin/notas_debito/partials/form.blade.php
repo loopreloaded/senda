@@ -13,7 +13,7 @@
 
 {{-- FECHA --}}
 <div class="form-group mb-3">
-    <label>Fecha Emisión *</label>
+    <label>Fecha Remito *</label>
     <input type="date" name="fecha_emision" class="form-control" required value="{{ date('Y-m-d') }}">
 </div>
 
