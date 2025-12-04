@@ -26,7 +26,7 @@
             <th>#</th>
             <th>Nro Recibo</th>
             <th>Fecha</th>
-            <th style="width: 160px">Acciones</th>
+            <th style="width: 210px">Acciones</th>
         </tr>
         </thead>
 
@@ -36,7 +36,7 @@
                 <td>{{ $recibo->id_recibo }}</td>
                 <td>{{ $recibo->nro_recibo }}</td>
 
-                {{-- Fecha formateada a dd/mm/aaaa --}}
+                {{-- Fecha formateada dd/mm/aaaa --}}
                 <td>{{ \Carbon\Carbon::parse($recibo->fecha)->format('d/m/Y') }}</td>
 
                 <td>
@@ -51,6 +51,12 @@
                     <a href="{{ route('recibos.edit', $recibo) }}"
                        class="btn btn-sm btn-primary" title="Editar">
                         <i class="fas fa-edit"></i>
+                    </a>
+
+                    {{-- PDF --}}
+                    <a href="{{ route('recibos.pdf', $recibo) }}"
+                       class="btn btn-sm btn-secondary" title="Ver PDF" target="_blank">
+                        <i class="fas fa-file-pdf"></i>
                     </a>
 
                     {{-- Eliminar --}}
