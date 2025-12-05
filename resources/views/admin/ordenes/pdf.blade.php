@@ -178,7 +178,7 @@
             <th width="10%">U.M.</th>
             <th width="8%">Cantidad</th>
             <th width="12%">Precio Unit.</th>
-            <th width="6%">Desc.</th>
+            <th width="6%">Desc. %</th>
             <th width="10%">Total</th>
         </tr>
     </thead>
