@@ -31,12 +31,14 @@
     <div class="col-md-3">
         <div class="form-group">
             <label for="nro_recibo">Nro Recibo</label>
+
             <input
                 type="text"
                 name="nro_recibo"
                 id="nro_recibo"
-                maxlength="20" {{-- coincide con varchar(20) --}}
-                class="form-control"
+                maxlength="20"
+                class="form-control nro-placeholder"
+                placeholder="Ej: 0001-00003541"
                 value="{{ old('nro_recibo', $recibo->nro_recibo ?? '') }}"
                 required
             >
