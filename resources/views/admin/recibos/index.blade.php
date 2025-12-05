@@ -41,18 +41,6 @@
 
                 <td>
 
-                    {{-- Ver --}}
-                    <a href="{{ route('recibos.show', $recibo) }}"
-                       class="btn btn-sm btn-info" title="Ver">
-                        <i class="fas fa-eye"></i>
-                    </a>
-
-                    {{-- Editar --}}
-                    <a href="{{ route('recibos.edit', $recibo) }}"
-                       class="btn btn-sm btn-primary" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </a>
-
                     {{-- PDF --}}
                     <a href="{{ route('recibos.pdf', $recibo) }}"
                        class="btn btn-sm btn-secondary" title="Ver PDF" target="_blank">
