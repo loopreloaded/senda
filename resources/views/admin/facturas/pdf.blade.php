@@ -98,6 +98,7 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Codigo</th>
                     <th>Descripción</th>
                     <th>Cantidad</th>
                     <th>Precio Unitario</th>
@@ -108,6 +109,7 @@
                 @foreach($factura->items as $index => $item)
                     <tr>
                         <td>{{ $index + 1 }}</td>
+                        <td>{{ $item->codigo }}</td>
                         <td>{{ $item->descripcion }}</td>
                         <td>{{ $item->cantidad }}</td>
                         <td>${{ number_format($item->precio_unitario, 2, ',', '.') }}</td>

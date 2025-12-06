@@ -89,6 +89,7 @@
                             $iva_total += $item->subtotal * ($item->iva / 100);
                         @endphp
                         <tr>
+                            <td>{{ $item->codigo }}</td>
                             <td>{{ $item->descripcion }}</td>
                             <td class="text-end">{{ number_format($item->cantidad, 2, ',', '.') }}</td>
                             <td class="text-end">{{ number_format($item->precio_unitario, 2, ',', '.') }}</td>

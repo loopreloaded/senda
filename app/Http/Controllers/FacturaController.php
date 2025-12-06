@@ -104,6 +104,7 @@ class FacturaController extends Controller
 
             // Ítems
             'items' => 'required|array|min:1',
+            'items.*.codigo' => 'required',
             'items.*.descripcion' => 'required|string|max:255',
             'items.*.cantidad'    => 'required|numeric|min:1',
             'items.*.precio'      => 'required|numeric|min:0',
@@ -169,6 +170,7 @@ class FacturaController extends Controller
 
                 FacturaItem::create([
                     'factura_id'      => $factura->id,
+                    'codigo'          => $item['codigo'],
                     'descripcion'     => $item['descripcion'],
                     'cantidad'        => $item['cantidad'],
                     'precio_unitario' => $item['precio'],
@@ -413,6 +415,7 @@ class FacturaController extends Controller
         $tipoCmpCodigo     = $factura->tipo_comprobante_codigo ?? "-";
         $numComprobante    = $factura->numero_comprobante ?? "-";
         $importeTotal      = $factura->importe_total ?? "-";
+        $moneda            = $factura->moneda ?? "-";
         $fechaEmision      = $factura->fecha_emision ?? "-";
         $cae               = $factura->cae ?? "-";
         $cuitReceptor      = $factura->cliente->cuit ?? "-";
@@ -426,7 +429,7 @@ class FacturaController extends Controller
             "tipoCmp"    => $tipoCmpCodigo,
             "nroCmp"     => $numComprobante,
             "importe"    => $importeTotal,
-            "moneda"     => "PES",
+            "moneda"     => $moneda,
             "ctz"        => 1,
             "tipoDocRec" => 80,
             "nroDocRec"  => $cuitReceptor,

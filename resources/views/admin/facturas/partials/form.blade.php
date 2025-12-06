@@ -224,6 +224,7 @@
 <table class="table table-bordered" id="tabla-items">
     <thead>
     <tr>
+        <th style="width: 70px;">Código</th>
         <th>Descripción</th>
         <th style="width: 120px;">Cant.</th>
         <th style="width: 150px;">Precio Unit.</th>
@@ -232,6 +233,7 @@
         <th style="width: 60px;"></th>
     </tr>
     </thead>
+
 
     <tbody id="items-body">
         {{-- Las filas se cargarán dinámicamente desde JS --}}
@@ -265,7 +267,20 @@
         const tabla = document.querySelector('#tabla-items tbody');
         let nuevaFila = `
             <tr>
-                <td><input type="text" name="items[${fila}][descripcion]" class="form-control" required></td>
+                <td>
+                    <input type="text"
+                        name="items[${fila}][codigo]"
+                        class="form-control item-codigo"
+                        readonly>
+                </td>
+
+                <td>
+                    <input type="text"
+                        name="items[${fila}][descripcion]"
+                        class="form-control"
+                        required>
+                </td>
+
                 <td><input type="number" name="items[${fila}][cantidad]" class="form-control item-cantidad" min="1" step="1" required></td>
                 <td><input type="number" name="items[${fila}][precio]" class="form-control item-precio" min="0" step="0.01" required></td>
                 <td>
@@ -282,6 +297,7 @@
         `;
         tabla.insertAdjacentHTML('beforeend', nuevaFila);
         fila++;
+        actualizarCodigos();
     });
 
     // Delegación de eventos
@@ -295,6 +311,7 @@
         if (e.target.matches('.eliminar-item')) {
             e.target.closest('tr').remove();
             recalcular();
+            actualizarCodigos();
         }
     });
 
@@ -314,15 +331,16 @@
         document.getElementById('importe_total').value = total.toFixed(2);
     }
 
-    // ============================
-    // RECONSTRUIR ÍTEMS DESDE OLD()
-    // ============================
+//     <!-- ============================
+//      RECONSTRUIR ÍTEMS DESDE OLD()
+//    ============================ -->
     document.addEventListener("DOMContentLoaded", function () {
 
         let oldItems = @json(old('items'));
         const tbody = document.getElementById("items-body");
 
         if (oldItems && Object.keys(oldItems).length > 0) {
+
             tbody.innerHTML = "";
             fila = 0;
 
@@ -331,24 +349,67 @@
 
                 let nuevaFila = `
                     <tr>
-                        <td><input type="text" name="items[${fila}][descripcion]" class="form-control" required value="${item.descripcion}"></td>
 
-                        <td><input type="number" name="items[${fila}][cantidad]" class="form-control item-cantidad" min="1" step="1" required value="${item.cantidad}"></td>
+                        <!-- Código autogenerado -->
+                        <td>
+                            <input type="text"
+                                name="items[${fila}][codigo]"
+                                class="form-control item-codigo"
+                                readonly>
+                        </td>
 
-                        <td><input type="number" name="items[${fila}][precio]" class="form-control item-precio" min="0" step="0.01" required value="${item.precio}"></td>
+                        <!-- Descripción -->
+                        <td>
+                            <input type="text"
+                                name="items[${fila}][descripcion]"
+                                class="form-control"
+                                required
+                                value="${item.descripcion}">
+                        </td>
 
+                        <!-- Cantidad -->
+                        <td>
+                            <input type="number"
+                                name="items[${fila}][cantidad]"
+                                class="form-control item-cantidad"
+                                min="1" step="1"
+                                required
+                                value="${item.cantidad}">
+                        </td>
+
+                        <!-- Precio -->
+                        <td>
+                            <input type="number"
+                                name="items[${fila}][precio]"
+                                class="form-control item-precio"
+                                min="0" step="0.01"
+                                required
+                                value="${item.precio}">
+                        </td>
+
+                        <!-- IVA -->
                         <td>
                             <select name="items[${fila}][iva]" class="form-control item-iva">
-                                <option value="0" ${item.iva == 0 ? 'selected' : ''}>0% (Exento)</option>
+                                <option value="0"    ${item.iva == 0    ? 'selected' : ''}>0% (Exento)</option>
                                 <option value="10.5" ${item.iva == 10.5 ? 'selected' : ''}>10,5%</option>
-                                <option value="21" ${item.iva == 21 ? 'selected' : ''}>21%</option>
-                                <option value="27" ${item.iva == 27 ? 'selected' : ''}>27%</option>
+                                <option value="21"   ${item.iva == 21   ? 'selected' : ''}>21%</option>
+                                <option value="27"   ${item.iva == 27   ? 'selected' : ''}>27%</option>
                             </select>
                         </td>
 
-                        <td><input type="text" class="form-control item-subtotal" readonly></td>
+                        <!-- Subtotal -->
+                        <td>
+                            <input type="text"
+                                class="form-control item-subtotal"
+                                readonly>
+                        </td>
 
-                        <td><button type="button" class="btn btn-danger btn-sm eliminar-item">&times;</button></td>
+                        <!-- Eliminar -->
+                        <td>
+                            <button type="button"
+                                    class="btn btn-danger btn-sm eliminar-item">&times;</button>
+                        </td>
+
                     </tr>
                 `;
 
@@ -356,11 +417,25 @@
                 fila++;
             });
 
+            // Recalcular totales
             recalcular();
+
+            // Generar códigos 1.1, 1.2, 1.3...
+            actualizarCodigos();
+
         } else {
-            // Si no hay old(), cargar fila inicial
+
+            // Si no hay old(), fila inicial
             let initial = `
                 <tr>
+
+                    <td>
+                        <input type="text"
+                            name="items[0][codigo]"
+                            class="form-control item-codigo"
+                            readonly>
+                    </td>
+
                     <td><input type="text" name="items[0][descripcion]" class="form-control" required></td>
 
                     <td><input type="number" name="items[0][cantidad]" class="form-control item-cantidad" min="1" step="1" required></td>
@@ -383,8 +458,12 @@
             `;
 
             tbody.innerHTML = initial;
+
+            // Generar código inicial
+            actualizarCodigos();
         }
     });
+
 
     // ============================
     // HABILITAR / DESHABILITAR VALOR DÓLAR SEGÚN MONEDA
@@ -490,6 +569,18 @@
 
     });
 
+    function actualizarCodigos() {
+        let filas = document.querySelectorAll('#tabla-items tbody tr');
+
+        let grupo = 1; // si querés cambiar el número principal lo ajustás acá
+        let sub = 1;
+
+        filas.forEach(tr => {
+            let codigo = `${grupo}.${sub}`;
+            tr.querySelector('.item-codigo').value = codigo;
+            sub++;
+        });
+    }
 
 
 
