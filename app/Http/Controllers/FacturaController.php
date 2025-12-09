@@ -102,6 +102,12 @@ class FacturaController extends Controller
             'fecha_hasta'      => 'required_if:concepto,2|nullable|date',
             'vencimiento_pago' => 'required_if:concepto,2|nullable|date',
 
+            // NUEVOS CAMPOS AGREGADOS
+            'bonificacion'             => 'nullable|numeric|min:0|max:100',
+            'importe_bonificacion'     => 'nullable|numeric|min:0',
+            'percepcion_iva'           => 'nullable|numeric|min:0',
+            'percepcion_ingresos_brutos' => 'nullable|numeric|min:0',
+
             // Ítems
             'items' => 'required|array|min:1',
             'items.*.codigo' => 'required',
@@ -156,18 +162,24 @@ class FacturaController extends Controller
             $factura->fecha_hasta      = $validated['fecha_hasta']      ?? null;
             $factura->vencimiento_pago = $validated['vencimiento_pago'] ?? null;
 
+            // NUEVOS CAMPOS - Guardar valores
+            $factura->bonificacion                 = $validated['bonificacion'] ?? 0;
+            $factura->importe_bonificacion         = $validated['importe_bonificacion'] ?? 0;
+            $factura->percepcion_iva               = $validated['percepcion_iva'] ?? 0;
+            $factura->percepcion_ingresos_brutos   = $validated['percepcion_ingresos_brutos'] ?? 0;
+
             $factura->save();
 
-
-
             // ===================================
-            // GUARDAR ÍTEMS
+            // GUARDAR ÍTEMS Y CALCULAR TOTALES
             // ===================================
-            $total = 0;
+            $subtotal_items = 0;
+            $total_iva = 0;
 
             foreach ($validated['items'] as $item) {
-
-                $subtotal = $item['cantidad'] * $item['precio'] * (1 + ($item['iva'] ?? 0) / 100);
+                $precio_total_item = $item['cantidad'] * $item['precio'];
+                $iva_item = $precio_total_item * (($item['iva'] ?? 0) / 100);
+                $subtotal_con_iva = $precio_total_item + $iva_item;
 
                 FacturaItem::create([
                     'factura_id'      => $factura->id,
@@ -177,16 +189,48 @@ class FacturaController extends Controller
                     'precio_unitario' => $item['precio'],
                     'iva'             => $item['iva'] ?? 0,
                     'unidad'          => $item['unidad'] ?? null,
-                    'subtotal'        => $subtotal,
+                    'subtotal'        => $subtotal_con_iva,
                 ]);
 
-                $total += $subtotal;
+                $subtotal_items += $precio_total_item;
+                $total_iva += $iva_item;
             }
 
-            $factura->importe_total = $total;
+            // ===================================
+            // CALCULAR BONIFICACIÓN (si se especifica porcentaje)
+            // ===================================
+            $importe_bonificacion_calculado = 0;
+
+            if (!empty($validated['bonificacion']) && $validated['bonificacion'] > 0) {
+                // Calcular bonificación como porcentaje del subtotal
+                $importe_bonificacion_calculado = $subtotal_items * ($validated['bonificacion'] / 100);
+
+                // Si también se envió un importe específico, usar ese valor
+                if (!empty($validated['importe_bonificacion']) && $validated['importe_bonificacion'] > 0) {
+                    $importe_bonificacion_calculado = $validated['importe_bonificacion'];
+                }
+
+                // Actualizar el campo en la factura
+                $factura->importe_bonificacion = $importe_bonificacion_calculado;
+            }
+
+            // ===================================
+            // CALCULAR TOTAL FINAL
+            // ===================================
+            $subtotal_con_iva = $subtotal_items + $total_iva;
+            $subtotal_despues_bonif = $subtotal_con_iva - $importe_bonificacion_calculado;
+
+            // Agregar percepciones
+            $percepcion_iva = $validated['percepcion_iva'] ?? 0;
+            $percepcion_ingresos_brutos = $validated['percepcion_ingresos_brutos'] ?? 0;
+
+            $total_final = $subtotal_despues_bonif + $percepcion_iva + $percepcion_ingresos_brutos;
+
+            // Guardar totales en la factura
+            $factura->subtotal = $subtotal_items;
+            $factura->total_iva = $total_iva;
+            $factura->importe_total = $total_final;
             $factura->save();
-
-
 
             // ===================================
             // GUARDAR REMITOS ASOCIADOS (NUEVO)
@@ -212,8 +256,6 @@ class FacturaController extends Controller
                     ]);
                 }
             }
-
-
 
             DB::commit();
 

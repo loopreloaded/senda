@@ -245,6 +245,70 @@
 <button type="button" class="btn btn-primary btn-sm" id="agregar-item">Agregar Ítem</button>
 
 {{-- ============================
+     BONIFICACIONES / PERCEPCIONES
+   ============================ --}}
+<div class="row mt-3">
+
+    {{-- % Bonificación --}}
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="porcentaje_bonificacion">% Bonificación</label>
+            <input type="number"
+                   name="porcentaje_bonificacion"
+                   id="porcentaje_bonificacion"
+                   class="form-control"
+                   step="0.01"
+                   placeholder="Ej: 10"
+                   value="{{ old('porcentaje_bonificacion') }}">
+        </div>
+    </div>
+
+    {{-- Importe Bonificación --}}
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="importe_bonificacion">Importe Bonificación</label>
+            <input type="number"
+                   name="importe_bonificacion"
+                   id="importe_bonificacion"
+                   class="form-control"
+                   step="0.01"
+                   placeholder="0.00"
+                   value="{{ old('importe_bonificacion') }}">
+        </div>
+    </div>
+
+    {{-- Percepción de IVA --}}
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="percepcion_iva">Percepción de IVA</label>
+            <input type="number"
+                   name="percepcion_iva"
+                   id="percepcion_iva"
+                   class="form-control"
+                   step="0.01"
+                   placeholder="0.00"
+                   value="{{ old('percepcion_iva') }}">
+        </div>
+    </div>
+
+    {{-- Percepción de Ingresos Brutos --}}
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="percepcion_iibb">Percepción de Ingresos Brutos</label>
+            <input type="number"
+                   name="percepcion_iibb"
+                   id="percepcion_iibb"
+                   class="form-control"
+                   step="0.01"
+                   placeholder="0.00"
+                   value="{{ old('percepcion_iibb') }}">
+        </div>
+    </div>
+
+</div>
+
+
+{{-- ============================
      IMPORTE TOTAL
    ============================ --}}
 <div class="row mt-4">

@@ -18,7 +18,13 @@ class Factura extends Model
         'estado',
         'observaciones',
         'creado_por',
-        'aprobado_por'
+        'aprobado_por',
+        'bonificacion',
+        'importe_bonificacion',
+        'percepcion_iva',
+        'percepcion_ingresos_brutos',
+        'subtotal',
+        'total_iva',
     ];
 
 
