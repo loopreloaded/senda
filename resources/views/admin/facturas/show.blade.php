@@ -76,94 +76,65 @@
                         <th>Unidad</th>
                         <th class="text-end">Cantidad</th>
                         <th class="text-end">Unitario</th>
+                        <th class="text-end">% Bonif</th>
+                        <th class="text-end">Imp. Bonif</th>
                         <th class="text-end">IVA (%)</th>
-                        <th class="text-end">Subtotal</th>
+                        <th class="text-end">Subtotal s/IVA</th>
+                        <th class="text-end">Subtotal c/IVA</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $base_iva = 0;
-                        $iva_total = 0;
-                    @endphp
-
-                    @php
-                        $unidadTexto = [
-                            ""   => "—",
-                            "1"  => "kilogramos",
-                            "2"  => "metros",
-                            "3"  => "metros cuadrados",
-                            "4"  => "metros cúbicos",
-                            "5"  => "litros",
-                            "6"  => "1000 kWh",
-                            "7"  => "unidades",
-                            "8"  => "pares",
-                            "9"  => "docenas",
-                            "10" => "quilates",
-                            "11" => "millares",
-                            "14" => "gramos",
-                            "15" => "milímetros",
-                            "16" => "mm cúbicos",
-                            "17" => "kilómetros",
-                            "18" => "hectolitros",
-                            "20" => "centímetros",
-                            "25" => "jgo. pqt. mazo naipes",
-                            "27" => "cm cúbicos",
-                            "29" => "toneladas",
-                            "30" => "dam cúbicos",
-                            "31" => "hm cúbicos",
-                            "32" => "km cúbicos",
-                            "33" => "microgramos",
-                            "34" => "nanogramos",
-                            "35" => "picogramos",
-                            "41" => "miligramos",
-                            "47" => "mililitros",
-                            "48" => "curie",
-                            "49" => "milicurie",
-                            "50" => "microcurie",
-                            "51" => "uiacthor",
-                            "52" => "muiacthor",
-                            "53" => "kg base",
-                            "54" => "gruesa",
-                            "61" => "kg bruto",
-                            "62" => "uiactant",
-                            "63" => "muiactant",
-                            "64" => "uiactig",
-                            "65" => "muiactig",
-                            "66" => "kg activo",
-                            "67" => "gramo activo",
-                            "68" => "gramo base",
-                            "96" => "packs",
-                            "98" => "otras unidades",
-                        ];
-                        @endphp
-
                     @foreach($factura->items as $item)
-                        @php
-                            $base_iva += $item->subtotal;
-                            $iva_total += $item->subtotal * ($item->iva / 100);
-                        @endphp
                         <tr>
                             <td>{{ $item->codigo }}</td>
                             <td>{{ $item->descripcion }}</td>
                             <td>{{ $unidadTexto[$item->unidad] ?? $item->unidad }}</td>
+
                             <td class="text-end">{{ number_format($item->cantidad, 2, ',', '.') }}</td>
                             <td class="text-end">{{ number_format($item->precio_unitario, 2, ',', '.') }}</td>
-                            <td class="text-end">{{ number_format($item->iva, 0) }}%</td>
-                            <td class="text-end">{{ number_format($item->subtotal, 2, ',', '.') }}</td>
+
+                            {{-- % Bonificación --}}
+                            <td class="text-end">
+                                {{ number_format($item->bonificacion_porcentaje ?? 0, 2, ',', '.') }}%
+                            </td>
+
+                            {{-- Importe bonificación --}}
+                            <td class="text-end">
+                                {{ number_format($item->bonificacion_importe ?? 0, 2, ',', '.') }}
+                            </td>
+
+                            {{-- IVA --}}
+                            <td class="text-end">{{ number_format($item->iva, 2) }}%</td>
+
+                            {{-- Subtotal sin IVA --}}
+                            <td class="text-end">
+                                {{ number_format($item->subtotal_sin_iva ?? 0, 2, ',', '.') }}
+                            </td>
+
+                            {{-- Subtotal con IVA --}}
+                            <td class="text-end">
+                                {{ number_format($item->subtotal_con_iva ?? 0, 2, ',', '.') }}
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
 
+
             {{-- RESUMEN --}}
+            @php
+                $subtotal_general = $factura->items->sum('subtotal_sin_iva');
+                $iva_general = $factura->items->sum(function($i){
+                    return $i->subtotal_con_iva - $i->subtotal_sin_iva;
+                });
+            @endphp
+
             <div class="row mt-4">
                 <div class="col-md-6">
-                    <p><strong>Base IVA 21%:</strong> {{ number_format($base_iva, 2, ',', '.') }}</p>
-                    <p><strong>IVA 21%:</strong> {{ number_format($iva_total, 2, ',', '.') }}</p>
+                    <p><strong>Subtotal sin IVA:</strong> {{ number_format($subtotal_general, 2, ',', '.') }}</p>
+                    <p><strong>IVA total:</strong> {{ number_format($iva_general, 2, ',', '.') }}</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p><strong>Subtotal:</strong> {{ number_format($base_iva, 2, ',', '.') }}</p>
-                    <p><strong>IVA total:</strong> {{ number_format($iva_total, 2, ',', '.') }}</p>
                     <h4><strong>Total:</strong> ${{ number_format($factura->importe_total, 2, ',', '.') }}</h4>
                 </div>
             </div>

@@ -131,21 +131,20 @@
 
 <table class="table table-bordered" id="tabla-remitos">
     <thead>
-    <tr>
-        <th style="width: 150px;">Pto. Venta</th>
-        <th style="width: 180px;">Comprobante</th>
-        <th style="width: 180px;">Fecha Remito</th>
-        <th style="width: 60px;"></th>
-    </tr>
+        <tr>
+            <th style="width: 150px;">Pto. Venta</th>
+            <th style="width: 180px;">Comprobante</th>
+            <th style="width: 180px;">Fecha Remito</th>
+            <th style="width: 60px;"></th>
+        </tr>
     </thead>
 
     <tbody id="remitos-body">
-        {{-- Se cargarán dinámicamente desde JS --}}
+        <!-- Aquí se insertan -->
     </tbody>
 </table>
 
 <button type="button" class="btn btn-secondary btn-sm" id="agregar-remito">Agregar Remito</button>
-
 
 <h3>Datos del Receptor</h3>
 
@@ -296,8 +295,11 @@
         </div>
     </div>
 </div>
+
 <script>
 let fila = 0;
+let filaRemito = 0;
+
 
 /* ============================================================
    AGREGAR NUEVA FILA DE ÍTEM
@@ -307,83 +309,84 @@ document.getElementById('agregar-item').addEventListener('click', function () {
     const tbody = document.getElementById('items-body');
 
     let nuevaFila = `
-        <tr data-index="${fila}">
+       <tr data-index="${fila}">
 
-            <!-- Código autogenerado -->
-            <td>
-                <input type="text" name="items[${fila}][codigo]"
-                       class="form-control item-codigo" readonly>
-            </td>
+    <!-- Código -->
+    <td>
+        <input type="text"
+               name="items[${fila}][codigo]"
+               class="form-control item-codigo"
+               readonly>
+    </td>
 
-            <!-- Descripción -->
-            <td>
-                <input type="text" name="items[${fila}][descripcion]"
-                       class="form-control item-desc" required>
-            </td>
+    <!-- Descripción -->
+    <td>
+        <input type="text" name="items[${fila}][descripcion]" class="form-control item-desc" required>
+    </td>
 
-            <!-- Cantidad -->
-            <td>
-                <input type="number" name="items[${fila}][cantidad]"
-                       class="form-control item-cantidad"
-                       min="1" step="0.01" required>
-            </td>
+    <!-- Cantidad -->
+    <td>
+        <input type="number" name="items[${fila}][cantidad]"
+               class="form-control item-cantidad"
+               min="1" step="0.01" required>
+    </td>
 
-            <!-- Unidad -->
-            <td>
-                <select name="items[${fila}][unidad]" class="form-control item-unidad" required>
-                    <option value="">Sel...</option>
-                    <option value="7">Unidades</option>
-                    <option value="5">Litros</option>
-                    <option value="1">Kilogramos</option>
-                    <option value="2">Metros</option>
-                </select>
-            </td>
+    <!-- Unidad -->
+    <td>
+        <select name="items[${fila}][unidad]" class="form-control item-unidad" required>
+            <option value="">Sel...</option>
+            <option value="7">Unidades</option>
+            <option value="5">Litros</option>
+            <option value="1">Kilogramos</option>
+            <option value="2">Metros</option>
+        </select>
+    </td>
 
-            <!-- Precio Unitario -->
-            <td>
-                <input type="number" name="items[${fila}][precio]"
-                       class="form-control item-precio"
-                       min="0" step="0.01" required>
-            </td>
+    <!-- Precio Unitario -->
+    <td>
+        <input type="number" name="items[${fila}][precio]"
+               class="form-control item-precio"
+               min="0" step="0.01" required>
+    </td>
 
-            <!-- IVA -->
-            <td>
-                <select name="items[${fila}][iva]" class="form-control item-iva">
-                    <option value="0">No Gravado</option>
-                    <option value="0">Exento</option>
-                    <option value="0">0%</option>
-                    <option value="2.5">2,5%</option>
-                    <option value="5">5%</option>
-                    <option value="10.5">10,5%</option>
-                    <option value="21" selected>21%</option>
-                    <option value="27">27%</option>
-                </select>
-            </td>
+    <!-- IVA -->
+    <td>
+        <select name="items[${fila}][iva]" class="form-control item-iva">
+            <option value="0">No Gravado</option>
+            <option value="0">Exento</option>
+            <option value="0">0%</option>
+            <option value="2.5">2,5%</option>
+            <option value="5">5%</option>
+            <option value="10.5">10,5%</option>
+            <option value="21" selected>21%</option>
+            <option value="27">27%</option>
+        </select>
+    </td>
 
-            <!-- % BONIFICACIÓN -->
-            <td>
-                <input type="number" name="items[${fila}][bonificacion_porcentaje]"
-                       class="form-control item-bonif"
-                       min="0" max="100" step="0.01" value="0">
-            </td>
+    <!-- % Bonificación -->
+    <td>
+        <input type="number" name="items[${fila}][bonificacion_porcentaje]"
+               class="form-control item-bonif"
+               min="0" max="100" step="0.01" value="0">
+    </td>
 
-            <!-- SUBTOTAL con IVA -->
-            <td>
-                <input type="text" class="form-control item-subtotal" readonly>
-            </td>
+    <!-- Subtotal c/iva + HIDDEN (LOS IMPORTANTES) -->
+    <td>
+        <input type="text" class="form-control item-subtotal" readonly>
 
-            <!-- Eliminar fila -->
-            <td>
-                <button type="button" class="btn btn-danger btn-sm eliminar-item">&times;</button>
-            </td>
+        <input type="hidden" name="items[${fila}][bonificacion_importe]" class="bonif-importe-hidden">
+        <input type="hidden" name="items[${fila}][subtotal_sin_iva]" class="subtotal-sin-iva-hidden">
+        <input type="hidden" name="items[${fila}][subtotal_con_iva]" class="subtotal-con-iva-hidden">
+    </td>
 
-            <!-- Hidden para backend -->
-            <input type="hidden" name="items[${fila}][bonificacion_importe]"
-                   class="bonif-importe-hidden">
 
-            <input type="hidden" name="items[${fila}][subtotal_sin_iva]"
-                   class="subtotal-sin-iva-hidden">
-        </tr>
+
+    <!-- Eliminar -->
+    <td>
+        <button type="button" class="btn btn-danger btn-sm eliminar-item">&times;</button>
+    </td>
+</tr>
+
     `;
 
     tbody.insertAdjacentHTML('beforeend', nuevaFila);
@@ -391,11 +394,17 @@ document.getElementById('agregar-item').addEventListener('click', function () {
     actualizarCodigos();
     reindexarItems();
 
+    // <<< NUEVO >>>
+    setTimeout(() => {
+        recalcular();
+    }, 50);
+
+
 });
 
 
 /* ============================================================
-   RECALCULAR IMPORTES – SUBTOTAL SIN IVA, IVA, TOTAL
+   RECALCULAR IMPORTES
    ============================================================ */
 function recalcular() {
 
@@ -405,119 +414,158 @@ function recalcular() {
 
         let cantidad = parseFloat(fila.querySelector('.item-cantidad').value) || 0;
         let precio   = parseFloat(fila.querySelector('.item-precio').value) || 0;
-        let iva      = parseFloat(fila.querySelector('.item-iva').value) || 0;
+
+        let iva_raw  = fila.querySelector('.item-iva').value;
+
+        // Convertir IVA: si es NG o EX => 0%
+        let iva = (!iva_raw || isNaN(parseFloat(iva_raw))) ? 0 : parseFloat(iva_raw);
+
         let bonif    = parseFloat(fila.querySelector('.item-bonif').value) || 0;
+
+        // =============================
+        // CALCULOS
+        // =============================
 
         // SUBTOTAL BRUTO
         let subtotal_bruto = cantidad * precio;
 
-        // MONTO BONIFICACIÓN
+        // IMPORTE DE BONIFICACIÓN
         let bonif_importe = subtotal_bruto * (bonif / 100);
 
         // SUBTOTAL SIN IVA
         let subtotal_sin_iva = subtotal_bruto - bonif_importe;
 
-        // IVA DEL ÍTEM
+        // IMPORTE IVA
         let iva_importe = subtotal_sin_iva * (iva / 100);
 
-        // SUBTOTAL CON IVA
+        // SUBTOTAL FINAL CON IVA
         let subtotal_con_iva = subtotal_sin_iva + iva_importe;
 
-        // Mostrar en tabla
-        fila.querySelector('.item-subtotal').value = subtotal_con_iva.toFixed(2);
+        // =============================
+        // MOSTRAR EN TABLA
+        // =============================
+        fila.querySelector('.item-subtotal').value =
+            subtotal_con_iva.toFixed(2);
 
-        // Guardar hidden para Bd
-        fila.querySelector('.subtotal-sin-iva-hidden').value = subtotal_sin_iva.toFixed(2);
-        fila.querySelector('.bonif-importe-hidden').value   = bonif_importe.toFixed(2);
+        // =============================
+        // GUARDAR EN LOS HIDDEN
+        // =============================
+        fila.querySelector('.bonif-importe-hidden').value =
+            bonif_importe.toFixed(2);
 
+        fila.querySelector('.subtotal-sin-iva-hidden').value =
+            subtotal_sin_iva.toFixed(2);
+
+        fila.querySelector('.subtotal-con-iva-hidden').value =
+            subtotal_con_iva.toFixed(2); // ← FALTABA (era la causa del error)
+
+        // =============================
+        // ACUMULAR TOTAL FACTURA
+        // =============================
         totalFactura += subtotal_con_iva;
+
     });
 
-    // Actualizar total de factura
+    // =============================
+    // ACTUALIZAR TOTAL GENERAL
+    // =============================
     let totalInput = document.getElementById('importe_total');
-    if (totalInput) totalInput.value = totalFactura.toFixed(2);
+    if (totalInput) {
+        totalInput.value = totalFactura.toFixed(2);
+    }
 }
 
 
+
 /* ============================================================
-   EVENTOS: RECALCULAR Y ELIMINAR
+   EVENTOS DE RECALCULAR Y ELIMINAR
    ============================================================ */
-document.addEventListener('input', function (e) {
-    if (
-        e.target.matches('.item-cantidad') ||
-        e.target.matches('.item-precio') ||
-        e.target.matches('.item-iva') ||
-        e.target.matches('.item-bonif')
-    ) {
-        recalcular();
-    }
-});
+    document.addEventListener('input', function (e) {
+        if (
+            e.target.matches('.item-cantidad') ||
+            e.target.matches('.item-precio') ||
+            e.target.matches('.item-iva') ||
+            e.target.matches('.item-bonif')
+        ) {
+            recalcular();
+        }
+    });
 
-document.addEventListener('click', function (e) {
-    if (e.target.matches('.eliminar-item')) {
-        e.target.closest('tr').remove();
-        recalcular();
-        actualizarCodigos();
-        reindexarItems();
-
-    }
-});
+    document.addEventListener('click', function (e) {
+        if (e.target.matches('.eliminar-item')) {
+            e.target.closest('tr').remove();
+            recalcular();
+            actualizarCodigos();
+            reindexarItems();
+        }
+    });
 
 
 /* ============================================================
-   ACTUALIZAR CÓDIGOS DE ÍTEMS = 1.1, 1.2, 1.3...
+   GENERAR CÓDIGOS 1.1, 1.2, 1.3...
    ============================================================ */
 function actualizarCodigos() {
 
     let filas = document.querySelectorAll('#tabla-items tbody tr');
     let grupo = 1;
-    let sub   = 1;
+    let sub = 1;
 
     filas.forEach(tr => {
-        let input = tr.querySelector('.item-codigo');
-        if (input) {
-            input.value = `${grupo}.${sub}`;
-        }
+        let codigo = `${grupo}.${sub}`;
+        tr.querySelector('.item-codigo').value = codigo;
         sub++;
     });
 }
-</script>
 
-<script>
-// =====================================================
-// REMITOS ASOCIADOS – Agregar, eliminar y cargar inicial
-// =====================================================
 
-let filaRemito = 0;
+/* ============================================================
+   REINDEXAR items[x] DESPUÉS DE CAMBIOS
+   ============================================================ */
+function reindexarItems() {
 
-// Botón agregar remito
-document.getElementById('agregar-remito').addEventListener('click', function () {
-    agregarFilaRemito(filaRemito);
-    filaRemito++;
-});
+    let filas = document.querySelectorAll('#tabla-items tbody tr');
+    let index = 0;
 
-// Función para agregar fila
+    filas.forEach(tr => {
+
+        tr.setAttribute("data-index", index);
+
+        tr.querySelectorAll("input, select").forEach(input => {
+
+            if (input.name && input.name.includes("items[")) {
+                input.name = input.name.replace(/items\[\d+\]/, `items[${index}]`);
+            }
+        });
+
+        index++;
+    });
+
+    actualizarCodigos();
+}
+
 function agregarFilaRemito(i, data = null) {
 
-    const tbody = document.querySelector('#tabla-remitos tbody');
+    const tbody = document.getElementById('remitos-body');
 
     let nuevaFila = `
-        <tr>
+        <tr data-index="${i}">
             <td>
                 <input type="number" name="remitos[${i}][pto_venta]"
-                       class="form-control" min="1" required
+                       class="form-control"
+                       min="1"
                        value="${data?.pto_venta ?? ''}">
             </td>
 
             <td>
                 <input type="number" name="remitos[${i}][comprobante]"
-                       class="form-control" min="1" required
+                       class="form-control"
+                       min="1"
                        value="${data?.comprobante ?? ''}">
             </td>
 
             <td>
                 <input type="date" name="remitos[${i}][fecha_emision]"
-                       class="form-control" required
+                       class="form-control"
                        value="${data?.fecha_emision ?? ''}">
             </td>
 
@@ -530,55 +578,41 @@ function agregarFilaRemito(i, data = null) {
     tbody.insertAdjacentHTML("beforeend", nuevaFila);
 }
 
-// Eliminar remito
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btnRemito = document.getElementById("agregar-remito");
+
+    btnRemito.addEventListener("click", function () {
+        agregarFilaRemito(filaRemito);
+        filaRemito++;
+    });
+});
+
 document.addEventListener("click", function (e) {
     if (e.target.matches(".eliminar-remito")) {
         e.target.closest("tr").remove();
     }
 });
 
-// ============================
-// CARGAR FILA INICIAL DE REMITO
-// ============================
 document.addEventListener("DOMContentLoaded", function () {
 
     let oldRemitos = @json(old('remitos'));
 
     if (oldRemitos && Object.keys(oldRemitos).length > 0) {
+
         filaRemito = 0;
-        Object.keys(oldRemitos).forEach(function (idx) {
+
+        Object.keys(oldRemitos).forEach(idx => {
             agregarFilaRemito(filaRemito, oldRemitos[idx]);
             filaRemito++;
         });
+
     } else {
-        // Agregar una fila vacía inicial siempre
+
         agregarFilaRemito(0);
         filaRemito = 1;
+
     }
 });
-</script>
 
-<script>
-function reindexarItems() {
-
-    let filas = document.querySelectorAll('#tabla-items tbody tr');
-    let index = 0;
-
-    filas.forEach(tr => {
-
-        tr.setAttribute("data-index", index);
-
-        // Actualizar todos los NAME internos
-        tr.querySelectorAll("input, select").forEach(input => {
-
-            if (input.name && input.name.includes("items[")) {
-
-                // Reemplaza items[LOQUESEA] por items[index]
-                input.name = input.name.replace(/items\[\d+\]/, `items[${index}]`);
-            }
-        });
-
-        index++;
-    });
-}
 </script>

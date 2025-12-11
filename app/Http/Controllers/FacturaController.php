@@ -85,14 +85,14 @@ class FacturaController extends Controller
         // =============================
         $validated = $request->validate([
 
-            // Datos del cliente
+            // CLIENTE
             'razon_social'   => 'required|string|max:255',
             'cuit'           => 'required|digits:11',
             'condicion_iva'  => 'required|string|max:50',
             'direccion'      => 'required|string|max:255',
             'email'          => 'nullable|email|max:255',
 
-            // Datos de la factura
+            // FACTURA
             'tipo_comprobante' => 'required|in:A,B',
             'fecha_emision'    => 'required|date',
             'concepto'         => 'required|in:1,2,3',
@@ -100,22 +100,31 @@ class FacturaController extends Controller
             'moneda'           => 'required|in:ARS,USD',
             'valor_dolar'      => 'required_if:moneda,USD|numeric|min:0',
 
-            // Campos para servicios
+            // SERVICIOS
             'fecha_desde'      => 'nullable|date',
             'fecha_hasta'      => 'nullable|date',
             'vencimiento_pago' => 'nullable|date',
 
-            // Ítems
+            // ITEMS
             'items'                       => 'required|array|min:1',
-            'items.*.codigo'              => 'required',
+            'items.*.codigo'              => 'required|string',
             'items.*.descripcion'         => 'required|string|max:255',
             'items.*.cantidad'            => 'required|numeric|min:1',
-            'items.*.unidad'              => 'required',
+            'items.*.unidad'              => 'required|string',
             'items.*.precio'              => 'required|numeric|min:0',
-            'items.*.iva'                 => 'nullable|numeric|min:0',
+
+            // IVA SIEMPRE NUMÉRICO
+            'items.*.iva'                 => 'required|numeric|min:0',
+
+            // BONIFICACIÓN
             'items.*.bonificacion_porcentaje' => 'nullable|numeric|min:0|max:100',
 
-            // Remitos asociados
+            // HIDDEN DEL JS — ¡OBLIGATORIOS!
+            'items.*.bonificacion_importe' => 'required|numeric|min:0',
+            'items.*.subtotal_sin_iva'     => 'required|numeric|min:0',
+            'items.*.subtotal_con_iva'     => 'required|numeric|min:0',
+
+            // REMITOS
             'remitos' => 'nullable|array',
             'remitos.*.pto_venta'    => 'nullable|numeric|min:1',
             'remitos.*.comprobante'  => 'nullable|numeric|min:1',
@@ -127,7 +136,7 @@ class FacturaController extends Controller
         try {
 
             // =============================
-            // 1) BUSCAR O CREAR CLIENTE
+            // 1) CLIENTE
             // =============================
             $cliente = Cliente::firstOrCreate(
                 ['cuit' => $validated['cuit']],
@@ -140,7 +149,7 @@ class FacturaController extends Controller
             );
 
             // =============================
-            // 2) CREAR FACTURA BASE
+            // 2) CREAR FACTURA
             // =============================
             $factura = new Factura();
             $factura->cliente_id       = $cliente->id;
@@ -154,7 +163,6 @@ class FacturaController extends Controller
             $factura->estado           = 'pendiente';
             $factura->creado_por       = Auth::id();
 
-            // Campos servicios
             $factura->fecha_desde      = $validated['fecha_desde'] ?? null;
             $factura->fecha_hasta      = $validated['fecha_hasta'] ?? null;
             $factura->vencimiento_pago = $validated['vencimiento_pago'] ?? null;
@@ -162,69 +170,57 @@ class FacturaController extends Controller
             $factura->save();
 
             // =============================
-            // 3) PROCESAR ÍTEMS
+            // 3) ITEMS
             // =============================
-            $subtotal_general = 0;
+            $subtotal_general  = 0;
             $total_iva_general = 0;
 
             foreach ($validated['items'] as $item) {
 
                 $cantidad = (float) $item['cantidad'];
                 $precio   = (float) $item['precio'];
-                $iva      = (float) ($item['iva'] ?? 0);
-                $bonif    = (float) ($item['bonificacion_porcentaje'] ?? 0);
+                $iva      = (float) $item['iva'];
+                $bonif    = (float) $item['bonificacion_porcentaje'];
 
-                // Subtotal bruto
-                $subtotal_bruto = $cantidad * $precio;
+                // CALCULOS
+                $subtotal_bruto      = $cantidad * $precio;
+                $bonif_importe       = $item['bonificacion_importe'];
+                $subtotal_sin_iva    = $item['subtotal_sin_iva'];
+                $subtotal_con_iva    = $item['subtotal_con_iva'];
+                $iva_importe         = $subtotal_sin_iva * ($iva / 100);
 
-                // Monto de bonificación
-                $bonificacion_importe = $subtotal_bruto * ($bonif / 100);
-
-                // Subtotal ya bonificado sin IVA
-                $subtotal_sin_iva = $subtotal_bruto - $bonificacion_importe;
-
-                // IVA del ítem
-                $iva_importe = $subtotal_sin_iva * ($iva / 100);
-
-                // Subtotal final con IVA
-                $subtotal_con_iva = $subtotal_sin_iva + $iva_importe;
-
-                // Crear ítem
+                // GUARDAR ITEM
                 FacturaItem::create([
                     'factura_id'              => $factura->id,
+                    'codigo'                  => $item['codigo'],
                     'descripcion'             => $item['descripcion'],
                     'cantidad'                => $cantidad,
                     'precio_unitario'         => $precio,
                     'iva'                     => $iva,
-
                     'bonificacion_porcentaje' => $bonif,
-                    'bonificacion_importe'    => $bonificacion_importe,
-
+                    'bonificacion_importe'    => $bonif_importe,
                     'subtotal_sin_iva'        => $subtotal_sin_iva,
                     'subtotal_con_iva'        => $subtotal_con_iva,
-
-                    'subtotal'                => $subtotal_con_iva, // ← AGREGADO
+                    'subtotal'                => $subtotal_con_iva,
                 ]);
 
-
-                // Acumuladores
-                $subtotal_general += $subtotal_sin_iva;
+                // ACUMULADORES
+                $subtotal_general  += $subtotal_sin_iva;
                 $total_iva_general += $iva_importe;
             }
 
             // =============================
             // 4) TOTALIZAR FACTURA
             // =============================
-            $factura->subtotal = $subtotal_general;
-            $factura->total_iva = $total_iva_general;
+            $factura->subtotal      = $subtotal_general;
+            $factura->total_iva     = $total_iva_general;
             $factura->importe_total = $subtotal_general + $total_iva_general;
             $factura->save();
 
             // =============================
-            // 5) GUARDAR REMITOS
+            // 5) REMITOS
             // =============================
             if (!empty($validated['remitos'])) {
-
                 foreach ($validated['remitos'] as $remito) {
 
                     if (
@@ -253,14 +249,14 @@ class FacturaController extends Controller
         } catch (\Exception $e) {
 
             DB::rollBack();
-
-            // dd($e->getMessage());
+            dd($e->getMessage());
 
             return back()
                 ->with('error', 'Error al guardar la factura: ' . $e->getMessage())
                 ->withInput();
         }
     }
+
 
 
     /**
