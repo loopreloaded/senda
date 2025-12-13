@@ -183,6 +183,8 @@ class FacturaController extends Controller
             $factura->percepcion_iibb_alicuota = $request->percepcion_iibb_alicuota ?? 0;
             $factura->percepcion_iibb_importe  = $request->percepcion_iibb_importe ?? 0;
 
+            $factura->importe_total_otros_tributos = $request->importe_total_otros_tributos ?? 0;
+
             // =============================
             // GUARDAR
             // =============================

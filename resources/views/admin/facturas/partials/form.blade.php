@@ -249,9 +249,9 @@
 <button type="button" class="btn btn-primary btn-sm" id="agregar-item">Agregar Ítem</button>
 
 {{-- ============================
-     PERCEPCIONES
+     Otros tributos
    ============================ --}}
-<h5 class="mt-4">Percepciones</h5>
+<h4 class="mt-4">Otros tributos</h5>
 
 <table class="table table-bordered">
     <thead class="table-light">
@@ -267,69 +267,87 @@
 
         {{-- PERCEPCIÓN DE IVA --}}
         <tr>
-            <td class="text-end fw-bold">
-                Percepción de IVA
-            </td>
+            <td class="text-end fw-bold">Percepción de IVA</td>
+
             <td>
                 <input type="text"
-                       name="percepcion_iva_detalle"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iva_detalle"
+                    name="percepcion_iva_detalle"
+                    class="form-control"
+                    value="Percepción de IVA">
             </td>
             <td>
                 <input type="number"
-                       name="percepcion_iva_base"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iva_base"
+                    name="percepcion_iva_base"
+                    class="form-control"
+                    step="0.01" min="0">
             </td>
             <td>
                 <input type="number"
-                       name="percepcion_iva_alicuota"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iva_alicuota"
+                    name="percepcion_iva_alicuota"
+                    class="form-control"
+                    step="0.01" min="0">
             </td>
             <td>
                 <input type="number"
-                       name="percepcion_iva_importe"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iva_importe"
+                    name="percepcion_iva_importe"
+                    class="form-control"
+                    step="0.01" min="0" readonly>
             </td>
         </tr>
 
         {{-- PERCEPCIÓN DE INGRESOS BRUTOS --}}
         <tr>
-            <td class="text-end fw-bold">
-                Percepción de Ingresos Brutos
-            </td>
+            <td class="text-end fw-bold">Percepción de Ingresos Brutos</td>
+
             <td>
                 <input type="text"
-                       name="percepcion_iibb_detalle"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iibb_detalle"
+                    name="percepcion_iibb_detalle"
+                    class="form-control"
+                    value="Percepción de Ingresos Brutos">
             </td>
             <td>
                 <input type="number"
-                       name="percepcion_iibb_base"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iibb_base"
+                    name="percepcion_iibb_base"
+                    class="form-control"
+                    step="0.01" min="0">
             </td>
             <td>
                 <input type="number"
-                       name="percepcion_iibb_alicuota"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iibb_alicuota"
+                    name="percepcion_iibb_alicuota"
+                    class="form-control"
+                    step="0.01" min="0">
             </td>
             <td>
                 <input type="number"
-                       name="percepcion_iibb_importe"
-                       class="form-control"
-                       step="0.01" min="0">
+                    id="percepcion_iibb_importe"
+                    name="percepcion_iibb_importe"
+                    class="form-control"
+                    step="0.01" min="0" readonly>
             </td>
-
         </tr>
 
     </tbody>
 </table>
+
+{{-- ============================
+     IMPORTE TOTAL (otros tributos)
+   ============================ --}}
+<div class="row mt-4">
+    <div class="col-md-4 offset-md-8">
+        <div class="form-group">
+            <label for="importe_total_otros_tributos">Importe Total (otros tributos)</label>
+            <input type="text" id="importe_total_otros_tributos" name="importe_total_otros_tributos"
+                   class="form-control" readonly>
+        </div>
+    </div>
+</div>
 
 
 {{-- ============================
@@ -695,4 +713,73 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+</script>
+
+<script>
+
+function calcularPercepcion(baseId, alicuotaId, importeId) {
+
+    const base = parseFloat(document.getElementById(baseId)?.value) || 0;
+    const alicuota = parseFloat(document.getElementById(alicuotaId)?.value) || 0;
+
+    const importe = base * (alicuota / 100);
+
+    const importeInput = document.getElementById(importeId);
+    if (importeInput) {
+        importeInput.value = importe.toFixed(2);
+    }
+
+    // 👉 recalcular total otros tributos
+    calcularTotalOtrosTributos();
+}
+
+
+// Listeners Percepción IVA
+document.getElementById('percepcion_iva_base')?.addEventListener('input', () => {
+    calcularPercepcion(
+        'percepcion_iva_base',
+        'percepcion_iva_alicuota',
+        'percepcion_iva_importe'
+    );
+});
+
+document.getElementById('percepcion_iva_alicuota')?.addEventListener('input', () => {
+    calcularPercepcion(
+        'percepcion_iva_base',
+        'percepcion_iva_alicuota',
+        'percepcion_iva_importe'
+    );
+});
+
+// Listeners Percepción IIBB
+document.getElementById('percepcion_iibb_base')?.addEventListener('input', () => {
+    calcularPercepcion(
+        'percepcion_iibb_base',
+        'percepcion_iibb_alicuota',
+        'percepcion_iibb_importe'
+    );
+});
+
+document.getElementById('percepcion_iibb_alicuota')?.addEventListener('input', () => {
+    calcularPercepcion(
+        'percepcion_iibb_base',
+        'percepcion_iibb_alicuota',
+        'percepcion_iibb_importe'
+    );
+});
+
+function calcularTotalOtrosTributos() {
+
+    const iva = parseFloat(document.getElementById('percepcion_iva_importe')?.value) || 0;
+    const iibb = parseFloat(document.getElementById('percepcion_iibb_importe')?.value) || 0;
+
+    const total = iva + iibb;
+
+    console.log("total : ", total)
+
+    const totalInput = document.getElementById('importe_total_otros_tributos');
+    if (totalInput) {
+        totalInput.value = total.toFixed(2);
+    }
+}
 </script>

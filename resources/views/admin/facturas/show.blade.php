@@ -186,9 +186,94 @@
                     <p><strong>IVA total:</strong> {{ number_format($iva_general, 2, ',', '.') }}</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <h4><strong>Total:</strong> ${{ number_format($factura->importe_total, 2, ',', '.') }}</h4>
+                    @php
+                        $total_final = ($factura->importe_total ?? 0)
+                                    + ($factura->importe_total_otros_tributos ?? 0);
+                    @endphp
+
+                    <h4>
+                        <strong>Total:</strong>
+                        $ {{ number_format($factura->importe_total, 2, ',', '.') }}
+                    </h4>
+
+                    @if(($factura->importe_total_otros_tributos ?? 0) > 0)
+                        <h4 class="mt-1">
+                            <strong>Total Final c/ Tributos:</strong>
+                            $ {{ number_format($total_final, 2, ',', '.') }}
+                        </h4>
+                    @endif
                 </div>
             </div>
+
+            {{-- PERCEPCIONES --}}
+            @if(
+                ($factura->percepcion_iva_importe ?? 0) > 0 ||
+                ($factura->percepcion_iibb_importe ?? 0) > 0
+            )
+                <hr>
+
+                <h5 class="mt-3"><strong>Otros Tributos / Percepciones</strong></h5>
+
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Detalle</th>
+                            <th class="text-end">Base Imponible</th>
+                            <th class="text-end">Alícuota %</th>
+                            <th class="text-end">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {{-- Percepción IVA --}}
+                        @if(($factura->percepcion_iva_importe ?? 0) > 0)
+                            <tr>
+                                <td>{{ $factura->percepcion_iva_detalle }}</td>
+                                <td class="text-end">
+                                    {{ number_format($factura->percepcion_iva_base ?? 0, 2, ',', '.') }}
+                                </td>
+                                <td class="text-end">
+                                    {{ number_format($factura->percepcion_iva_alicuota ?? 0, 2, ',', '.') }}%
+                                </td>
+                                <td class="text-end">
+                                    {{ number_format($factura->percepcion_iva_importe ?? 0, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endif
+
+                        {{-- Percepción Ingresos Brutos --}}
+                        @if(($factura->percepcion_iibb_importe ?? 0) > 0)
+                            <tr>
+                                <td>{{ $factura->percepcion_iibb_detalle }}</td>
+                                <td class="text-end">
+                                    {{ number_format($factura->percepcion_iibb_base ?? 0, 2, ',', '.') }}
+                                </td>
+                                <td class="text-end">
+                                    {{ number_format($factura->percepcion_iibb_alicuota ?? 0, 2, ',', '.') }}%
+                                </td>
+                                <td class="text-end">
+                                    {{ number_format($factura->percepcion_iibb_importe ?? 0, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endif
+
+                    </tbody>
+                </table>
+            @endif
+
+            @if(($factura->importe_total_otros_tributos ?? 0) > 0)
+                <div class="row mt-2">
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6 text-end">
+                        <p>
+                            <strong>Importe Total (Otros Tributos):</strong>
+                            $ {{ number_format($factura->importe_total_otros_tributos ?? 0, 2, ',', '.') }}
+                        </p>
+                    </div>
+                </div>
+            @endif
+
+
 
             <hr>
 

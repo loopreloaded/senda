@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Factura extends Model
 {
     protected $fillable = [
-        // =============================
-        // Datos principales
-        // =============================
         'cliente_id',
         'tipo_comprobante',
         'punto_venta',
@@ -21,36 +18,26 @@ class Factura extends Model
         'estado',
         'creado_por',
 
-        // =============================
-        // Fechas (servicios)
-        // =============================
         'fecha_desde',
         'fecha_hasta',
         'vencimiento_pago',
 
-        // =============================
-        // Importes
-        // =============================
         'subtotal',
         'total_iva',
         'importe_total',
+        'importe_total_otros_tributos',
 
-        // =============================
-        // Percepciones IVA
-        // =============================
         'percepcion_iva_detalle',
         'percepcion_iva_base',
         'percepcion_iva_alicuota',
         'percepcion_iva_importe',
 
-        // =============================
-        // Percepciones Ingresos Brutos
-        // =============================
         'percepcion_iibb_detalle',
         'percepcion_iibb_base',
         'percepcion_iibb_alicuota',
         'percepcion_iibb_importe',
     ];
+
 
     /* =============================
        RELACIONES
