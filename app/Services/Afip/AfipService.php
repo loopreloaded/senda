@@ -117,9 +117,11 @@ class AfipService
      */
     public function enviarFactura($factura)
     {
-        Log::info("➡ Enviando factura ID {$factura->id} a AFIP (producción)");
+        Log::info("➡ Enviando factura ID {$factura->id} a AFIP");
 
-        // === 1) CARGAR TA ===
+        // ==============================
+        // 1) TOKEN
+        // ==============================
         if (!file_exists($this->taPath)) {
             $this->obtenerToken();
         }
@@ -128,10 +130,12 @@ class AfipService
         $token = (string)$ta->credentials->token;
         $sign  = (string)$ta->credentials->sign;
 
-        // === 2) SOAP CLIENT ===
+        // ==============================
+        // 2) SOAP
+        // ==============================
         $client = new \SoapClient($this->wsfeWsdl, [
             'trace' => 1,
-            'exceptions' => 1
+            'exceptions' => true
         ]);
 
         $auth = [
@@ -140,139 +144,148 @@ class AfipService
             'Cuit'  => $this->cuit,
         ];
 
-        // === 3) OBTENER SIGUIENTE NÚMERO ===
+        // ==============================
+        // 3) NÚMERO COMPROBANTE
+        // ==============================
+        $cbteTipo = $factura->tipo_comprobante === 'A' ? 1 : 6;
+
         $ultimo = $client->FECompUltimoAutorizado([
             'Auth'   => $auth,
             'PtoVta' => $factura->punto_venta,
-            'CbteTipo' => $factura->tipo_comprobante === 'A' ? 1 : 6,
+            'CbteTipo' => $cbteTipo,
         ]);
 
         $cbteDesde = $ultimo->FECompUltimoAutorizadoResult->CbteNro + 1;
-        $cbteHasta = $cbteDesde;
 
-        // === 4) MONEDA ===
-        if ($factura->moneda === 'ARS') {
-            $monId = 'PES';
-            $monCotiz = 1;
-        } else {
-            $monId = 'DOL';
-            $monCotiz = $factura->valor_dolar > 0 ? $factura->valor_dolar : 1;
-        }
+        // ==============================
+        // 4) MONEDA
+        // ==============================
+        $monId = $factura->moneda === 'USD' ? 'DOL' : 'PES';
+        $monCotiz = $factura->moneda === 'USD'
+            ? max(1, (float)$factura->valor_dolar)
+            : 1;
 
-        // === 5) RECÁLCULO NETO + IVA ===
-        $impNeto = round($factura->importe_total / 1.21, 2);
-        $impIVA  = round($factura->importe_total - $impNeto, 2);
-
-        // === 6) TIPO DOC ===
+        // ==============================
+        // 5) DOCUMENTO
+        // ==============================
         $docTipo = $factura->cliente->cuit ? 80 : 99;
         $docNro  = $factura->cliente->cuit ?? 0;
 
-        // === 7) CONCEPTO (1 bienes, 2 servicios, 3 ambos) ===
-        $conceptoAFIP = $factura->concepto;
-
-        // === 8) FECHAS PARA SERVICIOS ===
+        // ==============================
+        // 6) FECHAS SERVICIOS
+        // ==============================
         $fchServDesde = null;
         $fchServHasta = null;
         $fchVtoPago   = null;
 
-        if ($conceptoAFIP == 2 || $conceptoAFIP == 3) {
-            $fchServDesde = $factura->fecha_desde
-                ? date('Ymd', strtotime($factura->fecha_desde))
-                : null;
-
-            $fchServHasta = $factura->fecha_hasta
-                ? date('Ymd', strtotime($factura->fecha_hasta))
-                : null;
-
-            $fchVtoPago = $factura->vencimiento_pago
-                ? date('Ymd', strtotime($factura->vencimiento_pago))
-                : null;
+        if (in_array($factura->concepto, [2,3])) {
+            $fchServDesde = $factura->fecha_desde ? date('Ymd', strtotime($factura->fecha_desde)) : null;
+            $fchServHasta = $factura->fecha_hasta ? date('Ymd', strtotime($factura->fecha_hasta)) : null;
+            $fchVtoPago   = $factura->vencimiento_pago ? date('Ymd', strtotime($factura->vencimiento_pago)) : null;
         }
 
-        // === 9) ARMADO DEL REQUEST ===
-        $data = [
+        // ==============================
+        // 7) RECÁLCULO DESDE ÍTEMS
+        // ==============================
+        $impNeto = 0;
+        $impIVA = 0;
+        $impOpEx = 0;
+        $impTotConc = 0;
+
+        $ivaAgrupado = [];
+
+        foreach ($factura->items as $item) {
+
+            $base = (float)$item->subtotal_sin_iva;
+            $iva  = (float)$item->iva;
+
+            // NO GRAVADO / EXENTO
+            if ($iva == 0) {
+                $impOpEx += $base;
+                continue;
+            }
+
+            // MAPEO AFIP
+            $map = [
+                2.5 => 9,
+                5   => 8,
+                10.5=> 4,
+                21  => 5,
+                27  => 6,
+            ];
+
+            if (!isset($map[$iva])) continue;
+
+            $ivaId = $map[$iva];
+            $ivaImporte = round($base * ($iva / 100), 2);
+
+            $impNeto += $base;
+            $impIVA  += $ivaImporte;
+
+            if (!isset($ivaAgrupado[$ivaId])) {
+                $ivaAgrupado[$ivaId] = [
+                    'Id' => $ivaId,
+                    'BaseImp' => 0,
+                    'Importe' => 0,
+                ];
+            }
+
+            $ivaAgrupado[$ivaId]['BaseImp'] += $base;
+            $ivaAgrupado[$ivaId]['Importe'] += $ivaImporte;
+        }
+
+        // ==============================
+        // 8) ARMAR REQUEST
+        // ==============================
+        $detalle = [
+            'Concepto'  => $factura->concepto,
+            'DocTipo'   => $docTipo,
+            'DocNro'    => $docNro,
+            'CbteDesde' => $cbteDesde,
+            'CbteHasta' => $cbteDesde,
+            'CbteFch'   => date('Ymd', strtotime($factura->fecha_emision)),
+            'ImpTotal'  => round($factura->importe_total, 2),
+            'ImpTotConc'=> round($impTotConc, 2),
+            'ImpNeto'   => round($impNeto, 2),
+            'ImpIVA'    => round($impIVA, 2),
+            'ImpTrib'   => 0,
+            'ImpOpEx'   => round($impOpEx, 2),
+            'MonId'     => $monId,
+            'MonCotiz'  => $monCotiz,
+        ];
+
+        if (!empty($ivaAgrupado)) {
+            $detalle['Iva'] = [
+                'AlicIva' => array_values($ivaAgrupado)
+            ];
+        }
+
+        if ($fchServDesde) {
+            $detalle['FchServDesde'] = $fchServDesde;
+            $detalle['FchServHasta'] = $fchServHasta;
+            $detalle['FchVtoPago']   = $fchVtoPago;
+        }
+
+        // ==============================
+        // 9) ENVÍO
+        // ==============================
+        $res = $client->FECAESolicitar([
+            'Auth' => $auth,
             'FeCAEReq' => [
                 'FeCabReq' => [
                     'CantReg' => 1,
                     'PtoVta'  => $factura->punto_venta,
-                    'CbteTipo'=> $factura->tipo_comprobante === 'A' ? 1 : 6,
+                    'CbteTipo'=> $cbteTipo,
                 ],
                 'FeDetReq' => [
-                    'FECAEDetRequest' => [
-                        'Concepto'  => $conceptoAFIP,
-                        'DocTipo'   => $docTipo,
-                        'DocNro'    => $docNro,
-                        'CbteDesde' => $cbteDesde,
-                        'CbteHasta' => $cbteHasta,
-                        'CbteFch'   => date('Ymd', strtotime($factura->fecha_emision)),
-                        'ImpTotal'  => $factura->importe_total,
-                        'ImpTotConc'=> 0,
-                        'ImpNeto'   => $impNeto,
-                        'ImpIVA'    => $impIVA,
-                        'ImpTrib'   => 0,
-                        'ImpOpEx'   => 0,
-
-                        // === MONEDA ===
-                        'MonId'     => $monId,
-                        'MonCotiz'  => $monCotiz,
-
-                        // === FECHAS SERVICIOS (solo si aplica) ===
-                        'FchServDesde' => $fchServDesde,
-                        'FchServHasta' => $fchServHasta,
-                        'FchVtoPago'   => $fchVtoPago,
-
-                        // === IVA GENERAL ===
-                        'Iva' => [
-                            'AlicIva' => [
-                                'Id'       => 5,
-                                'BaseImp'  => $impNeto,
-                                'Importe'  => $impIVA,
-                            ]
-                        ],
-
-                        // ================================
-                        // ✔ ACTIVIDAD ECONÓMICA FIJA
-                        // ================================
-                        'Opcionales' => [
-                            'Opcional' => [
-                                [
-                                    'Id' => 2101,                 // AFIP: Actividad Económica
-                                    'Valor' => '279000',         // Fabricación de equipos eléctricos
-                                ],
-                            ]
-                        ],
-
-                        // ================================
-                        // ✔ CONDICIÓN DE VENTA - SIEMPRE "OTRA"
-                        // ================================
-                        'CondicionVenta' => 99, // 99 = Otros
-
-                    ]
+                    'FECAEDetRequest' => $detalle
                 ]
             ]
-        ];
+        ]);
 
-        // === 10) ENVÍO ===
-        try {
-            $res = $client->FECAESolicitar(['Auth' => $auth] + $data);
-
-            Log::info("✅ Factura enviada correctamente", [
-                'request'  => $client->__getLastRequest(),
-                'response' => $client->__getLastResponse()
-            ]);
-
-            return $res;
-
-        } catch (\Exception $e) {
-
-            Log::error("❌ Error al enviar factura a AFIP: {$e->getMessage()}", [
-                'request'  => $client->__getLastRequest(),
-                'response' => $client->__getLastResponse()
-            ]);
-
-            throw $e;
-        }
+        return $res;
     }
+
 
 
     // =======================
