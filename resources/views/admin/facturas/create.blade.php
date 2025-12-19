@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2>Crear Nueva Factura</h2>
+            <h2>Nueva Factura</h2>
         </div>
     </div>
 @stop

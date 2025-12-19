@@ -314,13 +314,13 @@ return [
             'can'     => 'ver facturas',
             'submenu' => [
                 [
-                    'text'  => 'Cargar Factura',
+                    'text'  => 'Nueva Factura',
                     'route' => 'facturas.create',
                     'icon'  => 'fas fa-fw fa-plus-circle',
                     'can'   => 'crear facturas',
                 ],
                 [
-                    'text'  => 'Listado de Comprobantes',
+                    'text'  => 'Listado de Facturas',
                     'route' => 'facturas.index',
                     'icon'  => 'fas fa-fw fa-list',
                     'can'   => 'ver facturas',

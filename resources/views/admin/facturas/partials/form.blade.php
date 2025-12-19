@@ -144,14 +144,15 @@
     </tbody>
 </table>
 
-<button type="button" class="btn btn-secondary btn-sm" id="agregar-remito">Agregar Remito</button>
+<button type="button" class="btn btn-primary btn-sm" id="agregar-remito">Agregar Remito</button>
+
+<br><br>
 
 <h3>Datos del Receptor</h3>
 
 {{-- ============================
      DATOS DEL CLIENTE
    ============================ --}}
-<h4 class="mt-4">Datos del Cliente</h4>
 
 <div class="row">
 
@@ -342,7 +343,7 @@
 <div class="row mt-4">
     <div class="col-md-4 offset-md-8">
         <div class="form-group">
-            <label for="importe_total_otros_tributos">Importe Total (otros tributos)</label>
+            <label for="importe_total_otros_tributos">Subtotal Otros Tributos</label>
             <input type="text" id="importe_total_otros_tributos" name="importe_total_otros_tributos"
                    class="form-control" readonly>
         </div>
