@@ -1,4 +1,4 @@
-<h3>Datos del Emisor</h3>
+<h3>Datos de Emision</h3>
 
 {{-- ============================
      DATOS DEL COMPROBANTE
@@ -124,28 +124,6 @@
 </div>
 
 
-{{-- ============================
-     REMITOS ASOCIADOS
-   ============================ --}}
-<h4 class="mt-4">Remitos Asociados</h4>
-
-<table class="table table-bordered" id="tabla-remitos">
-    <thead>
-        <tr>
-            <th style="width: 150px;">Pto. Venta</th>
-            <th style="width: 180px;">Comprobante</th>
-            <th style="width: 180px;">Fecha Remito</th>
-            <th style="width: 60px;"></th>
-        </tr>
-    </thead>
-
-    <tbody id="remitos-body">
-        <!-- Aquí se insertan -->
-    </tbody>
-</table>
-
-<button type="button" class="btn btn-primary btn-sm" id="agregar-remito">Agregar Remito</button>
-
 <br><br>
 
 <h3>Datos del Receptor</h3>
@@ -218,6 +196,30 @@
 </div>
 
 
+{{-- ============================
+     REMITOS ASOCIADOS
+   ============================ --}}
+<h4 class="mt-4">Remitos Asociados</h4>
+
+<table class="table table-bordered" id="tabla-remitos">
+    <thead>
+        <tr>
+            <th style="width: 150px;">Pto. Venta</th>
+            <th style="width: 180px;">Comprobante</th>
+            <th style="width: 180px;">Fecha Remito</th>
+            <th style="width: 60px;"></th>
+        </tr>
+    </thead>
+
+    <tbody id="remitos-body">
+        <!-- Aquí se insertan -->
+    </tbody>
+</table>
+
+<button type="button" class="btn btn-primary btn-sm" id="agregar-remito">Agregar Remito</button>
+
+<br><br>
+
 <h3>Datos de la operacion</h3>
 
 {{-- ============================
@@ -275,7 +277,7 @@
                     id="percepcion_iva_detalle"
                     name="percepcion_iva_detalle"
                     class="form-control"
-                    value="Percepción de IVA">
+                    value="">
             </td>
             <td>
                 <input type="number"
@@ -309,7 +311,7 @@
                     id="percepcion_iibb_detalle"
                     name="percepcion_iibb_detalle"
                     class="form-control"
-                    value="Percepción de Ingresos Brutos">
+                    value="">
             </td>
             <td>
                 <input type="number"
