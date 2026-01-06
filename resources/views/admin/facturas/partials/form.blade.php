@@ -40,7 +40,11 @@
     <div class="col-md-4">
         <div class="form-group">
             <label for="moneda">Moneda</label>
-            <select name="moneda" id="moneda" class="form-control" required>
+            <select name="moneda"
+                    id="moneda"
+                    class="form-control"
+                    required
+                    onchange="actualizarCampoDolar()">
                 <option value="ARS" {{ old('moneda') == 'ARS' ? 'selected' : '' }}>ARS (Pesos)</option>
                 <option value="USD" {{ old('moneda') == 'USD' ? 'selected' : '' }}>USD (Dólares)</option>
             </select>
@@ -48,15 +52,18 @@
     </div>
 
     {{-- Tipo de cambio + botón refrescar --}}
-    <div class="col-md-4">
+    <div class="col-md-4" id="bloque-valor-dolar">
         <label for="valor_dolar">Tipo de Cambio (USD)</label>
-        <div class="input-group">
-            <input type="number" step="0.01" name="valor_dolar" id="valor_dolar"
-                   class="form-control" value="{{ old('valor_dolar', 1) }}" required>
-
-        </div>
-        <small class="text-muted">Chequear valor en <a href="https://www.bna.com.ar/Personas" target="_blank">BNA</a></small>
+        <input type="number"
+            step="0.01"
+            name="valor_dolar"
+            id="valor_dolar"
+            class="form-control"
+            value="{{ old('valor_dolar', 1) }}">
     </div>
+
+
+
 
 </div>
 
@@ -785,4 +792,37 @@ function calcularTotalOtrosTributos() {
         totalInput.value = total.toFixed(2);
     }
 }
+
+function actualizarCampoDolar() {
+
+    const moneda = document.getElementById('moneda');
+    const bloque = document.getElementById('bloque-valor-dolar');
+    const input  = document.getElementById('valor_dolar');
+
+    if (!moneda || !bloque || !input) {
+        console.warn('No se encontró moneda o campo dólar');
+        return;
+    }
+
+    if (moneda.value === 'USD') {
+        bloque.style.display = 'block';
+        input.disabled = false;
+        input.required = true;
+
+        if (!input.value || input.value <= 0) {
+            input.value = 1;
+        }
+
+    } else {
+        bloque.style.display = 'none';
+        input.disabled = true;
+        input.required = false;
+        input.value = 1;
+    }
+}
+
+// 🔥 ejecutar al cargar (old(), edición, etc.)
+document.addEventListener('DOMContentLoaded', actualizarCampoDolar);
+
+
 </script>
