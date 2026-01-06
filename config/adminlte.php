@@ -307,6 +307,27 @@ return [
             'icon'  => 'fas fa-fw fa-tachometer-alt',
             'can'   => 'admin.home',
         ],
+        // CLIENTES
+        [
+            'text'    => 'Clientes',
+            'icon'    => 'fas fa-fw fa-users',
+            'can'     => 'ver clientes',
+            'submenu' => [
+                [
+                    'text'  => 'Nuevo Cliente',
+                    'route' => 'clientes.create',
+                    'icon'  => 'fas fa-fw fa-user-plus',
+                    'can'   => 'crear clientes',
+                ],
+                [
+                    'text'  => 'Listado de Clientes',
+                    'route' => 'clientes.index',
+                    'icon'  => 'fas fa-fw fa-list',
+                    'can'   => 'ver clientes',
+                ],
+            ],
+        ],
+
         // FACTURACIÓN
         [
             'text'    => 'Facturación',
