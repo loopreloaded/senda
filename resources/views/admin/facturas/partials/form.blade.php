@@ -825,3 +825,99 @@ document.addEventListener('DOMContentLoaded', actualizarCampoDolar);
 
 
 </script>
+
+<script>
+// Actualiza las opciones de `condicion_iva` según `tipo_comprobante`
+function actualizarCondicionIva(useOld = false) {
+    const tipo = document.getElementById('tipo_comprobante');
+    const select = document.getElementById('condicion_iva');
+    if (!tipo || !select) return;
+
+    const opcionesA = [
+        { value: '', text: 'Seleccione...' },
+        { value: 'RI', text: 'Responsable Inscripto' },
+        { value: 'MT', text: 'Monotributista' },
+        { value: 'CF', text: 'Consumidor Final' },
+        { value: 'EX', text: 'Exento' }
+    ];
+
+    const opcionesB = [
+        { value: '', text: 'Seleccione...' },
+        { value: 'IVA Sujeto', text: 'IVA Sujeto' },
+        { value: 'Excento', text: 'Excento' },
+        { value: 'Consumidor Final', text: 'Consumidor Final' },
+        { value: 'Sujeto No Categorizado', text: 'Sujeto No Categorizado' },
+        { value: 'Proveedor del Exterior', text: 'Proveedor del Exterior' },
+        { value: 'Cliente del Exterior', text: 'Cliente del Exterior' },
+        { value: 'IVA Liberado - Ley N° 16.940 IVA', text: 'IVA Liberado - Ley N° 16.940 IVA' },
+        { value: 'No Alcanzado', text: 'No Alcanzado' }
+    ];
+
+    // elegir conjunto según tipo
+    const conjunto = (tipo.value === 'B') ? opcionesB : opcionesA;
+
+    // conservar valor previo (server-side old) sólo si se indica
+    const oldCond = useOld ? @json(old('condicion_iva')) : null;
+
+    // limpiar y reconstruir
+    select.innerHTML = '';
+    conjunto.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt.value;
+        o.text = opt.text;
+        select.appendChild(o);
+    });
+
+    // intentar restaurar selección previa: buscar por value o por texto (solo si useOld=true)
+    if (oldCond) {
+        let encontrado = false;
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === oldCond || select.options[i].text === oldCond) {
+                select.selectedIndex = i;
+                encontrado = true;
+                break;
+            }
+        }
+        if (!encontrado) {
+            // si old no coincide, mantener la primera opción (Seleccione...)
+            select.selectedIndex = 0;
+        }
+    }
+}
+
+// Inicializar en carga y al cambiar tipo de comprobante
+document.addEventListener('DOMContentLoaded', function () {
+    actualizarCondicionIva(true);
+    const tipo = document.getElementById('tipo_comprobante');
+    if (tipo) {
+        tipo.addEventListener('change', function () {
+            actualizarCondicionIva(false);
+        });
+    }
+
+    // Si Select2 está presente, también enganchar a sus eventos via jQuery
+    if (window.jQuery && tipo) {
+        try {
+            const $tipo = jQuery(tipo);
+            if ($tipo.data('select2') || $tipo.hasClass('select2-hidden-accessible')) {
+                $tipo.on('select2:select select2:unselect', function (e) {
+                    actualizarCondicionIva(false);
+                });
+                $tipo.on('change', function () {
+                    actualizarCondicionIva(false);
+                });
+            }
+        } catch (err) {
+            console.warn('Error attaching select2 listeners', err);
+        }
+    }
+});
+
+// Listener delegado para detectar cambios si el elemento es reemplazado dinámicamente
+document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'tipo_comprobante') {
+        actualizarCondicionIva(false);
+    }
+});
+
+</script>
