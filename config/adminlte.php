@@ -314,7 +314,7 @@ return [
             'can'     => 'ver clientes',
             'submenu' => [
                 [
-                    'text'  => 'Nuevo Cliente',
+                    'text'  => 'Alta Cliente',
                     'route' => 'clientes.create',
                     'icon'  => 'fas fa-fw fa-user-plus',
                     'can'   => 'crear clientes',
