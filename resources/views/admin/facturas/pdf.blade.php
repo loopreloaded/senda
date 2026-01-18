@@ -132,12 +132,14 @@ td {
 
             <td class="wrapper" style="width:50%; vertical-align:top; border-right:0;">
 
-                {{-- LOGO EMPRESA --}}
-                <img
-                    src="{{ public_path('img/logo.png') }}"
-                    style="width:90px; max-height:70px; margin-bottom:5px;"
-                    alt="Logo Empresa"
-                >
+                {{-- LOGO EMPRESA CENTRADO --}}
+                <div style="text-align:center; margin-bottom:5px;">
+                    <img
+                        src="{{ public_path('img/logo.png') }}"
+                        style="width:90px; max-height:70px;"
+                        alt="Logo Empresa"
+                    >
+                </div>
 
                 <h3 class="text-center" style="font-size:24px;margin-bottom:3px;">
                     {{ $empresa->razon_social }}
@@ -149,7 +151,6 @@ td {
                     <b>Condición frente al IVA:</b> {{ $empresa->condicion_iva }}
                 </p>
             </td>
-
 
             {{-- COLUMNA DERECHA --}}
             <td class="wrapper" style="width:50%; vertical-align:top;">
