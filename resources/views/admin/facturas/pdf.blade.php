@@ -130,17 +130,26 @@ td {
     <table style="width:102%; border-collapse:collapse;">
         <tr>
 
-            {{-- COLUMNA IZQUIERDA --}}
             <td class="wrapper" style="width:50%; vertical-align:top; border-right:0;">
+
+                {{-- LOGO EMPRESA --}}
+                <img
+                    src="{{ public_path('img/logo.png') }}"
+                    style="width:90px; max-height:70px; margin-bottom:5px;"
+                    alt="Logo Empresa"
+                >
+
                 <h3 class="text-center" style="font-size:24px;margin-bottom:3px;">
                     {{ $empresa->razon_social }}
                 </h3>
+
                 <p style="font-size:13px;line-height:1.4;margin:0;">
                     <b>Razón Social:</b> {{ $empresa->razon_social }}<br>
                     <b>Domicilio Comercial:</b> {{ $empresa->direccion }}<br>
                     <b>Condición frente al IVA:</b> {{ $empresa->condicion_iva }}
                 </p>
             </td>
+
 
             {{-- COLUMNA DERECHA --}}
             <td class="wrapper" style="width:50%; vertical-align:top;">
