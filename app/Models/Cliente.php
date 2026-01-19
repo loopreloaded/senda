@@ -13,6 +13,7 @@ class Cliente extends Model
         'razon_social',
         'cuit',
         'condicion_iva',
+        'condicion_iibb',
         'direccion',
         'email',
         'telefono',

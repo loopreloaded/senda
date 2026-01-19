@@ -57,6 +57,24 @@
     </div>
 </div>
 
+<div class="col-md-3">
+    <div class="form-group">
+        <label for="condicion_iibb">Condición Ingreso Bruto</label>
+        <select name="condicion_iibb" id="condicion_iibb" class="form-control" required>
+            <option value="">Seleccione...</option>
+
+            <option value="L" {{ old('condicion_iibb', $orden->condicion_iibb ?? '') == 'L' ? 'selected' : '' }}>
+                Local
+            </option>
+
+            <option value="CM" {{ old('condicion_iibb', $orden->condicion_iibb ?? '') == 'CM' ? 'selected' : '' }}>
+                Convenio Multilateral
+            </option>
+
+        </select>
+    </div>
+</div>
+
 
 <div class="row mt-3">
     <div class="col-md-12">

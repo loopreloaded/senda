@@ -30,10 +30,58 @@
 </div>
 
 <div class="row mt-3">
-    <label>Domicilio Comercial</label>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="condicion_arca">Condición ARCA</label>
+            <select name="condicion_arca" id="condicion_arca" class="form-control" required>
+                <option value="">Seleccione...</option>
+
+                <option value="RI" {{ old('condicion_arca', $cliente->condicion_iva ?? '') == 'RI' ? 'selected' : '' }}>
+                    Responsable Inscripto
+                </option>
+
+                <option value="EX" {{ old('condicion_arca', $cliente->condicion_iva ?? '') == 'EX' ? 'selected' : '' }}>
+                    Exento
+                </option>
+
+                <option value="NR" {{ old('condicion_arca', $cliente->condicion_iva ?? '') == 'NR' ? 'selected' : '' }}>
+                    No Responsable
+                </option>
+
+                <option value="CF" {{ old('condicion_arca', $cliente->condicion_iva ?? '') == 'CF' ? 'selected' : '' }}>
+                    Consumidor Final
+                </option>
+
+                <option value="MT" {{ old('condicion_arca', $cliente->condicion_iva ?? '') == 'MT' ? 'selected' : '' }}>
+                    Responsable Monotributo
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="condicion_iibb">Condición Ingreso Bruto</label>
+            <select name="condicion_iibb" id="condicion_iibb" class="form-control" required>
+                <option value="">Seleccione...</option>
+
+                <option value="L" {{ old('condicion_iibb', $cliente->condicion_iibb ?? '') == 'L' ? 'selected' : '' }}>
+                    Local
+                </option>
+
+                <option value="CM" {{ old('condicion_iibb', $cliente->condicion_iibb ?? '') == 'CM' ? 'selected' : '' }}>
+                    Convenio Multilateral
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <label>Domicilio Comercial</label>
         <input type="text"
-            name="direccion"
-            class="form-control"
-            value="{{ old('direccion', $cliente->direccion ?? '') }}"
-            required>
+               name="direccion"
+               class="form-control"
+               value="{{ old('direccion', $cliente->direccion ?? '') }}"
+               required>
+    </div>
 </div>

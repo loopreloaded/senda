@@ -53,19 +53,24 @@ class ClienteController extends Controller
             'domicilio_comercial' => 'required|string|max:255',
             'email'               => 'nullable|email|max:150',
 
-            // puede venir como condicion_arca (nuevo) o condicion_iva (viejo)
-            'condicion_arca'      => 'nullable|string|in:RI,EX,NR,CF,MT',
-            'condicion_iva'       => 'nullable|string|in:RI,EX,NR,CF,MT',
-        ]);
+            // Condición ARCA (se guarda en condicion_iva)
+            'condicion_arca'      => 'required|string|in:RI,EX,NR,CF,MT',
 
-        $condicion = $request->input('condicion_arca', $request->input('condicion_iva'));
+            // Condición IIBB
+            'condicion_iibb'      => 'required|string|in:L,CM',
+        ]);
 
         Cliente::create([
             'cuit'          => $request->cuit,
             'razon_social'  => $request->razon_social,
-            'direccion'     => $request->domicilio_comercial, // se guarda en direccion
+            'direccion'     => $request->domicilio_comercial,
             'email'         => $request->email,
-            'condicion_iva' => $condicion, // se guarda en condicion_iva
+
+            // Guardado como campo existente en la tabla
+            'condicion_iva' => $request->condicion_arca,
+
+            // Campo nuevo en BD: condicion_iibb
+            'condicion_iibb' => $request->condicion_iibb,
         ]);
 
         return redirect()
@@ -95,24 +100,29 @@ class ClienteController extends Controller
     public function update(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'cuit'                => 'required|digits:11|unique:clientes,cuit,' . $cliente->id,
-            'razon_social'        => 'required|string|max:150',
-            'direccion'           => 'required|string|max:255',
-            'email'               => 'nullable|email|max:150',
+            'cuit'          => 'required|digits:11|unique:clientes,cuit,' . $cliente->id,
+            'razon_social'  => 'required|string|max:150',
+            'direccion'     => 'required|string|max:255',
+            'email'         => 'nullable|email|max:150',
 
-            // puede venir como condicion_arca (nuevo) o condicion_iva (viejo)
-            'condicion_arca'      => 'nullable|string|in:RI,EX,NR,CF,MT',
-            'condicion_iva'       => 'nullable|string|in:RI,EX,NR,CF,MT',
+            // Condición ARCA (se guarda en condicion_iva)
+            'condicion_arca' => 'required|string|in:RI,EX,NR,CF,MT',
+
+            // Condición IIBB
+            'condicion_iibb' => 'required|string|in:L,CM',
         ]);
-
-        $condicion = $request->input('condicion_arca', $request->input('condicion_iva'));
 
         $cliente->update([
             'cuit'          => $request->cuit,
             'razon_social'  => $request->razon_social,
             'direccion'     => $request->direccion,
             'email'         => $request->email,
-            'condicion_iva' => $condicion,
+
+            // Guardado como campo existente en la tabla
+            'condicion_iva' => $request->condicion_arca,
+
+            // Campo nuevo en BD: condicion_iibb
+            'condicion_iibb' => $request->condicion_iibb,
         ]);
 
         return redirect()
