@@ -88,18 +88,19 @@ class ClienteController extends Controller
     public function update(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'cuit'                 => 'required|digits:11|unique:clientes,cuit,' . $cliente->id,
-            'razon_social'         => 'required|string|max:150',
-            'domicilio_comercial'  => 'required|string|max:255',
-            'email'                => 'nullable|email|max:150',
+            'cuit'         => 'required|digits:11|unique:clientes,cuit,' . $cliente->id,
+            'razon_social' => 'required|string|max:150',
+            'direccion'    => 'required|string|max:255',
+            'email'        => 'nullable|email|max:150',
         ]);
 
         $cliente->update([
-            'cuit'                => $request->cuit,
-            'razon_social'        => $request->razon_social,
-            'domicilio_comercial' => $request->domicilio_comercial,
-            'email'               => $request->email,
+            'cuit'         => $request->cuit,
+            'razon_social' => $request->razon_social,
+            'direccion'    => $request->direccion,
+            'email'        => $request->email,
         ]);
+
 
         return redirect()
             ->route('clientes.index')

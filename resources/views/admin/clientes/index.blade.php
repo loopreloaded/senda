@@ -86,7 +86,7 @@
                 <td>{{ $cliente->id }}</td>
                 <td>{{ $cliente->cuit }}</td>
                 <td>{{ $cliente->razon_social }}</td>
-                <td>{{ $cliente->domicilio_comercial }}</td>
+                <td>{{ $cliente->direccion }}</td>
                 <td>{{ $cliente->email }}</td>
                 <td>
 
