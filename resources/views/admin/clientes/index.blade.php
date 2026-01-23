@@ -8,9 +8,58 @@
 
 @section('content')
 
-<a href="{{ route('clientes.create') }}" class="btn btn-primary mb-3">
-    <i class="fas fa-user-plus"></i> Nuevo Cliente
-</a>
+<div class="d-flex gap-2 mb-3">
+
+    <a href="{{ route('clientes.create') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> Nuevo Cliente
+    </a>
+
+    {{-- BOTÓN IMPORTAR EXCEL --}}
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalImportExcel">
+        <i class="fas fa-file-excel"></i> Importar Excel
+    </button>
+
+</div>
+
+{{-- MODAL IMPORTACIÓN --}}
+<div class="modal fade" id="modalImportExcel" tabindex="-1" role="dialog" aria-labelledby="modalImportExcelLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form action="{{ route('clientes.import.excel') }}" method="POST" enctype="multipart/form-data" class="modal-content">
+            @csrf
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalImportExcelLabel">Importar Excel (CUIT + Condición IIBB)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="alert alert-info">
+                    El archivo debe contener columnas: <b>cuit</b> y <b>condicion_iibb</b>
+                </div>
+
+                <div class="form-group">
+                    <label>Archivo Excel</label>
+                    <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-upload"></i> Importar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
 
 {{-- FILTRO DE CLIENTES --}}
 <form method="GET" action="{{ route('clientes.index') }}" class="mb-3">

@@ -45,6 +45,9 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     Route::get('clientes/buscar', [ClienteController::class, 'buscar'])
     ->name('clientes.buscar');
 
+    Route::post('clientes/import-excel', [ClienteController::class, 'importExcel'])
+    ->name('clientes.import.excel');
+
     Route::resource('clientes', ClienteController::class);
 
 
