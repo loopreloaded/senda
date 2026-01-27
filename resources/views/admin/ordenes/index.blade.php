@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-<a href="{{ route('ordenes.create') }}" class="btn btn-primary mb-3">Nueva Orden de Compra</a>
+<a href="{{ route('ordenes.create') }}" class="btn btn-primary mb-3">Nueva Orden de pedido</a>
 
 {{-- FILTRO DE ÓRDENES --}}
 <form method="GET" action="{{ route('ordenes.index') }}" class="mb-3">

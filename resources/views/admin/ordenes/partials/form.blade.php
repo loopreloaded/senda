@@ -49,12 +49,12 @@
 
 
     <div class="col-md-4">
-        <label>Condición de Compra</label>
+        <label>Condición de pedido</label>
         <input type="text" name="condicion_compra" class="form-control" value="{{ old('condicion_compra', $orden->condicion_compra ?? '') }}" required>
     </div>
 
     <div class="col-md-4">
-        <label>Solicitud de Compra</label>
+        <label>Solicitud de pedido</label>
         <input type="text" name="solicitud_compra" class="form-control" value="{{ old('solicitud_compra', $orden->solicitud_compra ?? '') }}">
     </div>
 </div>
