@@ -27,7 +27,9 @@
     </div>
 </div>
 
-<div class="col-md-3">
+<div class="row mt-3">
+    <div class="col-md-4">
+
     <div class="form-group">
         <label for="condicion_arca">Condición ARCA</label>
         <select name="condicion_arca" id="condicion_arca" class="form-control" required>
@@ -57,7 +59,7 @@
     </div>
 </div>
 
-<div class="col-md-3">
+<div class="col-md-4">
     <div class="form-group">
         <label for="condicion_iibb">Condición Ingreso Bruto</label>
         <select name="condicion_iibb" id="condicion_iibb" class="form-control" required>
@@ -76,8 +78,7 @@
 </div>
 
 
-<div class="row mt-3">
-    <div class="col-md-12">
+<div class="col-md-4">
         <label>Domicilio Comercial</label>
         <input type="text"
                name="domicilio_comercial"
