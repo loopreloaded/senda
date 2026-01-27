@@ -30,4 +30,26 @@ class Cliente extends Model
     {
         return $this->hasMany(Factura::class);
     }
+
+    public function getCondicionArcaTextoAttribute()
+    {
+        return match ($this->condicion_arca) {
+            'RI' => 'Responsable Inscripto',
+            'EX' => 'Exento',
+            'NR' => 'No Responsable',
+            'CF' => 'Consumidor Final',
+            'MT' => 'Responsable Monotributo',
+            default => '-',
+        };
+    }
+
+    public function getCondicionIibbTextoAttribute()
+    {
+        return match ($this->condicion_iibb) {
+            'L'  => 'Local',
+            'CM' => 'Convenio Multilateral',
+            default => '-',
+        };
+    }
+
 }

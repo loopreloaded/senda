@@ -123,11 +123,12 @@
             <th>#</th>
             <th>CUIT</th>
             <th>Razón Social</th>
-            <th>Domicilio Comercial</th>
-            <th>Email</th>
+            <th>Condición ARCA</th>
+            <th>Condición Ingresos Brutos</th>
             <th width="120">Acciones</th>
         </tr>
     </thead>
+
 
     <tbody>
         @forelse($clientes as $cliente)
@@ -135,8 +136,9 @@
                 <td>{{ $cliente->id }}</td>
                 <td>{{ $cliente->cuit }}</td>
                 <td>{{ $cliente->razon_social }}</td>
-                <td>{{ $cliente->direccion }}</td>
-                <td>{{ $cliente->email }}</td>
+                <td>{{ $cliente->condicion_arca_texto }}</td>
+                <td>{{ $cliente->condicion_iibb_texto }}</td>
+
                 <td>
 
                     {{-- EDITAR --}}
