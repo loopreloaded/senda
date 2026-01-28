@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use App\Imports\ClientesImport;
+use Maatwebsite\Excel\Facades\Excel;
+
+use Maatwebsite\Excel\Excel as ExcelExcel;
 
 class ClienteController extends Controller
 {
@@ -165,4 +169,18 @@ class ClienteController extends Controller
 
         return response()->json($clientes);
     }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:20480',
+        ]);
+
+        Excel::import(new ClientesImport, $request->file('file'));
+
+        return redirect()
+            ->route('clientes.index')
+            ->with('success', 'Clientes importados correctamente.');
+    }
+
 }

@@ -14,6 +14,7 @@ class Cliente extends Model
         'cuit',
         'condicion_iva',
         'condicion_iibb',
+        'indice',
         'direccion',
         'email',
         'telefono',

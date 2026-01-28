@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2>Factura {{ $factura->tipo_comprobante }} — N° {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}-{{ str_pad($factura->numero, 8, '0', STR_PAD_LEFT) }}</h2>
+            <h2>Factura {{ $factura->tipo_comprobante }} — N° {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}-{{ str_pad($factura->id, 8, '0', STR_PAD_LEFT) }}</h2>
         </div>
     </div>
 @stop

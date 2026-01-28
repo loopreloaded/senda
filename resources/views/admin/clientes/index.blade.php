@@ -28,7 +28,7 @@
             @csrf
 
             <div class="modal-header">
-                <h5 class="modal-title" id="modalImportExcelLabel">Importar Excel (CUIT + Condición IIBB)</h5>
+                <h5 class="modal-title" id="modalImportExcelLabel">Importar Excel</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -37,8 +37,10 @@
             <div class="modal-body">
 
                 <div class="alert alert-info">
-                    El archivo debe contener columnas: <b>cuit</b> y <b>condicion_iibb</b>
+                    El archivo debe contener las columnas:
+                    <b>CUIT</b>, <b>DENOMINACION</b>, <b>CONDICION</b> y <b>INDICE</b>
                 </div>
+
 
                 <div class="form-group">
                     <label>Archivo Excel</label>

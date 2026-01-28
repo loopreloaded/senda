@@ -126,7 +126,7 @@ Route::middleware(['auth', 'role:ingeniero'])->group(function () {
 ============================================================ */
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
-    Route::resource('usuarios', UserController::class);
+    // Route::resource('usuarios', UserController::class);
 
     Route::get('configuracion/empresa', [ConfiguracionController::class, 'empresa'])
         ->name('configuracion.empresa');
