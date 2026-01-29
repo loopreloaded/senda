@@ -110,7 +110,7 @@
                     <strong>Moneda:</strong> {{ $factura->moneda }}
                 </div>
                 <div class="col-md-4">
-                    <strong>Número:</strong> {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}-{{ str_pad($factura->numero, 8, '0', STR_PAD_LEFT) }}
+                    <strong>Número:</strong> {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}-{{ str_pad($factura->id, 8, '0', STR_PAD_LEFT) }}
                 </div>
                 <div class="col-md-4">
                     <strong>Fecha:</strong> {{ \Carbon\Carbon::parse($factura->fecha_emision)->format('d/m/Y') }}
