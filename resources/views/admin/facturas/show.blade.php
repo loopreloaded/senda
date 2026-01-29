@@ -93,7 +93,7 @@
                     <strong>Pto. Venta:</strong> {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}
                 </div>
                 <div class="col-md-6">
-                    <strong>Receptor:</strong> {{ $factura->cliente->nombre ?? 'Sin cliente' }}<br>
+                    <strong>Receptor:</strong> {{ $factura->cliente->razon_social ?? 'Sin cliente' }}<br>
                     <strong>CUIT:</strong> {{ $factura->cliente->cuit ?? '-' }}<br>
                     <strong>Domicilio:</strong> {{ $factura->cliente->direccion ?? '-' }}<br>
                     <strong>Condición IVA:</strong> {{ $factura->cliente->condicion_iva ?? '-' }}
