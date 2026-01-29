@@ -1035,15 +1035,34 @@ function renderSugerencias(clientes) {
             inputDireccion.value = cli.direccion ?? '';
             inputEmail.value = cli.email ?? '';
 
-            // setear condición IVA si existe en el select
+            // setear condición IVA
             if (cli.condicion_iva) {
-                selectCondIva.value = cli.condicion_iva ?? '';
+                selectCondIva.value = cli.condicion_iva;
                 selectCondIva.dispatchEvent(new Event('change', { bubbles: true }));
+            }
 
+            // ============================
+            // 👉 SETEAR ÍNDICE EN OTROS TRIBUTOS
+            // ============================
+            if (cli.indice !== null && cli.indice !== undefined) {
+
+                const alicuotaIVA  = document.getElementById('percepcion_iva_alicuota');
+                const alicuotaIIBB = document.getElementById('percepcion_iibb_alicuota');
+
+                if (alicuotaIVA) {
+                    alicuotaIVA.value = cli.indice;
+                    alicuotaIVA.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                if (alicuotaIIBB) {
+                    alicuotaIIBB.value = cli.indice;
+                    alicuotaIIBB.dispatchEvent(new Event('input', { bubbles: true }));
+                }
             }
 
             ocultarDropdown();
         });
+
 
         dropdownClientes.appendChild(item);
     });
