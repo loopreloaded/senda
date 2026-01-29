@@ -249,7 +249,7 @@ td {
     <td class="text-left">{{ $item->codigo }}</td>
     <td class="text-left">{{ $item->descripcion }}</td>
     <td class="text-right">{{ number_format($item->cantidad,2,',','.') }}</td>
-    <td class="text-center">{{ $item->unidad }}</td>
+    <td class="text-center">{{ $item->unidad_texto }}</td>
     <td class="text-right">{{ number_format($item->precio_unitario,2,',','.') }}</td>
     <td class="text-center">0,00</td>
     <td class="text-right">{{ number_format($subtotal,2,',','.') }}</td>
