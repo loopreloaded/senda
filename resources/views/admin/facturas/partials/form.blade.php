@@ -632,7 +632,7 @@ function recalcularBaseImpIIBB() {
 
     const inputBaseIibb = document.getElementById('base_imp_iibb');
     if (inputBaseIibb) {
-        inputBaseIibb.value = totalBase.toFixed(2);
+        inputBaseIibb.value = totalBase.toFixed(3);
     }
 }
 
@@ -699,40 +699,40 @@ function recalcular() {
         // ===== ASIGNAR A INPUTS DE LA FILA =====
         const bonifInput = fila.querySelector('.item-bonif-importe');
         if (bonifInput) {
-            bonifInput.value = bonifUnit.toFixed(2);
+            bonifInput.value = bonifUnit.toFixed(3);
         }
 
         const subtotalInput = fila.querySelector('.item-subtotal');
         if (subtotalInput) {
-            subtotalInput.value = subtotalConIva.toFixed(2);
+            subtotalInput.value = subtotalConIva.toFixed(3);
         }
 
         const sinIvaHidden = fila.querySelector('.subtotal-sin-iva-hidden');
         if (sinIvaHidden) {
-            sinIvaHidden.value = subtotalSinIva.toFixed(2);
+            sinIvaHidden.value = subtotalSinIva.toFixed(3);
         }
 
         const conIvaHidden = fila.querySelector('.subtotal-con-iva-hidden');
         if (conIvaHidden) {
-            conIvaHidden.value = subtotalConIva.toFixed(2);
+            conIvaHidden.value = subtotalConIva.toFixed(3);
         }
     });
 
     // ===== SUBTOTALES GENERALES =====
     const sinIvaInput = document.getElementById('subtotal_sin_iva');
     if (sinIvaInput) {
-        sinIvaInput.value = totalSinIva.toFixed(2);
+        sinIvaInput.value = totalSinIva.toFixed(3);
     }
 
     const conIvaInput = document.getElementById('subtotal_con_iva');
     if (conIvaInput) {
-        conIvaInput.value = totalConIva.toFixed(2);
+        conIvaInput.value = totalConIva.toFixed(3);
     }
 
     // ===== TOTAL ÍTEMS (CON IVA) – INPUT HIDDEN YA EXISTENTE =====
     const totalItemsInput = document.getElementById('importe_total_items');
     if (totalItemsInput) {
-        totalItemsInput.value = totalConIva.toFixed(2);
+        totalItemsInput.value = totalConIva.toFixed(3);
     }
 
     // ===== BASE IIBB =====
@@ -894,7 +894,7 @@ function calcularPercepcion(baseId, alicuotaId, importeId) {
 
     const importeInput = document.getElementById(importeId);
     if (importeInput) {
-        importeInput.value = importe.toFixed(2);
+        importeInput.value = importe.toFixed(3);
     }
 
     // 👉 recalcular total otros tributos
@@ -945,7 +945,7 @@ function calcularTotalOtrosTributos() {
 
     const totalInput = document.getElementById('importe_total_otros_tributos');
     if (totalInput) {
-        totalInput.value = total.toFixed(2);
+        totalInput.value = total.toFixed(3);
     }
 
     // 🔑 IMPORTANTE
@@ -976,7 +976,7 @@ function recalcularImporteTotalFinal() {
 
 
     if (totalInput) {
-        totalInput.value = totalFinal.toFixed(2);
+        totalInput.value = totalFinal.toFixed(3);
     }
 }
 
