@@ -109,6 +109,14 @@ td {
     font-size: 20px;
 }
 
+.footer-fixed {
+    position: fixed;
+    bottom: 10px;      /* pegado al borde inferior */
+    left: 20px;
+    right: 20px;
+}
+
+
 </style>
 </head>
 
@@ -260,145 +268,164 @@ td {
 </tbody>
 </table>
 
-{{-- ================= FOOTER ================= --}}
-{{-- ===================== TOTALES ===================== --}}
-<div class="footer" style="margin-top:280px;">
+{{-- ===================== BLOQUE INFERIOR FIJO ===================== --}}
+<div class="footer-fixed">
 
-    <table style="width:100%; border-collapse:collapse;">
+    {{-- ===================== OTROS TRIBUTOS ===================== --}}
+    <div>
 
-        <tr>
-            {{-- IZQUIERDA (SOLO UNA LÍNEA) --}}
-            <td style="width:55%; vertical-align:top; padding-top:10px;">
-                <div style="font-size:13px;">
-                    <b>Importe Otros Tributos: $</b>
-                    {{ number_format($factura->importe_total_otros_tributos ?? 0, 2, ',', '.') }}
-                </div>
-            </td>
-
-            {{-- DERECHA (TOTALES) --}}
-            <td style="width:45%; vertical-align:top;">
-
-                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <table style="width:60%; border-collapse:collapse; font-size:11px;" border="1">
+            <thead>
+                <tr style="background:#e6e6e6;">
+                    <th style="padding:4px; text-align:left;">Descripción</th>
+                    <th style="padding:4px; text-align:left;">Detalle</th>
+                    <th style="padding:4px; text-align:right;">Alic. %</th>
+                    <th style="padding:4px; text-align:right;">Importe</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(($factura->percepcion_iibb_importe ?? 0) > 0)
                     <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>Importe Neto Gravado: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">
-                            <b>{{ number_format($factura->subtotal,2,',','.') }}</b>
+                        <td style="padding:4px;">Percepción de Ingresos Brutos</td>
+                        <td style="padding:4px;">
+                            {{ $factura->percepcion_iibb_detalle ?? 'Percepción IIBB CM' }}
+                        </td>
+                        <td style="padding:4px; text-align:right;">
+                            {{ number_format($factura->percepcion_iibb_alicuota ?? 0, 2, ',', '.') }}
+                        </td>
+                        <td style="padding:4px; text-align:right;">
+                            {{ number_format($factura->percepcion_iibb_importe ?? 0, 2, ',', '.') }}
                         </td>
                     </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>IVA 27%: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">0,00</td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>IVA 21%: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">
-                            <b>{{ number_format($factura->total_iva,2,',','.') }}</b>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>IVA 10.5%: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">0,00</td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>IVA 5%: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">0,00</td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>IVA 2.5%: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">0,00</td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>IVA 0%: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">0,00</td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding:2px 0;"><b>Importe Otros Tributos: $</b></td>
-                        <td class="text-right" style="padding:2px 0;">
-                            {{ number_format($factura->importe_total_otros_tributos ?? 0,2,',','.') }}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-right" style="padding-top:6px;"><b>Importe Total: $</b></td>
-                        <td class="text-right" style="padding-top:6px;">
-                            <b>{{ number_format($factura->importe_total,2,',','.') }}</b>
-                        </td>
-                    </tr>
-                </table>
-
-            </td>
-        </tr>
-
-    </table>
-</div>
-{{-- ================= QR + CAE ================= --}}
-<div style="margin-top:25px;">
-
-    <table style="width:100%; border-collapse:collapse; font-size:11px;">
-        <tr>
-
-            {{-- QR --}}
-            <td style="width:15%; vertical-align:top;">
-                @if(!empty($factura->cae) && !empty($qrImage))
-                    <img
-                        src="data:image/png;base64,{{ $qrImage }}"
-                        style="width:90px;"
-                        alt="QR AFIP"
-                    >
                 @endif
-            </td>
+            </tbody>
+        </table>
 
-            {{-- ARCA + TEXTO --}}
-            <td style="width:45%; vertical-align:top; padding-left:10px;">
-                <div style="font-weight:bold; font-size:14px;">ARCA</div>
-                <div style="font-size:9px;">
-                    AGENCIA DE RECAUDACIÓN<br>
-                    Y CONTROL ADUANERO
-                </div>
+    </div>
 
-                <div style="margin-top:6px; font-style:italic; font-weight:bold;">
-                    Comprobante Autorizado
-                </div>
+    {{-- ===================== TOTALES (ABAJO A LA DERECHA) ===================== --}}
+    <div style="margin-top:6px;">
 
-                <div style="font-size:9px; font-style:italic;">
-                    Esta Agencia no se responsabiliza por los datos ingresados en el detalle de la operación
-                </div>
-            </td>
+        <table style="width:40%; margin-left:auto; border-collapse:collapse; font-size:12px;">
+            <tr>
+                <td style="text-align:right;"><b>Importe Neto Gravado: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">
+                    {{ number_format($factura->subtotal,2,',','.') }}
+                </td>
+            </tr>
 
-            {{-- PAGINA --}}
-            <td style="width:15%; vertical-align:top; text-align:center;">
-                <div style="font-weight:bold;">Pág. 1/1</div>
-            </td>
+            <tr>
+                <td style="text-align:right;"><b>IVA 27%: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">0,00</td>
+            </tr>
 
-            {{-- CAE --}}
-            <td style="width:25%; vertical-align:top;">
-                <table style="width:100%; font-size:11px;">
-                    <tr>
-                        <td class="text-right" style="width:55%;"><b>CAE N°:</b></td>
-                        <td class="text-left" style="padding-left:6px;">
-                            {{ $factura->cae ?? '-' }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-right"><b>Fecha de Vto. de CAE:</b></td>
-                        <td class="text-left" style="padding-left:6px;">
-                            {{ $factura->vto_cae
-                                ? \Carbon\Carbon::parse($factura->vto_cae)->format('d/m/Y')
-                                : '-' }}
-                        </td>
-                    </tr>
-                </table>
-            </td>
+            <tr>
+                <td style="text-align:right;"><b>IVA 21%: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">
+                    {{ number_format($factura->total_iva,2,',','.') }}
+                </td>
+            </tr>
 
-        </tr>
-    </table>
+            <tr>
+                <td style="text-align:right;"><b>IVA 10.5%: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">0,00</td>
+            </tr>
+
+            <tr>
+                <td style="text-align:right;"><b>IVA 5%: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">0,00</td>
+            </tr>
+
+            <tr>
+                <td style="text-align:right;"><b>IVA 2.5%: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">0,00</td>
+            </tr>
+
+            <tr>
+                <td style="text-align:right;"><b>IVA 0%: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">0,00</td>
+            </tr>
+
+            <tr>
+                <td style="text-align:right;"><b>Importe Otros Tributos: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right;">
+                    {{ number_format($factura->importe_total_otros_tributos ?? 0,2,',','.') }}
+                </td>
+            </tr>
+
+            <tr>
+                <td style="text-align:right; padding-top:6px;"><b>Importe Total: {{ $factura->moneda }}</b></td>
+                <td style="text-align:right; padding-top:6px;">
+                    <b>{{ number_format($factura->importe_total,2,',','.') }}</b>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+    {{-- ================= QR + CAE ================= --}}
+    <div style="margin-top:6px;">
+
+        <table style="width:100%; border-collapse:collapse; font-size:11px;">
+            <tr>
+
+                {{-- QR --}}
+                <td style="width:15%; vertical-align:top;">
+                    @if(!empty($factura->cae) && !empty($qrImage))
+                        <img
+                            src="data:image/png;base64,{{ $qrImage }}"
+                            style="width:90px;"
+                            alt="QR AFIP"
+                        >
+                    @endif
+                </td>
+
+                {{-- ARCA --}}
+                <td style="width:45%; vertical-align:top; padding-left:10px;">
+                    <div style="font-weight:bold; font-size:14px;">ARCA</div>
+                    <div style="font-size:9px;">
+                        AGENCIA DE RECAUDACIÓN<br>
+                        Y CONTROL ADUANERO
+                    </div>
+
+                    <div style="margin-top:6px; font-style:italic; font-weight:bold;">
+                        Comprobante Autorizado
+                    </div>
+
+                    <div style="font-size:9px; font-style:italic;">
+                        Esta Agencia no se responsabiliza por los datos ingresados en el detalle de la operación
+                    </div>
+                </td>
+
+                {{-- PAGINA --}}
+                <td style="width:15%; vertical-align:top; text-align:center;">
+                    <div style="font-weight:bold;">Pág. 1/1</div>
+                </td>
+
+                {{-- CAE --}}
+                <td style="width:25%; vertical-align:top;">
+                    <table style="width:100%; font-size:11px;">
+                        <tr>
+                            <td class="text-right" style="width:55%;"><b>CAE N°:</b></td>
+                            <td class="text-left" style="padding-left:6px;">
+                                {{ $factura->cae ?? '-' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right"><b>Fecha de Vto. de CAE:</b></td>
+                            <td class="text-left" style="padding-left:6px;">
+                                {{ $factura->vto_cae
+                                    ? \Carbon\Carbon::parse($factura->vto_cae)->format('d/m/Y')
+                                    : '-' }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
 
 </div>
 
