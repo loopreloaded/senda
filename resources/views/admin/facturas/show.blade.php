@@ -174,17 +174,17 @@
 
             {{-- RESUMEN --}}
             @php
-                $subtotal_general = $factura->items->sum('subtotal_sin_iva');
-                $iva_general = $factura->items->sum(function($i){
-                    return $i->subtotal_con_iva - $i->subtotal_sin_iva;
-                });
+                $subtotal_sin_iva = $factura->items->sum('subtotal_sin_iva');
+
+                $subtotal_con_iva = $factura->items->sum('subtotal_con_iva');
+
+                $subtotal_otros_tributos = $factura->importe_total_otros_tributos ?? 0;
+
+                $importe_total_final = $subtotal_con_iva + $subtotal_otros_tributos;
             @endphp
 
+
             <div class="row mt-4">
-                <div class="col-md-6">
-                    <p><strong>Subtotal sin IVA:</strong> {{ number_format($subtotal_general, 2, ',', '.') }}</p>
-                    <p><strong>IVA total:</strong> {{ number_format($iva_general, 2, ',', '.') }}</p>
-                </div>
                 <div class="col-md-6 text-end">
                     @php
                         $total_final = ($factura->importe_total ?? 0)
@@ -196,12 +196,6 @@
                         $ {{ number_format($factura->importe_total, 2, ',', '.') }}
                     </h4>
 
-                    @if(($factura->importe_total_otros_tributos ?? 0) > 0)
-                        <h4 class="mt-1">
-                            <strong>Total Final c/ Tributos:</strong>
-                            $ {{ number_format($total_final, 2, ',', '.') }}
-                        </h4>
-                    @endif
                 </div>
             </div>
 
@@ -266,13 +260,32 @@
                     <div class="col-md-6"></div>
                     <div class="col-md-6 text-end">
                         <p>
-                            <strong>Importe Total (Otros Tributos):</strong>
-                            $ {{ number_format($factura->importe_total_otros_tributos ?? 0, 2, ',', '.') }}
+                            <h4>
+                                <strong>Importe Total:</strong>
+                                $ {{ number_format($importe_total_final, 3, ',', '.') }}
+                            </h4>
+
                         </p>
                     </div>
                 </div>
             @endif
 
+            <div class="col-md-6">
+                <p>
+                    <strong>Subtotal s/IVA:</strong>
+                    $ {{ number_format($subtotal_sin_iva, 3, ',', '.') }}
+                </p>
+
+                <p>
+                    <strong>Subtotal c/IVA:</strong>
+                    $ {{ number_format($subtotal_con_iva, 3, ',', '.') }}
+                </p>
+
+                <p>
+                    <strong>Subtotal Tributos:</strong>
+                    $ {{ number_format($subtotal_otros_tributos, 3, ',', '.') }}
+                </p>
+            </div>
 
 
             <hr>
