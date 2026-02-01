@@ -119,7 +119,9 @@
                     @forelse($facturas as $factura)
                         <tr>
                             <td>{{ $factura->id }}</td>
-                            <td>{{ $factura->cliente->razon_social ?? '—' }}</td>
+                            <td>
+                                {{ mb_convert_case($factura->cliente->razon_social ?? '—', MB_CASE_TITLE, 'UTF-8') }}
+                            </td>
                             <td>{{ $factura->tipo_comprobante ?? '—' }}</td>
                             <td>{{ \Carbon\Carbon::parse($factura->fecha_emision)->format('d/m/Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($factura->created_at)->format('d/m/Y') }}</td>
