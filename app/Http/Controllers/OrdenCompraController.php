@@ -44,7 +44,7 @@ class OrdenCompraController extends Controller
         $validated = $request->validate([
             'numero_oc'         => 'required|string|max:191|unique:orden_compras,numero_oc',
             'fecha'             => 'required|date',
-            'proveedor'         => 'required|string|max:191',
+            // 'proveedor'         => 'required|string|max:191',
             'cuit'              => 'required|digits:11',
             'direccion'         => 'nullable|string|max:191',
             'telefono'          => 'nullable|string|max:50',
