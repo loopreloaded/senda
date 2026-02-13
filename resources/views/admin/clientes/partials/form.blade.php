@@ -79,7 +79,7 @@
 
 
 <div class="col-md-4">
-        <label>Dirección (+localidad +provincia)</label>
+        <label>Dirección (localidad - provincia)</label>
         <input type="text"
                name="domicilio_comercial"
                class="form-control"
