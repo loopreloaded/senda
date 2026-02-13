@@ -307,26 +307,27 @@ return [
             'icon'  => 'fas fa-fw fa-tachometer-alt',
             'can'   => 'admin.home',
         ],
-        // CLIENTES
+        // SOCIOS COMERCIALES
         [
-            'text'    => 'Clientes',
+            'text'    => 'Socios Comerciales',
             'icon'    => 'fas fa-fw fa-users',
-            'can'     => 'ver clientes',
+            'can'     => 'ver clientes', // (si luego querés también podemos cambiar el permiso)
             'submenu' => [
                 [
-                    'text'  => 'Alta Cliente',
+                    'text'  => 'Alta Socio Comercial',
                     'route' => 'clientes.create',
                     'icon'  => 'fas fa-fw fa-user-plus',
                     'can'   => 'crear clientes',
                 ],
                 [
-                    'text'  => 'Listado de Clientes',
+                    'text'  => 'Listado de Socios Comerciales',
                     'route' => 'clientes.index',
                     'icon'  => 'fas fa-fw fa-list',
                     'can'   => 'ver clientes',
                 ],
             ],
         ],
+
 
 
         // ÓRDENES DE PEDIDO
