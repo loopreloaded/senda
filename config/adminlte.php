@@ -332,18 +332,18 @@ return [
 
         // ÓRDENES DE PEDIDO
         [
-            'text'    => 'Órdenes de pedido',
+            'text'    => 'Órdenes de compra',
             'icon'    => 'fas fa-fw fa-shopping-cart',
             'can'     => 'ver ordenes',
             'submenu' => [
                 [
-                    'text'  => 'Nueva Orden de pedido',
+                    'text'  => 'Nueva Orden de compra',
                     'route' => 'ordenes.create',
                     'icon'  => 'fas fa-fw fa-plus-circle',
                     'can'   => 'crear ordenes',
                 ],
                 [
-                    'text'  => 'Listado de pedidos',
+                    'text'  => 'Listado de OC',
                     'route' => 'ordenes.index',
                     'icon'  => 'fas fa-fw fa-list',
                     'can'   => 'ver ordenes',
