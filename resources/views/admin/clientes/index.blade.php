@@ -125,6 +125,7 @@
             <th>#</th>
             <th>CUIT</th>
             <th>Razón Social</th>
+            <th>Tipo</th>
             <th>Condición ARCA</th>
             <th>Condición IIBB</th>
             <th width="120">Acciones</th>
@@ -138,6 +139,24 @@
                 <td>{{ $cliente->id }}</td>
                 <td>{{ $cliente->cuit }}</td>
                 <td>{{ $cliente->razon_social }}</td>
+                <td>
+                    @switch($cliente->tipo)
+                        @case('C')
+                            Cliente
+                            @break
+
+                        @case('P')
+                            Proveedor
+                            @break
+
+                        @case('A')
+                            Ambos
+                            @break
+
+                        @default
+                            -
+                    @endswitch
+                </td>
                 <td>{{ $cliente->condicion_iva_texto }}</td>
                 <td>{{ $cliente->condicion_iibb_texto }}</td>
 
