@@ -30,7 +30,11 @@
             margin: 5mm;
             min-height: 250mm;
             box-sizing: border-box;
+
+            position: relative;          /* 👈 IMPORTANTE */
+            padding-bottom: 100px;        /* 👈 espacio reservado para la firma */
         }
+
 
         table { width: 100%; border-collapse: collapse; }
 
@@ -254,19 +258,6 @@
     <tr>
         <td style="width:60%; vertical-align:top;">
 
-            <div style="font-weight:bold; margin-bottom:3px;">
-                Observaciones del Proveedor:
-            </div>
-
-            <div style="
-                width:100%;
-                height:25mm;
-                border:1px solid #000;
-                padding:5px;
-                font-size:9px;
-                box-sizing:border-box;
-            "></div>
-
         </td>
 
         <td style="width:40%; vertical-align:top;">
@@ -314,13 +305,19 @@
 </table>
 
 
-{{-- FIRMA --}}
-<div style="clear:both; margin-top:40px; text-align:right;">
-    <img src="{{ public_path('firma.png') }}" alt="Firma" style="max-height:50px;">
-    <div style="border-top:1px solid #000; display:inline-block; padding-top:3px; font-size:9px;">
-        Firma autorizada
+    {{-- FIRMA --}}
+    <div style="
+        position:absolute;
+        bottom:25px;
+        right:20px;
+        text-align:right;
+    ">
+        <img src="{{ public_path('assets/img/firma.png') }}" alt="Firma" style="max-height:50px;">
+        <div style="border-top:1px solid #000; padding-top:3px; font-size:9px;">
+            Firma autorizada
+        </div>
     </div>
-</div>
+
 
 </div>
 </body>
