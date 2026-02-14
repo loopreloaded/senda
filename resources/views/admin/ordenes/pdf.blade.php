@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Orden de pedido</title>
+    <title>Orden de compra</title>
 
     <style>
         @page { margin: 15mm; }
@@ -83,7 +83,7 @@
         </td>
 
         <td style="width:30%; text-align:right; vertical-align:top;">
-            <div style="font-size:14px; font-weight:bold;">Orden de pedido</div>
+            <div style="font-size:14px; font-weight:bold;">Orden de compra</div>
             <div style="font-size:9px; margin-top:-2px;">Purchase Order</div>
 
             <div style="margin-top:8px; font-size:10px;">
@@ -133,7 +133,7 @@
                 </tr>
 
                 <tr>
-                    <td style="font-weight:bold;">Condición de pedido:</td>
+                    <td style="font-weight:bold;">Condición de compra:</td>
                     <td>{{ $orden->condicion_compra ?: '-' }}</td>
                 </tr>
             </table>
@@ -154,7 +154,7 @@
                 </tr>
 
                 <tr>
-                    <td style="font-weight:bold;">Solicitud de pedido:</td>
+                    <td style="font-weight:bold;">Solicitud de compra:</td>
                     <td>{{ $orden->solicitud_compra ?: '-' }}</td>
                 </tr>
 
