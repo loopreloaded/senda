@@ -26,6 +26,11 @@ class OrdenCompraController extends Controller
             $query->whereDate('fecha', $request->fecha);
         }
 
+        if ($request->filled('moneda')) {
+            $query->where('moneda', $request->moneda);
+        }
+
+
         $ordenes = $query->orderBy('fecha','desc')
                         ->paginate(10)
                         ->appends($request->query());

@@ -182,6 +182,7 @@
             <th width="10%">U.M.</th>
             <th width="8%">Cantidad</th>
             <th width="12%">Precio Unit.</th>
+            <th width="6%">IVA %</th>
             <th width="6%">Desc. %</th>
             <th width="10%">Total</th>
         </tr>
@@ -197,8 +198,10 @@
             <td>{{ $item->unidad ?: '-' }}</td>
             <td>{{ number_format($item->cantidad, 2, ',', '.') }}</td>
             <td>{{ number_format($item->precio_unitario, 2, ',', '.') }}</td>
+            <td>{{ number_format($item->iva ?? 0, 2, ',', '.') }}</td>
             <td>{{ number_format($item->descuento, 2, ',', '.') }}</td>
             <td>{{ number_format($item->total, 2, ',', '.') }}</td>
+
         </tr>
         @endforeach
     </tbody>
@@ -237,22 +240,25 @@
 
 {{-- TOTALES --}}
 @php
-    $subtotal_items = 0;
+    $subtotal_con_iva = 0;
     $total_descuentos = 0;
 
     foreach ($orden->items as $i) {
 
-        // subtotal por ítem
-        $subtotal_item = $i->cantidad * $i->precio_unitario;
+        $cantidad  = $i->cantidad;
+        $precio    = $i->precio_unitario;
+        $iva       = $i->iva ?? 0;
+        $descuento = $i->descuento ?? 0;
 
-        // descuento en pesos (no porcentaje)
-        $descuento_real = $subtotal_item * (($i->descuento ?? 0) / 100);
+        $totalBase   = $cantidad * $precio;
+        $totalConIVA = $totalBase + ($totalBase * ($iva / 100));
+        $totalFinal  = $totalConIVA - ($totalConIVA * ($descuento / 100));
 
-        $subtotal_items += $subtotal_item;
-        $total_descuentos += $descuento_real;
+        $subtotal_con_iva += $totalConIVA;
+        $total_descuentos += ($totalConIVA * ($descuento / 100));
     }
-
 @endphp
+
 
 <table style="width:100%; font-size:10px; border-collapse:collapse;">
     <tr>
@@ -264,9 +270,9 @@
             <table style="width:100%; font-size:10px; border-collapse:collapse;">
 
                 <tr>
-                    <td style="text-align:right; font-weight:bold;">SUBTOTAL:</td>
+                    <td style="text-align:right; font-weight:bold;">SUBTOTAL C/IVA:</td>
                     <td style="border:1px solid #000; padding:3px; text-align:right;">
-                        {{ number_format($subtotal_items, 2, ',', '.') }}
+                        {{ number_format($subtotal_con_iva, 2, ',', '.') }}
                     </td>
                 </tr>
 
