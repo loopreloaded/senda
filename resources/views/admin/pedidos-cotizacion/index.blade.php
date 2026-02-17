@@ -69,6 +69,7 @@
             <th>#</th>
             <th>Archivo</th>
             <th>Fecha</th>
+            <th>Observaciones</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -90,9 +91,11 @@
                     @endif
                 </td>
 
+
                 <td>
                     {{ optional($pedido->created_at)->format('d/m/Y H:i') }}
                 </td>
+                <td>{{ $pedido->observaciones }}</td>
 
                 <td>
 
