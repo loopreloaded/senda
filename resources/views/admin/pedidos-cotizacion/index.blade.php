@@ -67,8 +67,6 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Cotización</th>
-            <th>Cliente</th>
             <th>Archivo</th>
             <th>Fecha</th>
             <th>Acciones</th>
@@ -79,14 +77,6 @@
         @foreach($pedidos as $pedido)
             <tr>
                 <td>{{ $pedido->id_ped_cot }}</td>
-
-                <td>
-                    #{{ $pedido->cotizacion->id_cotizacion ?? '—' }}
-                </td>
-
-                <td>
-                    {{ $pedido->cotizacion->cliente->razon_social ?? '—' }}
-                </td>
 
                 <td>
                     @if($pedido->archivo)

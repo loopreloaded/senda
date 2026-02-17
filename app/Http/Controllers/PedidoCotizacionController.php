@@ -36,7 +36,7 @@ class PedidoCotizacionController extends Controller
 
         PedidoCotizacion::create($data);
 
-        return redirect()->route('admin.pedidos-cotizacion.index')
+        return redirect()->route('pedidos-cotizacion.index')
             ->with('success', 'Pedido registrado correctamente');
     }
 

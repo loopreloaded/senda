@@ -1,23 +1,5 @@
 <div class="row">
 
-    {{-- Cotización --}}
-    <div class="col-md-6">
-        <label>Cotización</label>
-        <select name="id_cotizacion" class="form-control" required>
-            <option value="">Seleccione cotización</option>
-
-            @foreach($cotizaciones as $cotizacion)
-                <option value="{{ $cotizacion->id_cotizacion }}"
-                    {{ old('id_cotizacion', $pedido->id_cotizacion ?? '') == $cotizacion->id_cotizacion ? 'selected' : '' }}>
-
-                    #{{ $cotizacion->id_cotizacion }}
-                    - {{ $cotizacion->cliente->razon_social ?? '' }}
-                    ({{ optional($cotizacion->fecha_cot)->format('d/m/Y') }})
-                </option>
-            @endforeach
-        </select>
-    </div>
-
     {{-- Archivo --}}
     <div class="col-md-6">
         <label>Archivo Adjunto (PDF / Imagen)</label>
