@@ -328,6 +328,31 @@ return [
             ],
         ],
 
+        // COTIZACIONES
+        [
+            'text'    => 'Cotizaciones',
+            'icon'    => 'fas fa-fw fa-file-signature',
+            'can'     => 'ver cotizaciones',
+            'submenu' => [
+                [
+                    'text'  => 'Nueva Cotización',
+                    'route' => 'cotizaciones.create',
+                    'icon'  => 'fas fa-fw fa-plus-circle',
+                    'can'   => 'crear cotizaciones',
+                ],
+                [
+                    'text'  => 'Listado de Cotizaciones',
+                    'route' => 'cotizaciones.index',
+                    'icon'  => 'fas fa-fw fa-list',
+                    'can'   => 'ver cotizaciones',
+                ],
+                // [
+                //     'text'    => 'Pedidos de Cotización',
+                //     'icon'    => 'fas fa-fw fa-paperclip',
+                //     'can'     => 'ver pedidos cotizacion'
+                // ],
+            ],
+        ],
 
 
         // ÓRDENES DE PEDIDO

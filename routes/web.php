@@ -15,6 +15,8 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\NotaDebitoController;
 use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\CotizacionController;
+use App\Http\Controllers\PedidoCotizacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +73,23 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
 
     Route::get('facturas/{id}/pdf', [FacturaController::class, 'generar_pdf_factura'])
         ->name('facturas.pdf');
+
+
+    /* =======================
+     | cotizacion
+     ======================= */
+    Route::resource('cotizaciones', CotizacionController::class);
+
+    Route::get('cotizaciones', [CotizacionController::class, 'index'])
+        ->name('cotizaciones.index');
+
+    /* =======================
+     | pedido cotizacion
+     ======================= */
+    // Route::resource('pedido_cotizacion', PedidoCotizacionController::class);
+
+    // Route::get('pedido_cotizacion', [PedidoCotizacionController::class, 'index'])
+    //     ->name('pedido_cotizacion.index');
 
     /* =======================
      | NOTAS DE DÉBITO
