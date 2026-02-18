@@ -156,7 +156,6 @@
                     <td style="font-weight:bold;">Moneda:</td>
                     <td>{{ strtoupper($orden->moneda) }}</td>
                 </tr>
-
             </table>
         </td>
 
@@ -254,45 +253,70 @@
     }
 @endphp
 
+{{-- BLOQUE INFERIOR: OBSERVACIONES + TOTALES --}}
+<div style="
+    position:absolute;
+    bottom:100px;   /* espacio encima de la firma */
+    left:20px;
+    right:20px;
+    font-size:10px;
+">
 
-<table style="width:100%; font-size:10px; border-collapse:collapse;">
-    <tr>
-        <td style="width:60%; vertical-align:top;">
+    {{-- OBSERVACIONES --}}
+    @if($orden->observaciones)
+    <div style="margin-bottom:12px;">
 
-        </td>
+        <div style="font-weight:bold; margin-bottom:4px;">Observaciones:</div>
 
-        <td style="width:40%; vertical-align:top;">
-            <table style="width:100%; font-size:10px; border-collapse:collapse;">
-
-                <tr>
-                    <td style="text-align:right; font-weight:bold;">SUBTOTAL C/IVA:</td>
-                    <td style="border:1px solid #000; padding:3px; text-align:right;">
-                        {{ number_format($subtotal_con_iva, 2, ',', '.') }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="text-align:right; font-weight:bold;">DESCUENTOS TOTALES:</td>
-                    <td style="border:1px solid #000; padding:3px; text-align:right;">
-                        {{ number_format($total_descuentos, 2, ',', '.') }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="text-align:right; font-weight:bold;">TOTAL FINAL:</td>
-                    <td style="border:1px solid #000; padding:3px; text-align:right;">
-                        {{ number_format($orden->total, 2, ',', '.') }}
-                    </td>
-                </tr>
-
-            </table>
-        </td>
-    </tr>
-</table>
+        <div style="
+            border:1px solid #000;
+            padding:7px 10px;
+            border-radius:4px;
+            white-space:pre-wrap;
+            font-size:10px;
+            line-height:14px;
+        ">
+            {{ $orden->observaciones }}
+        </div>
+    </div>
+    @endif
 
 
-<div style="width:100%; border-bottom:1px solid #000; margin-top:8px;"></div>
+    {{-- TOTALES --}}
+    <table style="width:100%; font-size:10px; border-collapse:collapse;">
+        <tr>
+            <td style="width:60%;"></td>
 
+            <td style="width:40%;">
+                <table style="width:100%; font-size:10px; border-collapse:collapse;">
+
+                    <tr>
+                        <td style="text-align:right; font-weight:bold;">SUBTOTAL C/IVA:</td>
+                        <td style="border:1px solid #000; padding:3px; text-align:right;">
+                            {{ number_format($subtotal_con_iva, 2, ',', '.') }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:right; font-weight:bold;">DESCUENTOS TOTALES:</td>
+                        <td style="border:1px solid #000; padding:3px; text-align:right;">
+                            {{ number_format($total_descuentos, 2, ',', '.') }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:right; font-weight:bold;">TOTAL FINAL:</td>
+                        <td style="border:1px solid #000; padding:3px; text-align:right;">
+                            {{ number_format($orden->total, 2, ',', '.') }}
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</div>
 
 
     {{-- FIRMA --}}
