@@ -18,14 +18,14 @@
     <div class="col-md-3">
         <label>Número OC</label>
         <input type="text" name="numero" class="form-control"
-               value="{{ request('numero') }}" placeholder="Ej: OC-00125">
+               value="{{ request('numero') }}" placeholder="">
     </div>
 
     {{-- Razon social --}}
     <div class="col-md-3">
         <label>Razon social</label>
         <input type="text" name="proveedor" class="form-control"
-               value="{{ request('proveedor') }}" placeholder="Nombre...">
+               value="{{ request('proveedor') }}" placeholder="">
     </div>
 
     {{-- Fecha --}}
