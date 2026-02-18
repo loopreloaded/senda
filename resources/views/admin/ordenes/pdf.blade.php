@@ -157,11 +157,6 @@
                     <td>{{ strtoupper($orden->moneda) }}</td>
                 </tr>
 
-                <tr>
-                    <td style="font-weight:bold;">Solicitud de compra:</td>
-                    <td>{{ $orden->solicitud_compra ?: '-' }}</td>
-                </tr>
-
             </table>
         </td>
 
