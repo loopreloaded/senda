@@ -269,7 +269,7 @@ td {
 </table>
 
 {{-- ===================== BLOQUE INFERIOR FIJO ===================== --}}
-<div class="footer-fixed">
+<div class="footer-fixed" style="border:1px solid #000; padding:8px;">
 
     {{-- ===================== OTROS TRIBUTOS ===================== --}}
     <div>
@@ -303,10 +303,11 @@ td {
 
     </div>
 
-    {{-- ===================== TOTALES (ABAJO A LA DERECHA) ===================== --}}
+    {{-- ===================== TOTALES ===================== --}}
     <div style="margin-top:6px;">
 
         <table style="width:40%; margin-left:auto; border-collapse:collapse; font-size:12px;">
+
             <tr>
                 <td style="text-align:right;"><b>Importe Neto Gravado: {{ $factura->moneda }}</b></td>
                 <td style="text-align:right;">
@@ -359,6 +360,7 @@ td {
                     <b>{{ number_format($factura->importe_total,2,',','.') }}</b>
                 </td>
             </tr>
+
         </table>
 
     </div>
@@ -406,14 +408,14 @@ td {
                 <td style="width:25%; vertical-align:top;">
                     <table style="width:100%; font-size:11px;">
                         <tr>
-                            <td class="text-right" style="width:55%;"><b>CAE N°:</b></td>
-                            <td class="text-left" style="padding-left:6px;">
+                            <td style="width:55%; text-align:right;"><b>CAE N°:</b></td>
+                            <td style="padding-left:6px;">
                                 {{ $factura->cae ?? '-' }}
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-right"><b>Fecha de Vto. de CAE:</b></td>
-                            <td class="text-left" style="padding-left:6px;">
+                            <td style="text-align:right;"><b>Fecha de Vto. de CAE:</b></td>
+                            <td style="padding-left:6px;">
                                 {{ $factura->vto_cae
                                     ? \Carbon\Carbon::parse($factura->vto_cae)->format('d/m/Y')
                                     : '-' }}
@@ -428,6 +430,8 @@ td {
     </div>
 
 </div>
+
+
 
 {{-- SALTO DE PÁGINA EXCEPTO EN LA ÚLTIMA --}}
 @if(!$loop->last)
