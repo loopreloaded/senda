@@ -168,6 +168,7 @@ class ClienteController extends Controller
                 'razon_social',
                 'cuit',
                 'indice',
+                'telefono',
                 'condicion_iva',
                 'direccion',
                 'email',
