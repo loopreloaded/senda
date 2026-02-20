@@ -79,8 +79,10 @@ class CotizacionController extends Controller
         }
     }
 
-    public function show(Cotizacion $cotizacion)
+    public function show($id)
     {
+        $cotizacion = Cotizacion::with(['cliente', 'items'])->findOrFail($id);
+
         return view('admin.cotizaciones.show', compact('cotizacion'));
     }
 

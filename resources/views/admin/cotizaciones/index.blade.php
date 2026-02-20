@@ -113,18 +113,16 @@
                 <td>
 
                     {{-- VER --}}
-                    {{-- <a href="{{ route('cotizaciones.show', $cotizacion->id_cotizacion) }}"
+                    <a href="{{ route('cotizaciones.show', $cotizacion->id_cotizacion) }}"
                        class="btn btn-sm btn-info">
                         <i class="fas fa-eye"></i>
-                    </a> --}}
+                    </a>
 
                     {{-- EDITAR --}}
-                    {{-- @can('editar cotizaciones')
                     <a href="{{ route('cotizaciones.edit', $cotizacion->id_cotizacion) }}"
                        class="btn btn-sm btn-warning">
                         <i class="fas fa-edit"></i>
                     </a>
-                    @endcan --}}
 
                     {{-- PDF (si luego lo agregás) --}}
                     {{-- <a href="{{ route('cotizaciones.pdf', $cotizacion->id_cotizacion) }}"
@@ -134,7 +132,6 @@
                     </a> --}}
 
                     {{-- ELIMINAR --}}
-                    {{-- @can('eliminar cotizaciones')
                     <form action="{{ route('cotizaciones.destroy', $cotizacion->id_cotizacion) }}"
                           method="POST"
                           style="display:inline">
@@ -146,7 +143,6 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
-                    @endcan --}}
 
                 </td>
             </tr>
