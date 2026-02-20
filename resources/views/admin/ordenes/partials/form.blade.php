@@ -117,7 +117,7 @@
             <th>Código</th>
             <th>Descripción</th>
             <th>Cantidad</th>
-            <th>Unidad</th>
+            <th style="width:15%;">Unidad</th>
             <th>Precio Unitario</th>
             <th>IVA (%)</th>
             <th>Desc. (%)</th>
