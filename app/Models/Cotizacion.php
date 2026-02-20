@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CotizacionItem;
 
 class Cotizacion extends Model
 {
@@ -44,5 +45,10 @@ class Cotizacion extends Model
     public function pedidos()
     {
         return $this->hasMany(PedidoCotizacion::class, 'id_cotizacion');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(CotizacionItem::class, 'id_cotizacion');
     }
 }

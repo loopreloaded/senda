@@ -3,11 +3,13 @@
     {{-- Fecha --}}
     <div class="col-md-3">
         <label>Fecha</label>
-        <input type="datetime-local"
-               name="fecha_cot"
-               class="form-control"
-               value="{{ old('fecha_cot', isset($cotizacion) ? optional($cotizacion->fecha_cot)->format('Y-m-d\TH:i') : '') }}"
-               required>
+        <input type="date"
+            name="fecha_cot"
+            class="form-control"
+            value="{{ old('fecha_cot', isset($cotizacion)
+                            ? optional($cotizacion->fecha_cot)->format('Y-m-d')
+                            : now()->format('Y-m-d')) }}"
+            required>
     </div>
 
     {{-- Cliente --}}
@@ -88,7 +90,9 @@
         <input type="date"
                name="vigencia_oferta"
                class="form-control"
-               value="{{ old('vigencia_oferta', $cotizacion->vigencia_oferta ?? '') }}">
+               value="{{ old('vigencia_oferta', isset($cotizacion)
+                        ? optional($cotizacion->vigencia_oferta)->format('Y-m-d')
+                        : now()->format('Y-m-d')) }}">
     </div>
 </div>
 
@@ -97,33 +101,90 @@
 <h4>Ítems de la Cotización</h4>
 
 <table class="table table-bordered mt-2">
-    <thead>
+    <thead class="table-light">
         <tr>
-            <th>Descripción</th>
-            <th>Cantidad</th>
-            <th>Precio Unitario</th>
-            <th>IVA (%)</th>
-            <th>Total</th>
-            <th></th>
+            <th width="35%">Producto</th>
+            <th width="10%">Cantidad</th>
+            <th width="15%">Precio Unit.</th>
+            <th width="10%">IVA %</th>
+            <th width="15%">Total</th>
+            <th width="5%"></th>
         </tr>
     </thead>
 
     <tbody id="items-table">
+
+        @php
+            $oldItems = old('items');
+            $items = $oldItems ?? ($cotizacion->items ?? []);
+        @endphp
+
+        @forelse($items as $index => $item)
         <tr>
-            <td><input type="text" name="items[0][descripcion]" class="form-control"></td>
-            <td><input type="number" step="0.01" name="items[0][cantidad]" class="form-control"></td>
-            <td><input type="number" step="0.01" name="items[0][precio_unitario]" class="form-control"></td>
+            <td>
+                <input type="text"
+                       name="items[{{ $index }}][producto]"
+                       class="form-control"
+                       value="{{ $item['producto'] ?? $item->producto ?? '' }}"
+                       required>
+            </td>
+
+            <td>
+                <input type="number"
+                       step="1"
+                       name="items[{{ $index }}][cantidad]"
+                       class="form-control"
+                       value="{{ $item['cantidad'] ?? $item->cantidad ?? 1 }}"
+                       required>
+            </td>
+
+            <td>
+                <input type="number"
+                       step="0.01"
+                       name="items[{{ $index }}][precio_unitario]"
+                       class="form-control"
+                       value="{{ $item['precio_unitario'] ?? $item->precio_unitario ?? 0 }}"
+                       required>
+            </td>
+
+            <td>
+                <input type="number"
+                       step="0.01"
+                       name="items[{{ $index }}][iva]"
+                       class="form-control"
+                       value="{{ $item['iva'] ?? $item->iva ?? 21 }}">
+            </td>
+
+            <td>
+                <input type="number"
+                       step="0.01"
+                       class="form-control item-total"
+                       readonly>
+            </td>
+
+            <td>
+                <button type="button" class="btn btn-danger btn-sm remove-row">
+                    X
+                </button>
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td><input type="text" name="items[0][producto]" class="form-control" required></td>
+            <td><input type="number" step="1" name="items[0][cantidad]" class="form-control" value="1" required></td>
+            <td><input type="number" step="0.01" name="items[0][precio_unitario]" class="form-control" value="0" required></td>
             <td><input type="number" step="0.01" name="items[0][iva]" class="form-control" value="21"></td>
-            <td><input type="number" step="0.01" name="items[0][total]" class="form-control item-total" readonly></td>
+            <td><input type="number" step="0.01" class="form-control item-total" readonly></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
         </tr>
+        @endforelse
+
     </tbody>
 </table>
 
 <button type="button" id="add-row" class="btn btn-primary btn-sm">
-    Agregar Ítem
+    + Agregar Ítem
 </button>
-
 <hr class="mt-4">
 
 <div class="row mt-3">
@@ -159,23 +220,24 @@
 ========================= --}}
 <script>
 
-let row = 1;
+let row = document.querySelectorAll('#items-table tr').length;
 
 document.getElementById('add-row').addEventListener('click', function() {
 
     let html = `
     <tr>
-        <td><input type="text" name="items[${row}][descripcion]" class="form-control"></td>
-        <td><input type="number" step="0.01" name="items[${row}][cantidad]" class="form-control"></td>
-        <td><input type="number" step="0.01" name="items[${row}][precio_unitario]" class="form-control"></td>
+        <td><input type="text" name="items[${row}][producto]" class="form-control" required></td>
+        <td><input type="number" step="1" name="items[${row}][cantidad]" class="form-control" value="1" required></td>
+        <td><input type="number" step="0.01" name="items[${row}][precio_unitario]" class="form-control" value="0" required></td>
         <td><input type="number" step="0.01" name="items[${row}][iva]" class="form-control" value="21"></td>
-        <td><input type="number" step="0.01" name="items[${row}][total]" class="form-control item-total" readonly></td>
+        <td><input type="number" step="0.01" class="form-control item-total" readonly></td>
         <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
     </tr>
     `;
 
     document.getElementById('items-table').insertAdjacentHTML('beforeend', html);
     row++;
+    calcularTotales();
 });
 
 document.addEventListener('click', function(e) {
@@ -185,8 +247,10 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.addEventListener('input', function() {
-    calcularTotales();
+document.addEventListener('input', function(e) {
+    if (e.target.closest('#items-table')) {
+        calcularTotales();
+    }
 });
 
 function calcularTotales() {
@@ -196,10 +260,11 @@ function calcularTotales() {
 
     filas.forEach(function(row) {
 
-        let cantidad = parseFloat(row.querySelector('input[name*="[cantidad]"]')?.value) || 0;
-        let precio   = parseFloat(row.querySelector('input[name*="[precio_unitario]"]')?.value) || 0;
-        let iva      = parseFloat(row.querySelector('input[name*="[iva]"]')?.value) || 0;
-        let totalInput = row.querySelector('input[name*="[total]"]');
+        let cantidad = parseFloat(row.querySelector('[name*="[cantidad]"]')?.value) || 0;
+        let precio   = parseFloat(row.querySelector('[name*="[precio_unitario]"]')?.value) || 0;
+        let iva      = parseFloat(row.querySelector('[name*="[iva]"]')?.value) || 0;
+
+        let totalInput = row.querySelector('.item-total');
 
         let base = cantidad * precio;
         let total = base + (base * iva / 100);
@@ -212,6 +277,11 @@ function calcularTotales() {
     document.querySelector('input[name="importe_total"]').value =
         totalGeneral.toFixed(2);
 }
+
+// Calcular al cargar si es edición
+document.addEventListener('DOMContentLoaded', function() {
+    calcularTotales();
+});
 
 </script>
 

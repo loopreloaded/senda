@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Cotizacion;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\CotizacionItem;
 
 class CotizacionController extends Controller
 {
@@ -27,13 +29,54 @@ class CotizacionController extends Controller
             'id_cliente' => 'required|exists:clientes,id',
             'moneda' => 'required|string|max:10',
             'forma_pago' => 'required|string|max:20',
-            'importe_total' => 'nullable|numeric'
+            'items' => 'required|array|min:1',
+            'items.*.producto' => 'required|string|max:45',
+            'items.*.cantidad' => 'required|numeric|min:1',
+            'items.*.precio_unitario' => 'required|numeric|min:0',
+            'items.*.iva' => 'nullable|numeric|min:0'
         ]);
 
-        Cotizacion::create($request->all());
+        DB::beginTransaction();
 
-        return redirect()->route('cotizaciones.index')
-            ->with('success', 'Cotización creada correctamente');
+        try {
+
+            // 1️⃣ Crear cabecera
+            $cotizacion = Cotizacion::create([
+                'fecha_cot' => $request->fecha_cot,
+                'id_cliente' => $request->id_cliente,
+                'moneda' => $request->moneda,
+                'forma_pago' => $request->forma_pago,
+                'lugar_entrega' => $request->lugar_entrega,
+                'plazo_entrega' => $request->plazo_entrega,
+                'vigencia_oferta' => $request->vigencia_oferta,
+                'especificaciones_tecnicas' => $request->especificaciones_tecnicas,
+                'observaciones' => $request->observaciones,
+                'importe_total' => $request->importe_total ?? 0,
+            ]);
+
+            // 2️⃣ Guardar items
+            foreach ($request->items as $item) {
+
+                $cotizacion->items()->create([
+                    'producto' => $item['producto'],
+                    'cantidad' => $item['cantidad'],
+                    'precio_unitario' => $item['precio_unitario'],
+                    'iva' => $item['iva'] ?? 0,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('cotizaciones.index')
+                ->with('success', 'Cotización creada correctamente');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->withInput()
+                ->with('error', 'Error al guardar la cotización');
+        }
     }
 
     public function show(Cotizacion $cotizacion)
