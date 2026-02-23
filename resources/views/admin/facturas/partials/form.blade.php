@@ -314,7 +314,7 @@
     <tbody>
 
         {{-- PERCEPCIÓN DE IVA --}}
-        <tr>
+        <tr style="display:none;">
             <td class="text-end fw-bold">Percepción de IVA</td>
 
             <td>
