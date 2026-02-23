@@ -27,7 +27,6 @@ class CotizacionController extends Controller
         $request->validate([
             'fecha_cot' => 'required|date',
             'id_cliente' => 'required|exists:clientes,id',
-            'moneda' => 'required|string|max:10',
             'forma_pago' => 'required|string|max:20',
             'items' => 'required|array|min:1',
             'items.*.producto' => 'required|string|max:45',
