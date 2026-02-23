@@ -103,13 +103,13 @@
                 <td>${{ number_format($orden->total, 2) }}</td>
                 <td>
 
-                {{-- BOTÓN OBSERVACIONES (solo admin o ingeniero) --}}
+                {{-- BOTÓN EDITAR (solo admin o ingeniero) --}}
                 @hasanyrole('admin|ingeniero')
-                <button class="btn btn-sm btn-warning btn-observacion"
-                        data-id="{{ $orden->id }}"
-                        data-observaciones="{{ $orden->observaciones ?? '' }}">
-                    <i class="fas fa-comment-dots"></i>
-                </button>
+                    <a href="{{ route('ordenes.edit', $orden->id) }}"
+                    class="btn btn-sm btn-primary"
+                    title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
                 @endhasanyrole
 
                 {{-- PDF --}}
@@ -183,19 +183,4 @@
 
 
 @stop
-
-
-@section('js')
-<script>
-    // Usamos jQuery porque AdminLTE 3 + Bootstrap 4 lo trae por defecto
-    $(document).on('click', '.btn-observacion', function () {
-        var btn = $(this);
-
-        $('#obs_id').val(btn.data('id'));
-        $('#obs_textarea').val(btn.data('observaciones') || '');
-
-        $('#modalObservaciones').modal('show');
-    });
-</script>
-@endsection
 
