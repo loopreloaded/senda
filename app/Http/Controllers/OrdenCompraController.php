@@ -12,13 +12,12 @@ class OrdenCompraController extends Controller
 {
     public function index(Request $request)
     {
-        $query = OrdenCompra::with('cliente'); // 👈 cargamos relación
+        $query = OrdenCompra::with('cliente');
 
         if ($request->filled('numero')) {
             $query->where('numero_oc', 'LIKE', '%' . $request->numero . '%');
         }
 
-        // 🔹 FILTRO POR RAZÓN SOCIAL (tabla clientes)
         if ($request->filled('proveedor')) {
             $query->whereHas('cliente', function ($q) use ($request) {
                 $q->where('razon_social', 'LIKE', '%' . $request->proveedor . '%');
@@ -33,9 +32,9 @@ class OrdenCompraController extends Controller
             $query->where('moneda', $request->moneda);
         }
 
-        $ordenes = $query->orderBy('fecha', 'desc')
-            ->paginate(10)
-            ->appends($request->query());
+        $ordenes = $query->orderBy('numero_oc', 'asc')
+                    ->paginate(10)
+                    ->appends($request->query());
 
         return view('admin.ordenes.index', compact('ordenes'));
     }
