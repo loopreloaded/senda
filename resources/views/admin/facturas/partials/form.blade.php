@@ -388,46 +388,19 @@
    ============================ --}}
 <div class="row mt-4">
 
-    {{-- Columna izquierda --}}
+    <!-- FILA 1 -->
     <div class="col-md-6">
         <div class="form-group">
-            <label for="base_imp_iibb">
-                Base Imponible de Percepción de Ingresos Brutos
-            </label>
+            <label for="subtotal_sin_iva">Subtotal s/IVA</label>
             <input type="text"
-                id="base_imp_iibb"
-                name="base_imp_iibb"
-                class="form-control"
-                readonly>
-        </div>
-
-        <div class="form-group mt-3">
-            <label for="subtotal_sin_iva">
-                Subtotal s/IVA
-            </label>
-            <input type="text"
-                id="subtotal_sin_iva"
-                name="subtotal_sin_iva"
-                class="form-control"
-                readonly>
-        </div>
-
-        <div class="form-group mt-3">
-            <label for="subtotal_con_iva">
-                Subtotal c/IVA
-            </label>
-            <input type="text"
-                id="subtotal_con_iva"
-                name="subtotal_con_iva"
-                class="form-control"
-                readonly>
+                   id="subtotal_sin_iva"
+                   name="subtotal_sin_iva"
+                   class="form-control"
+                   readonly>
         </div>
     </div>
 
-
-    {{-- Columna derecha --}}
     <div class="col-md-6">
-
         <div class="form-group">
             <label for="importe_total_otros_tributos">
                 Subtotal Otros Tributos
@@ -438,19 +411,31 @@
                    class="form-control"
                    readonly>
         </div>
+    </div>
 
-        <div class="form-group mt-3">
-            <label for="importe_total">
-                Importe Total
-            </label>
+    <!-- FILA 2 -->
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="subtotal_con_iva">Subtotal c/IVA</label>
+            <input type="text"
+                   id="subtotal_con_iva"
+                   name="subtotal_con_iva"
+                   class="form-control"
+                   readonly>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="importe_total">Importe Total</label>
             <input type="text"
                    id="importe_total"
                    name="importe_total"
                    class="form-control"
                    readonly>
         </div>
-
     </div>
+
 </div>
 
 <input type="hidden" id="importe_total_items" name="importe_total_items" value="0">
@@ -630,9 +615,13 @@ function recalcularBaseImpIIBB() {
         totalBase += totalItem;
     });
 
-    const inputBaseIibb = document.getElementById('base_imp_iibb');
+    // 🔥 AHORA VA DIRECTO A percepcion_iibb_base
+    const inputBaseIibb = document.getElementById('percepcion_iibb_base');
     if (inputBaseIibb) {
         inputBaseIibb.value = totalBase.toFixed(3);
+
+        // recalcular percepción automáticamente
+        inputBaseIibb.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
 
