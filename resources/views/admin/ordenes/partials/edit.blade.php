@@ -1,44 +1,47 @@
-<div class="row">
-    <div class="col-md-3">
-        <label>Número de OC</label>
-        <input type="number"
-               name="numero_oc"
-               class="form-control"
-               value="{{ old('numero_oc', $orden->numero_oc) }}"
-               required>
+@extends('adminlte::page')
+
+@section('title', 'Editar Orden de Compra')
+
+@section('content_header')
+    <h1>Editar Orden de Compra #{{ $orden->numero_oc }}</h1>
+@stop
+
+@section('content')
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <strong>Hay errores en el formulario:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     </div>
+@endif
 
-    <div class="col-md-3">
-        <label>Fecha</label>
-        <input type="date"
-               name="fecha"
-               class="form-control"
-               value="{{ old('fecha', $orden->fecha) }}"
-               required>
-    </div>
+<div class="card">
+    <div class="card-body">
 
-    {{-- Razón Social --}}
-    <div class="col-md-6">
-        <label>Razón Social</label>
+        <form action="{{ route('ordenes.update', $orden->id) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-        <div class="position-relative">
-            <input type="text"
-                   name="razon_social"
-                   id="razon_social"
-                   class="form-control"
-                   value="{{ old('razon_social', $orden->cliente->razon_social ?? '') }}"
-                   autocomplete="off"
-                   required>
+            {{-- FORMULARIO DE EDICIÓN --}}
+            @include('admin.ordenes.partials.edit', ['orden' => $orden])
 
-            <input type="hidden"
-                   name="id_cliente"
-                   id="id_cliente"
-                   value="{{ old('id_cliente', $orden->id_cliente) }}">
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Actualizar Orden
+                </button>
 
-            <div id="dropdown-clientes"
-                 class="list-group position-absolute w-100 shadow"
-                 style="z-index:9999; max-height:240px; overflow-y:auto; display:none;">
+                <a href="{{ route('ordenes.index') }}" class="btn btn-secondary">
+                    Cancelar
+                </a>
             </div>
-        </div>
+
+        </form>
+
     </div>
 </div>
+
+@stop
