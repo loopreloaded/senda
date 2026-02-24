@@ -83,6 +83,9 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     Route::get('cotizaciones', [CotizacionController::class, 'index'])
         ->name('cotizaciones.index');
 
+    Route::get('cotizaciones/{cotizacion}/pdf', [CotizacionController::class, 'pdf'])
+        ->name('cotizaciones.pdf');
+
     /* =======================
      | pedido cotizacion
      ======================= */

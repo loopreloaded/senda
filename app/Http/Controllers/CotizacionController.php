@@ -6,7 +6,7 @@ use App\Models\Cotizacion;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\CotizacionItem;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CotizacionController extends Controller
 {
@@ -106,4 +106,18 @@ class CotizacionController extends Controller
         return redirect()->route('admin.cotizaciones.index')
             ->with('success', 'Cotización eliminada');
     }
+
+    public function pdf($id)
+    {
+        $cotizacion = Cotizacion::with(['cliente', 'items'])
+                        ->findOrFail($id);
+
+        $pdf = Pdf::loadView(
+            'admin.cotizaciones.pdf',
+            compact('cotizacion')
+        );
+
+        return $pdf->stream('cotizacion_'.$cotizacion->id.'.pdf');
+    }
 }
+

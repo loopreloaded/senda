@@ -124,12 +124,12 @@
                         <i class="fas fa-edit"></i>
                     </a>
 
-                    {{-- PDF (si luego lo agregás) --}}
-                    {{-- <a href="{{ route('cotizaciones.pdf', $cotizacion->id_cotizacion) }}"
+                    {{-- PDF --}}
+                    <a href="{{ route('cotizaciones.pdf', $cotizacion->id_cotizacion) }}"
                        class="btn btn-sm btn-light"
                        target="_blank">
                         <i class="fas fa-file-pdf text-danger"></i>
-                    </a> --}}
+                    </a>
 
                     {{-- ELIMINAR --}}
                     <form action="{{ route('cotizaciones.destroy', $cotizacion->id_cotizacion) }}"
