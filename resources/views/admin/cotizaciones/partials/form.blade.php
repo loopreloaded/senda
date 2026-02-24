@@ -21,12 +21,16 @@
                    id="razon_social"
                    class="form-control"
                    autocomplete="off"
-                   value="{{ old('razon_social', $cotizacion->cliente->razon_social ?? '') }}"
+                   value="{{ old('razon_social',
+                        isset($cotizacion) && $cotizacion->cliente
+                            ? $cotizacion->cliente->razon_social . ' - ' . $cotizacion->cliente->cuit
+                            : ''
+                    ) }}"
                    required>
 
             <input type="hidden"
                    name="id_cliente"
-                   id="cliente_id"
+                   id="id_cliente"
                    value="{{ old('id_cliente', $cotizacion->id_cliente ?? '') }}">
 
             <div id="dropdown-clientes"
@@ -292,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const inputRazon = document.getElementById('razon_social');
 const dropdownClientes = document.getElementById('dropdown-clientes');
-const inputClienteId = document.getElementById('cliente_id');
+const inputClienteId = document.getElementById('id_cliente');
 
 let debounceTimer = null;
 
@@ -340,7 +344,7 @@ inputRazon.addEventListener('input', function() {
             item.innerHTML = `<strong>${cli.razon_social}</strong><br><small>${cli.cuit ?? ''}</small>`;
 
             item.onclick = function() {
-                inputRazon.value = cli.razon_social;
+                inputRazon.value = `${cli.razon_social} - ${cli.cuit ?? ''}`;
                 inputClienteId.value = cli.id;
                 ocultarDropdown();
             };

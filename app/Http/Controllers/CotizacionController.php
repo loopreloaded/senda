@@ -39,7 +39,7 @@ class CotizacionController extends Controller
 
         try {
 
-            // 1️⃣ Crear cabecera
+            //
             $cotizacion = Cotizacion::create([
                 'fecha_cot' => $request->fecha_cot,
                 'id_cliente' => $request->id_cliente,
@@ -53,7 +53,7 @@ class CotizacionController extends Controller
                 'importe_total' => $request->importe_total ?? 0,
             ]);
 
-            // 2️⃣ Guardar items
+            //
             foreach ($request->items as $item) {
 
                 $cotizacion->items()->create([
