@@ -75,16 +75,19 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
         ->name('facturas.pdf');
 
 
-    /* =======================
-     | cotizacion
-     ======================= */
-    Route::resource('cotizaciones', CotizacionController::class);
+   /* =======================
+   | cotizacion
+   ======================= */
 
-    Route::get('cotizaciones', [CotizacionController::class, 'index'])
-        ->name('cotizaciones.index');
+    Route::resource('cotizaciones', CotizacionController::class)
+        ->parameters([
+            'cotizaciones' => 'cotizacion'
+        ]);
 
-    Route::get('cotizaciones/{cotizacion}/pdf', [CotizacionController::class, 'pdf'])
-        ->name('cotizaciones.pdf');
+    Route::get('cotizaciones/{cotizacion}/pdf',
+        [CotizacionController::class, 'pdf']
+    )->name('cotizaciones.pdf');
+
 
     /* =======================
      | pedido cotizacion
