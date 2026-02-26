@@ -15,23 +15,41 @@
 </a>
 @endcan
 
-{{-- FILTRO --}}
+{{-- =========================
+     FILTROS
+========================= --}}
 <form method="GET"
       action="{{ route('pedidos-cotizacion.index') }}"
       class="mb-3">
 
     <div class="row">
 
+        {{-- Cliente --}}
         <div class="col-md-3">
-            <label>N° Cotización</label>
+            <label>Cliente</label>
             <input type="text"
-                   name="cotizacion"
+                   name="cliente"
                    class="form-control"
-                   value="{{ request('cotizacion') }}"
-                   placeholder="Ej: 15">
+                   value="{{ request('cliente') }}"
+                   placeholder="Razón social">
         </div>
 
-        <div class="col-md-3">
+        {{-- Estado --}}
+        <div class="col-md-2">
+            <label>Estado</label>
+            <select name="estado" class="form-control">
+                <option value="">Todos</option>
+                <option value="p" {{ request('estado') == 'p' ? 'selected' : '' }}>
+                    Pendiente
+                </option>
+                <option value="c" {{ request('estado') == 'c' ? 'selected' : '' }}>
+                    Cotizado
+                </option>
+            </select>
+        </div>
+
+        {{-- Fecha --}}
+        <div class="col-md-2">
             <label>Fecha</label>
             <input type="date"
                    name="fecha"
@@ -54,7 +72,6 @@
         </div>
 
     </div>
-
 </form>
 
 @if(session('success'))
@@ -63,13 +80,18 @@
     </div>
 @endif
 
+
+{{-- =========================
+     TABLA
+========================= --}}
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>#</th>
             <th>Archivo</th>
+            <th>Cliente</th>
             <th>Fecha</th>
-            <th>Observaciones</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -79,6 +101,7 @@
             <tr>
                 <td>{{ $pedido->id_ped_cot }}</td>
 
+                 {{-- Archivo --}}
                 <td>
                     @if($pedido->archivo)
                         <a href="{{ asset('storage/' . $pedido->archivo) }}"
@@ -91,15 +114,39 @@
                     @endif
                 </td>
 
-
+                {{-- Cliente --}}
                 <td>
-                    {{ optional($pedido->created_at)->format('d/m/Y H:i') }}
+                    {{ $pedido->cliente->razon_social ?? '-' }}
                 </td>
-                <td>{{ $pedido->observaciones }}</td>
+
+                {{-- Fecha --}}
+                <td>
+                    {{ \Carbon\Carbon::parse($pedido->fecha)->format('d/m/Y') }}
+                </td>
+
+                {{-- Estado --}}
+                <td>
+                    @php
+                        $estadoTexto = match($pedido->estado_pc) {
+                            'p' => 'Pendiente',
+                            'c' => 'Cotizado',
+                            default => 'Sin definir'
+                        };
+
+                        $color = match($pedido->estado_pc) {
+                            'p' => 'warning',
+                            'c' => 'success',
+                            default => 'secondary'
+                        };
+                    @endphp
+
+                    <span class="badge badge-{{ $color }}">
+                        {{ $estadoTexto }}
+                    </span>
+                </td>
 
                 <td>
 
-                    {{-- EDITAR --}}
                     @can('editar pedidos cotizacion')
                     <a href="{{ route('pedidos-cotizacion.edit', $pedido->id_ped_cot) }}"
                        class="btn btn-sm btn-warning">
@@ -107,7 +154,6 @@
                     </a>
                     @endcan
 
-                    {{-- ELIMINAR --}}
                     @can('eliminar pedidos cotizacion')
                     <form action="{{ route('pedidos-cotizacion.destroy', $pedido->id_ped_cot) }}"
                           method="POST"
@@ -129,6 +175,6 @@
     </tbody>
 </table>
 
-{{ $pedidos->links() }}
+{{ $pedidos->appends(request()->query())->links() }}
 
 @stop

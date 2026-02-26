@@ -8,9 +8,30 @@ use Illuminate\Http\Request;
 
 class PedidoCotizacionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pedidos = PedidoCotizacion::with('cotizacion')->latest()->paginate(15);
+        $query = PedidoCotizacion::with('cliente');
+
+        // Filtro cliente
+        if ($request->filled('cliente')) {
+            $query->whereHas('cliente', function ($q) use ($request) {
+                $q->where('razon_social', 'like', '%' . $request->cliente . '%');
+            });
+        }
+
+        // Filtro estado
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        // Filtro fecha
+        if ($request->filled('fecha')) {
+            $query->whereDate('fecha', $request->fecha);
+        }
+
+        $pedidos = $query->orderByDesc('id_ped_cot')
+            ->paginate(10);
+
         return view('admin.pedidos-cotizacion.index', compact('pedidos'));
     }
 
@@ -32,6 +53,7 @@ class PedidoCotizacionController extends Controller
         $data = [
             'fecha'         => $request->fecha,
             'id_cliente'    => $request->id_cliente,
+            'estado'        => $request->estado ?? 'p', // por defecto pendiente
             'observaciones' => $request->observaciones,
         ];
 
