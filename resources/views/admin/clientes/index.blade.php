@@ -74,7 +74,7 @@
                    name="cuit"
                    class="form-control"
                    value="{{ request('cuit') }}"
-                   placeholder="">
+                   placeholder="Ej. 30-12345678-9">
         </div>
 
         <div class="col-md-4">
@@ -83,7 +83,7 @@
                    name="razon_social"
                    class="form-control"
                    value="{{ request('razon_social') }}"
-                   placeholder="">
+                   placeholder="Empresa-Ejemplo S.A.">
         </div>
 
         <div class="col-md-3">
@@ -137,7 +137,7 @@
             <th>CUIT</th>
             <th>Razón Social</th>
             <th>Tipo</th>
-            <th>Condición ARCA</th>
+            <th>Condición IVA</th>
             <th>Condición IIBB</th>
             <th width="120">Acciones</th>
         </tr>
