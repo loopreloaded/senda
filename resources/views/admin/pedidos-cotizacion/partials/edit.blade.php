@@ -1,4 +1,4 @@
-<form action="{{ route('pedidos-cotizacion.update', $pedido->id_ped_cot) }}"
+<form action="{{ route('pedidos-cotizacion.update', $pedido_cotizacion->id_ped_cot) }}"
       method="POST"
       enctype="multipart/form-data">
 
@@ -7,13 +7,14 @@
 
     <div class="row">
 
+
         {{-- Fecha --}}
         <div class="col-md-4 mb-3">
             <label class="form-label">Fecha *</label>
             <input type="date"
                    name="fecha"
                    class="form-control @error('fecha') is-invalid @enderror"
-                   value="{{ old('fecha', \Carbon\Carbon::parse($pedido->fecha)->format('Y-m-d')) }}"
+                   value="{{ old('fecha', \Carbon\Carbon::parse($pedido_cotizacion->fecha)->format('Y-m-d')) }}"
                    required>
             @error('fecha')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -29,7 +30,7 @@
                 <option value="">-- Seleccionar --</option>
                 @foreach($clientes as $cliente)
                     <option value="{{ $cliente->id }}"
-                        {{ old('id_cliente', $pedido->id_cliente) == $cliente->id ? 'selected' : '' }}>
+                        {{ old('id_cliente', $pedido_cotizacion->id_cliente) == $cliente->id ? 'selected' : '' }}>
                         {{ $cliente->razon_social }}
                     </option>
                 @endforeach
@@ -45,10 +46,10 @@
             <select name="estado"
                     class="form-select @error('estado') is-invalid @enderror"
                     required>
-                <option value="p" {{ old('estado', $pedido->estado) == 'p' ? 'selected' : '' }}>
+                <option value="p" {{ old('estado', $pedido_cotizacion->estado) == 'p' ? 'selected' : '' }}>
                     Pendiente
                 </option>
-                <option value="c" {{ old('estado', $pedido->estado) == 'c' ? 'selected' : '' }}>
+                <option value="c" {{ old('estado', $pedido_cotizacion->estado) == 'c' ? 'selected' : '' }}>
                     Cotizado
                 </option>
             </select>
@@ -71,9 +72,9 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
 
-            @if($pedido->archivo)
+            @if($pedido_cotizacion->archivo)
                 <div class="mt-2">
-                    <a href="{{ asset('storage/'.$pedido->archivo) }}"
+                    <a href="{{ asset('storage/'.$pedido_cotizacion->archivo) }}"
                        target="_blank"
                        class="btn btn-sm btn-outline-primary">
                         Ver archivo actual
@@ -87,23 +88,12 @@
             <label class="form-label">Observaciones</label>
             <textarea name="observaciones"
                       rows="3"
-                      class="form-control @error('observaciones') is-invalid @enderror">{{ old('observaciones', $pedido->observaciones) }}</textarea>
+                      class="form-control @error('observaciones') is-invalid @enderror">{{ old('observaciones', $pedido_cotizacion->observaciones) }}</textarea>
             @error('observaciones')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
-    </div>
-
-    <div class="mt-3">
-        <button type="submit" class="btn btn-primary">
-            Actualizar Pedido
-        </button>
-
-        <a href="{{ route('pedidos-cotizacion.index') }}"
-           class="btn btn-secondary">
-            Cancelar
-        </a>
     </div>
 
 </form>

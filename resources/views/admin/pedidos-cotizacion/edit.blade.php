@@ -12,14 +12,14 @@
     <div class="card-body">
 
         <form action="{{ route('pedidos-cotizacion.update', $pedido_cotizacion) }}"
-      method="POST"
-      enctype="multipart/form-data">
+            method="POST"
+            enctype="multipart/form-data">
 
             @csrf
             @method('PUT')
 
             {{-- Reutilizamos el mismo formulario --}}
-            @include('admin.pedidos-cotizacion.partials.form', ['pedido_cotizacion' => $pedido_cotizacion])
+            @include('admin.pedidos-cotizacion.partials.edit', ['pedido_cotizacion' => $pedido_cotizacion])
 
             <div class="mt-4">
                 <button type="submit" class="btn btn-success">
