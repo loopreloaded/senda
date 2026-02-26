@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PedidoCotizacion;
 use App\Models\Cotizacion;
 use Illuminate\Http\Request;
+use App\Models\Cliente;
 
 class PedidoCotizacionController extends Controller
 {
@@ -75,9 +76,14 @@ class PedidoCotizacionController extends Controller
         return view('admin.pedidos-cotizacion.show', compact('pedido_cotizacion'));
     }
 
-    public function edit(PedidoCotizacion $pedido_cotizacion)
+    public function edit(PedidoCotizacion $pedidos_cotizacion)
     {
-        return view('admin.pedidos-cotizacion.edit', compact('pedido_cotizacion'));
+        $clientes = Cliente::orderBy('razon_social')->get();
+
+        return view('admin.pedidos-cotizacion.edit', [
+            'pedido_cotizacion' => $pedidos_cotizacion,
+            'clientes' => $clientes
+        ]);
     }
 
     public function update(Request $request, PedidoCotizacion $pedido_cotizacion)

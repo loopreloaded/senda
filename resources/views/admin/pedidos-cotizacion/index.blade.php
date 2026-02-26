@@ -147,14 +147,11 @@
 
                 <td>
 
-                    @can('editar pedidos cotizacion')
                     <a href="{{ route('pedidos-cotizacion.edit', $pedido->id_ped_cot) }}"
                        class="btn btn-sm btn-warning">
                         <i class="fas fa-edit"></i>
                     </a>
-                    @endcan
 
-                    @can('eliminar pedidos cotizacion')
                     <form action="{{ route('pedidos-cotizacion.destroy', $pedido->id_ped_cot) }}"
                           method="POST"
                           style="display:inline">
@@ -166,7 +163,6 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
-                    @endcan
 
                 </td>
 

@@ -94,8 +94,6 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
      ======================= */
     Route::resource('pedidos-cotizacion', PedidoCotizacionController::class);
 
-    Route::get('pedidos-cotizacion', [PedidoCotizacionController::class, 'index'])
-        ->name('pedidos-cotizacion.index');
 
     /* =======================
      | NOTAS DE DÉBITO
