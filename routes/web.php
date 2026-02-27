@@ -92,7 +92,12 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     /* =======================
      | pedido cotizacion
      ======================= */
-    Route::resource('pedidos-cotizacion', PedidoCotizacionController::class);
+    // Route::resource('pedidos-cotizacion', PedidoCotizacionController::class);
+
+    Route::resource('pedidos-cotizacion', PedidoCotizacionController::class)
+    ->parameters([
+        'pedidos-cotizacion' => 'pedido_cotizacion'
+    ]);
 
 
     /* =======================

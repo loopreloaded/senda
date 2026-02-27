@@ -11,9 +11,7 @@
 <div class="card">
     <div class="card-body">
 
-        <form action="{{ route('pedidos-cotizacion.update', $pedido_cotizacion) }}"
-            method="POST"
-            enctype="multipart/form-data">
+        <form action="{{ route('pedidos-cotizacion.update', $pedido_cotizacion) }}" method="POST">
 
             @csrf
             @method('PUT')

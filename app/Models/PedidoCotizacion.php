@@ -11,8 +11,12 @@ class PedidoCotizacion extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
+    public function getRouteKeyName()
+    {
+        return 'id_ped_cot';
+    }
+
     protected $fillable = [
-        'id_cotizacion',
         'id_cliente',
         'fecha',
         'archivo',

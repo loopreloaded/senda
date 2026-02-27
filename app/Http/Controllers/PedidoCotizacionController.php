@@ -76,29 +76,45 @@ class PedidoCotizacionController extends Controller
         return view('admin.pedidos-cotizacion.show', compact('pedido_cotizacion'));
     }
 
-    public function edit(PedidoCotizacion $pedidos_cotizacion)
+    public function edit(PedidoCotizacion $pedido_cotizacion)
     {
         $clientes = Cliente::orderBy('razon_social')->get();
 
         return view('admin.pedidos-cotizacion.edit', [
-            'pedido_cotizacion' => $pedidos_cotizacion,
+            'pedido_cotizacion' => $pedido_cotizacion,
             'clientes' => $clientes
         ]);
     }
 
     public function update(Request $request, PedidoCotizacion $pedido_cotizacion)
     {
-        $data = $request->all();
+        $validated = $request->validate([
+            'id_cliente'    => 'required|exists:clientes,id',
+            'fecha'         => 'required|date',
+            'observaciones' => 'nullable|string',
+            'estado_pc'     => 'required|string',
+            'archivo'       => 'nullable|file|max:2048',
+        ]);
 
-        if ($request->hasFile('archivo')) {
-            $data['archivo'] = $request->file('archivo')
+        // 🚀 Si NO se sube archivo, lo quitamos del array para no sobrescribirlo
+        if (!$request->hasFile('archivo')) {
+            unset($validated['archivo']);
+        } else {
+
+            // Si se sube uno nuevo, eliminamos el anterior
+            if ($pedido_cotizacion->archivo) {
+                \Storage::disk('public')->delete($pedido_cotizacion->archivo);
+            }
+
+            $validated['archivo'] = $request->file('archivo')
                 ->store('pedidos-cotizacion', 'public');
         }
 
-        $pedido_cotizacion->update($data);
+        $pedido_cotizacion->update($validated);
 
-        return redirect()->route('pedidos-cotizacion.index')
-            ->with('success', 'Pedido actualizado');
+        return redirect()
+            ->route('pedidos-cotizacion.index')
+            ->with('success', 'Pedido actualizado correctamente');
     }
 
     public function destroy(PedidoCotizacion $pedido_cotizacion)
