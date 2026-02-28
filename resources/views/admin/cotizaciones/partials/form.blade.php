@@ -98,7 +98,26 @@
                         ? optional($cotizacion->vigencia_oferta)->format('Y-m-d')
                         : now()->format('Y-m-d')) }}">
     </div>
+
+
+    {{-- Motivo --}}
+    <div class="col-md-3">
+        <label>Motivo</label>
+        <select name="motivo" class="form-control" required>
+            <option value="">Seleccione...</option>
+            <option value="pedido"
+                {{ old('motivo', $cotizacion->motivo ?? '') == 'pedido' ? 'selected' : '' }}>
+                Pedido
+            </option>
+            <option value="particular"
+                {{ old('motivo', $cotizacion->motivo ?? '') == 'particular' ? 'selected' : '' }}>
+                Particular
+            </option>
+        </select>
+    </div>
+
 </div>
+
 
 <hr class="mt-4">
 

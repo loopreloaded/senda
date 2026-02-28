@@ -28,6 +28,7 @@ class CotizacionController extends Controller
             'fecha_cot' => 'required|date',
             'id_cliente' => 'required|exists:clientes,id',
             'forma_pago' => 'required|string|max:20',
+            'motivo' => 'required|in:pedido,particular',
             'items' => 'required|array|min:1',
             'items.*.producto' => 'required|string|max:45',
             'items.*.cantidad' => 'required|numeric|min:1',
@@ -49,6 +50,7 @@ class CotizacionController extends Controller
                 'plazo_entrega' => $request->plazo_entrega,
                 'vigencia_oferta' => $request->vigencia_oferta,
                 'especificaciones_tecnicas' => $request->especificaciones_tecnicas,
+                'motivo' => $request->motivo,
                 'observaciones' => $request->observaciones,
                 'importe_total' => $request->importe_total ?? 0,
             ]);

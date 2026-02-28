@@ -21,6 +21,7 @@ class Cotizacion extends Model
         'plazo_entrega',
         'vigencia_oferta',
         'especificaciones_tecnicas',
+        'motivo',
         'observaciones',
         'importe_total'
     ];

@@ -84,25 +84,48 @@
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>#</th>
+            <th>NO Cotización</th>
             <th>Cliente</th>
             <th>Fecha</th>
+            <th>Motivo</th>
             <th>Moneda</th>
             <th>Total</th>
-            <th>Vigencia</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         @foreach($cotizaciones as $cotizacion)
             <tr>
+                {{-- Nº Cotización --}}
                 <td>{{ $cotizacion->id_cotizacion }}</td>
+
+                {{-- Cliente --}}
                 <td>{{ $cotizacion->cliente->razon_social ?? '—' }}</td>
+
+                {{-- Fecha --}}
                 <td>{{ optional($cotizacion->fecha_cot)->format('d/m/Y') }}</td>
+
+                {{-- Motivo --}}
+                <td>
+                    @if($cotizacion->motivo == 'pedido')
+                        <span class="badge badge-primary">Pedido</span>
+                    @elseif($cotizacion->motivo == 'particular')
+                        <span class="badge badge-secondary">Particular</span>
+                    @else
+                        —
+                    @endif
+                </td>
+
+                {{-- Moneda --}}
                 <td>{{ $cotizacion->moneda }}</td>
+
+                {{-- Total --}}
                 <td>
                     ${{ number_format($cotizacion->importe_total, 2, ',', '.') }}
                 </td>
+
+                {{-- Estado --}}
                 <td>
                     @if($cotizacion->vigencia_oferta && now()->gt($cotizacion->vigencia_oferta))
                         <span class="badge badge-danger">Vencida</span>
@@ -110,28 +133,26 @@
                         <span class="badge badge-success">Vigente</span>
                     @endif
                 </td>
+
+                {{-- Acciones --}}
                 <td>
 
-                    {{-- VER --}}
                     <a href="{{ route('cotizaciones.show', $cotizacion->id_cotizacion) }}"
                        class="btn btn-sm btn-info">
                         <i class="fas fa-eye"></i>
                     </a>
 
-                    {{-- EDITAR --}}
                     <a href="{{ route('cotizaciones.edit', $cotizacion->id_cotizacion) }}"
                        class="btn btn-sm btn-warning">
                         <i class="fas fa-edit"></i>
                     </a>
 
-                    {{-- PDF --}}
                     <a href="{{ route('cotizaciones.pdf', $cotizacion->id_cotizacion) }}"
                        class="btn btn-sm btn-light"
                        target="_blank">
                         <i class="fas fa-file-pdf text-danger"></i>
                     </a>
 
-                    {{-- ELIMINAR --}}
                     <form action="{{ route('cotizaciones.destroy', $cotizacion->id_cotizacion) }}"
                           method="POST"
                           style="display:inline">
