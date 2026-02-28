@@ -10,9 +10,44 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class CotizacionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $cotizaciones = Cotizacion::with('cliente')->latest()->paginate(15);
+        $query = Cotizacion::with('cliente')->latest();
+
+        // NO Cotización
+        if ($request->filled('id')) {
+            $query->where('id_cotizacion', $request->id);
+        }
+
+        // Cliente (búsqueda parcial)
+        if ($request->filled('cliente')) {
+            $query->whereHas('cliente', function ($q) use ($request) {
+                $q->where('razon_social', 'like', '%' . $request->cliente . '%');
+            });
+        }
+
+        // Motivo
+        if ($request->filled('motivo')) {
+            $query->where('motivo', $request->motivo);
+        }
+
+        // Estado
+        if ($request->filled('estado')) {
+
+            if ($request->estado === 'VIGENTE') {
+                $query->where(function ($q) {
+                    $q->whereNull('vigencia_oferta')
+                    ->orWhere('vigencia_oferta', '>=', now());
+                });
+            }
+
+            if ($request->estado === 'VENCIDA') {
+                $query->where('vigencia_oferta', '<', now());
+            }
+        }
+
+        $cotizaciones = $query->paginate(15)->withQueryString();
+
         return view('admin.cotizaciones.index', compact('cotizaciones'));
     }
 

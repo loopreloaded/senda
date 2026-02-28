@@ -18,10 +18,11 @@
 <form method="GET" action="{{ route('cotizaciones.index') }}" class="mb-3">
     <div class="row">
 
-        {{-- Número --}}
-        <div class="col-md-2">
-            <label>N° Cotización</label>
-            <input type="text" name="id"
+        {{-- NO Cotización --}}
+        <div class="col-md-3">
+            <label>NO Cotización</label>
+            <input type="text"
+                   name="id"
                    class="form-control"
                    value="{{ request('id') }}"
                    placeholder="Ej: 15">
@@ -30,43 +31,49 @@
         {{-- Cliente --}}
         <div class="col-md-3">
             <label>Cliente</label>
-            <input type="text" name="cliente"
+            <input type="text"
+                   name="cliente"
                    class="form-control"
                    value="{{ request('cliente') }}"
-                   placeholder="Razon social...">
+                   placeholder="Razón social...">
         </div>
 
-        {{-- Fecha --}}
+        {{-- Motivo --}}
         <div class="col-md-2">
-            <label>Fecha</label>
-            <input type="date"
-                   name="fecha"
-                   class="form-control"
-                   value="{{ request('fecha') }}">
-        </div>
-
-        {{-- Moneda --}}
-        <div class="col-md-2">
-            <label>Moneda</label>
-            <select name="moneda" class="form-control">
-                <option value="">Todas</option>
-                <option value="ARS" {{ request('moneda') == 'ARS' ? 'selected' : '' }}>ARS</option>
-                <option value="USD_BILLETE" {{ request('moneda') == 'USD_BILLETE' ? 'selected' : '' }}>USD Billete</option>
-                <option value="USD_DIVISA" {{ request('moneda') == 'USD_DIVISA' ? 'selected' : '' }}>USD Divisa</option>
+            <label>Motivo</label>
+            <select name="motivo" class="form-control">
+                <option value="">Todos</option>
+                <option value="PEDIDO" {{ request('motivo') == 'PEDIDO' ? 'selected' : '' }}>
+                    Pedido
+                </option>
+                <option value="PARTICULAR" {{ request('motivo') == 'PARTICULAR' ? 'selected' : '' }}>
+                    Particular
+                </option>
             </select>
         </div>
 
-        {{-- Buscar --}}
-        <div class="col-md-1 d-flex align-items-end">
-            <button type="submit" class="btn btn-dark w-100">
-                <i class="fas fa-search"></i>
-            </button>
+        {{-- Estado --}}
+        <div class="col-md-2">
+            <label>Estado</label>
+            <select name="estado" class="form-control">
+                <option value="">Todos</option>
+                <option value="VIGENTE" {{ request('estado') == 'VIGENTE' ? 'selected' : '' }}>
+                    Vigente
+                </option>
+                <option value="VENCIDA" {{ request('estado') == 'VENCIDA' ? 'selected' : '' }}>
+                    Vencida
+                </option>
+            </select>
         </div>
 
-        {{-- Limpiar --}}
-        <div class="col-md-1 d-flex align-items-end">
+        {{-- Botones --}}
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark mr-2 w-50">
+                <i class="fas fa-search"></i>
+            </button>
+
             <a href="{{ route('cotizaciones.index') }}"
-               class="btn btn-secondary w-100"
+               class="btn btn-secondary w-50"
                title="Limpiar filtros">
                 <i class="fas fa-broom"></i>
             </a>
