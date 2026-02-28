@@ -11,7 +11,8 @@ class PedidoCotizacionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PedidoCotizacion::with('cliente');
+        $query = PedidoCotizacion::with('cliente')
+            ->where('estado_pc', '!=', 'b'); // 🔥 Excluir bajas lógicas
 
         // Filtro cliente
         if ($request->filled('cliente')) {
@@ -119,9 +120,10 @@ class PedidoCotizacionController extends Controller
 
     public function destroy(PedidoCotizacion $pedido_cotizacion)
     {
-        $pedido_cotizacion->delete();
+        $pedido_cotizacion->estado_pc = 'b'; // baja lógica
+        $pedido_cotizacion->save();
 
-        return redirect()->route('admin.pedidos-cotizacion.index')
-            ->with('success', 'Pedido eliminado');
+        return redirect()->route('pedidos-cotizacion.index')
+            ->with('success', 'Pedido eliminado correctamente');
     }
 }
