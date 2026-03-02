@@ -418,25 +418,23 @@ return [
             ],
         ],
 
-
-
         // REMITOS
         [
-            'text'    => 'Recibos',
-            'icon'    => 'fas fa-fw fa-file-alt', // Ícono similar a documentos
-            // 'can'     => 'ver recibos',
+            'text'    => 'Remitos',
+            'icon'    => 'fas fa-fw fa-truck',
+            'can'     => 'ver remitos',
             'submenu' => [
                 [
-                    'text'  => 'Nuevo Recibo',
-                    'route' => 'recibos.create',
+                    'text'  => 'Nuevo Remito',
+                    'route' => 'remitos.create',
                     'icon'  => 'fas fa-fw fa-plus-circle',
-                    'can'   => 'crear recibos',
+                    'can'   => 'crear remitos',
                 ],
                 [
-                    'text'  => 'Listado de recibos',
-                    'route' => 'recibos.index',
+                    'text'  => 'Listado de Remitos',
+                    'route' => 'remitos.index',
                     'icon'  => 'fas fa-fw fa-list',
-                    'can'   => 'ver recibos',
+                    'can'   => 'ver remitos',
                 ],
             ],
         ],

@@ -17,6 +17,7 @@ use App\Http\Controllers\NotaDebitoController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\PedidoCotizacionController;
+use App\Http\Controllers\RemitoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +132,20 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
 
     Route::get('recibos/{recibo}/pdf', [ReciboController::class, 'generar_pdf_recibo'])
         ->name('recibos.pdf');
+
+    /* =======================
+    | REMITOS
+    ======================= */
+
+    Route::resource('remitos', RemitoController::class);
+
+    Route::get('remitos/{remito}/pdf',
+        [RemitoController::class, 'pdf']
+    )->name('remitos.pdf');
+
+    Route::post('remitos/{remito}/confirmar',
+        [RemitoController::class, 'confirmar']
+    )->name('remitos.confirmar');
 });
 
 
