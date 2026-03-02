@@ -1,121 +1,85 @@
-{{-- FILA 1 --}}
+@csrf
+
 <div class="row">
 
-    <div class="col-md-8">
-        <label>Razón Social</label>
+    {{-- Número de Remito --}}
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Número de Remito</label>
         <input type="text"
-               name="razon_social"
+               name="numero"
                class="form-control"
-               value="{{ old('razon_social', $orden->razon_social ?? '') }}"
+               value="{{ old('numero', $remito->numero ?? '') }}"
                required>
     </div>
 
-    <div class="col-md-4">
-        <label>CUIT</label>
-        <input type="text"
-               name="cuit"
+    {{-- Cliente --}}
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Cliente</label>
+        <select name="cliente_id" class="form-control" required>
+            <option value="">Seleccione cliente</option>
+            @foreach($clientes as $cliente)
+                <option value="{{ $cliente->id }}"
+                    {{ old('cliente_id', $remito->cliente_id ?? '') == $cliente->id ? 'selected' : '' }}>
+                    {{ $cliente->razon_social }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    {{-- Fecha --}}
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Fecha</label>
+        <input type="date"
+               name="fecha"
                class="form-control"
-               maxlength="11"
-               value="{{ old('cuit', $orden->cuit ?? '') }}"
+               value="{{ old('fecha', isset($remito->fecha) ? $remito->fecha->format('Y-m-d') : '') }}"
                required>
+    </div>
+
+    {{-- OC Asociada --}}
+    <div class="col-md-4 mb-3">
+        <label class="form-label">OC Asociada</label>
+        <input type="text"
+               name="oc_asociada"
+               class="form-control"
+               value="{{ old('oc_asociada', $remito->oc_asociada ?? '') }}">
+    </div>
+
+    {{-- Factura Relacionada --}}
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Factura Relacionada</label>
+        <input type="text"
+               name="factura_relacionada"
+               class="form-control"
+               value="{{ old('factura_relacionada', $remito->factura_relacionada ?? '') }}">
+    </div>
+
+    {{-- Estado --}}
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-control" required>
+            <option value="Emitido"
+                {{ old('estado', $remito->estado ?? '') == 'Emitido' ? 'selected' : '' }}>
+                Emitido
+            </option>
+            <option value="Confirmado"
+                {{ old('estado', $remito->estado ?? '') == 'Confirmado' ? 'selected' : '' }}>
+                Confirmado
+            </option>
+            <option value="Anulado"
+                {{ old('estado', $remito->estado ?? '') == 'Anulado' ? 'selected' : '' }}>
+                Anulado
+            </option>
+        </select>
     </div>
 
 </div>
 
-
-{{-- FILA 2 --}}
-<div class="row mt-3">
-
-    <div class="col-md-4">
-        <label>Dirección (Localidad - Provincia)</label>
-        <input type="text"
-               name="domicilio_comercial"
-               class="form-control"
-               value="{{ old('domicilio_comercial', $orden->domicilio_comercial ?? '') }}"
-               required>
-    </div>
-
-    <div class="col-md-4">
-        <label>Teléfono</label>
-        <input type="text"
-               name="telefono"
-               class="form-control"
-               value="{{ old('telefono', $orden->telefono ?? '') }}">
-    </div>
-
-    <div class="col-md-4">
-        <label>Email</label>
-        <input type="email"
-               name="email"
-               class="form-control"
-               value="{{ old('email', $orden->email ?? '') }}">
-    </div>
-
-</div>
-
-
-{{-- FILA 3 --}}
-<div class="row mt-3">
-
-    <div class="col-md-4">
-        <label>Condición IVA</label>
-        <select name="condicion_arca" class="form-control" required>
-            <option value="">Seleccione...</option>
-
-            <option value="RI" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'RI' ? 'selected' : '' }}>
-                Responsable Inscripto
-            </option>
-
-            <option value="EX" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'EX' ? 'selected' : '' }}>
-                Exento
-            </option>
-
-            <option value="NR" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'NR' ? 'selected' : '' }}>
-                No Responsable
-            </option>
-
-            <option value="CF" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'CF' ? 'selected' : '' }}>
-                Consumidor Final
-            </option>
-
-            <option value="MT" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'MT' ? 'selected' : '' }}>
-                Responsable Monotributo
-            </option>
-        </select>
-    </div>
-
-    <div class="col-md-4">
-        <label>Condición IIBB</label>
-        <select name="condicion_iibb" class="form-control" required>
-            <option value="">Seleccione...</option>
-
-            <option value="L" {{ old('condicion_iibb', $orden->condicion_iibb ?? '') == 'L' ? 'selected' : '' }}>
-                Local
-            </option>
-
-            <option value="CM" {{ old('condicion_iibb', $orden->condicion_iibb ?? '') == 'CM' ? 'selected' : '' }}>
-                Convenio Multilateral
-            </option>
-        </select>
-    </div>
-
-    <div class="col-md-4">
-        <label>Tipo</label>
-        <select name="tipo" class="form-control" required>
-            <option value="">Seleccione...</option>
-
-            <option value="C" {{ old('tipo', $orden->tipo ?? '') == 'C' ? 'selected' : '' }}>
-                Cliente
-            </option>
-
-            <option value="P" {{ old('tipo', $orden->tipo ?? '') == 'P' ? 'selected' : '' }}>
-                Proveedor
-            </option>
-
-            <option value="A" {{ old('tipo', $orden->tipo ?? '') == 'A' ? 'selected' : '' }}>
-                Ambos
-            </option>
-        </select>
-    </div>
-
+<div class="mt-3">
+    <button type="submit" class="btn btn-primary">
+        Guardar
+    </button>
+    <a href="{{ route('remitos.index') }}" class="btn btn-secondary">
+        Cancelar
+    </a>
 </div>

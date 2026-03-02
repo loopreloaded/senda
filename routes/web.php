@@ -146,6 +146,7 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     Route::post('remitos/{remito}/confirmar',
         [RemitoController::class, 'confirmar']
     )->name('remitos.confirmar');
+
 });
 
 

@@ -28,7 +28,7 @@
             @include('admin.clientes.partials.form')
             <div class="mt-4 text-right">
                 <button type="submit" class="btn btn-success">Guardar</button>
-                <a href="{{ route('ordenes.index') }}" class="btn btn-secondary">Cancelar</a>
+                <a href="{{ route('clientes.index') }}" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>
