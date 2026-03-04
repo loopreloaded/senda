@@ -59,8 +59,6 @@ class CotizacionController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
-
         $request->validate([
             'fecha_cot' => 'required|date',
             'id_cliente' => 'required|exists:clientes,id',
