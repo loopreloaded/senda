@@ -95,6 +95,7 @@
             <th>Cliente</th>
             <th>Fecha</th>
             <th>Motivo</th>
+            <th>Nro Ped.</th>
             <th>Moneda</th>
             <th>Total</th>
             <th>Estado</th>
@@ -123,6 +124,9 @@
                         —
                     @endif
                 </td>
+
+                {{-- nro_pedido_asoc --}}
+                <td>{{ $cotizacion->nro_pedido_asoc ?? '—' }}</td>
 
                 {{-- Moneda --}}
                 <td>{{ $cotizacion->moneda }}</td>
