@@ -52,4 +52,10 @@ class Cotizacion extends Model
     {
         return $this->hasMany(CotizacionItem::class, 'id_cotizacion');
     }
+
+    public function getRouteKeyName()
+    {
+        return 'id_cotizacion';
+    }
+
 }

@@ -124,15 +124,14 @@ class CotizacionController extends Controller
 
     public function edit(Cotizacion $cotizacion)
     {
-        $clientes = Cliente::all();
-        return view('admin.cotizaciones.edit', compact('cotizacion', 'clientes'));
+        return view('admin.cotizaciones.edit', compact('cotizacion'));
     }
 
     public function update(Request $request, Cotizacion $cotizacion)
     {
         $cotizacion->update($request->all());
 
-        return redirect()->route('admin.cotizaciones.index')
+        return redirect()->route('cotizaciones.index')
             ->with('success', 'Cotización actualizada');
     }
 

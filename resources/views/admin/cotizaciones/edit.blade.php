@@ -3,10 +3,22 @@
 @section('title', 'Editar Cotizacion')
 
 @section('content_header')
-    <h1>Editar Cotizacion </h1>
+    <h1>Editar Cotizacion #{{ $cotizacion->numero_oc }}</h1>
 @stop
 
 @section('content')
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <strong>Hay errores en el formulario:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 
 <div class="card">
     <div class="card-body">
@@ -16,7 +28,7 @@
             @method('PUT')
 
             {{-- Reutilizamos el mismo formulario --}}
-            @include('admin.cotizaciones.partials.form', ['cotizacion' => $cotizacion])
+            @include('admin.cotizaciones.partials.edit', ['cotizacion' => $cotizacion])
 
             <div class="mt-4">
                 <button type="submit" class="btn btn-success">

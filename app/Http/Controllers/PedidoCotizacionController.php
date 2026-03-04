@@ -91,10 +91,10 @@ class PedidoCotizacionController extends Controller
     {
         $validated = $request->validate([
             'id_cliente'    => 'required|exists:clientes,id',
+            'archivo'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'fecha'         => 'required|date',
             'observaciones' => 'nullable|string',
-            'estado_pc'     => 'required|string',
-            'archivo'       => 'nullable|file|max:2048',
+            'estado_pc'     => 'required|string'
         ]);
 
         // 🚀 Si NO se sube archivo, lo quitamos del array para no sobrescribirlo
