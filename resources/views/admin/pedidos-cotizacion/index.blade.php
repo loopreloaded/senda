@@ -91,6 +91,7 @@
             <th>Archivo</th>
             <th>Cliente</th>
             <th>Fecha</th>
+            <th>Comentarios</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -118,11 +119,16 @@
                 <td>
                     {{ $pedido->cliente->razon_social ?? '-' }}
                 </td>
-
                 {{-- Fecha --}}
                 <td>
                     {{ \Carbon\Carbon::parse($pedido->fecha)->format('d/m/Y') }}
                 </td>
+
+               {{-- comentarios --}}
+                <td>
+                    {{ $pedido->comentarios ?? '-' }}
+                </td>
+
 
                 {{-- Estado --}}
                 <td>
