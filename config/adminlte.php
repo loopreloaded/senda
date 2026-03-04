@@ -335,6 +335,12 @@ return [
             'can'     => 'ver cotizaciones',
             'submenu' => [
                 [
+                    'text'    => 'Pedidos de Cotización',
+                    'route'   => 'pedidos-cotizacion.index',
+                    'icon'    => 'fas fa-fw fa-paperclip',
+                    'can'     => 'ver pedidos cotizacion'
+                ],
+                [
                     'text'  => 'Nueva Cotización',
                     'route' => 'cotizaciones.create',
                     'icon'  => 'fas fa-fw fa-plus-circle',
@@ -345,12 +351,6 @@ return [
                     'route' => 'cotizaciones.index',
                     'icon'  => 'fas fa-fw fa-list',
                     'can'   => 'ver cotizaciones',
-                ],
-                [
-                    'text'    => 'Pedidos de Cotización',
-                    'route'   => 'pedidos-cotizacion.index',
-                    'icon'    => 'fas fa-fw fa-paperclip',
-                    'can'     => 'ver pedidos cotizacion'
                 ],
             ],
         ],
