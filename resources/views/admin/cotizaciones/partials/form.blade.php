@@ -103,7 +103,10 @@
     {{-- Motivo --}}
     <div class="col-md-3">
         <label>Motivo</label>
-        <select name="motivo" class="form-control" required>
+        <select name="motivo"
+                id="motivo"
+                class="form-control"
+                required>
             <option value="">Seleccione...</option>
             <option value="pedido"
                 {{ old('motivo', $cotizacion->motivo ?? '') == 'pedido' ? 'selected' : '' }}>
@@ -114,6 +117,15 @@
                 Particular
             </option>
         </select>
+    </div>
+
+    {{-- Nro Pedido Asociado (oculto por defecto) --}}
+    <div class="col-md-3" id="grupo-nro-pedido">
+        <label>Nro Pedido Asociado</label>
+        <input type="text"
+            name="nro_pedido_asociado"
+            class="form-control"
+            value="{{ old('nro_pedido_asociado', $cotizacion->nro_pedido_asociado ?? '') }}">
     </div>
 
 </div>

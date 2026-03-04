@@ -59,9 +59,12 @@ class CotizacionController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
+
         $request->validate([
             'fecha_cot' => 'required|date',
             'id_cliente' => 'required|exists:clientes,id',
+            'nro_pedido_asociado' => 'nullable|string|max:50',
             'forma_pago' => 'required|string|max:20',
             'motivo' => 'required|in:pedido,particular',
             'items' => 'required|array|min:1',
@@ -79,6 +82,7 @@ class CotizacionController extends Controller
             $cotizacion = Cotizacion::create([
                 'fecha_cot' => $request->fecha_cot,
                 'id_cliente' => $request->id_cliente,
+                'nro_pedido_asociado' => $request->nro_pedido_asociado,
                 'moneda' => $request->moneda,
                 'forma_pago' => $request->forma_pago,
                 'lugar_entrega' => $request->lugar_entrega,
