@@ -178,56 +178,7 @@
     </tbody>
 </table>
 
-{{-- MODAL COMENTARIO --}}
-<div class="modal fade" id="modalComentario" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <form method="POST" action="{{ route('cotizaciones.comentario.store') }}">
-            @csrf
-            <input type="hidden" name="cotizacion_id" id="cotizacion_id">
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Agregar Observación</h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Comentario / Observación</label>
-                        <textarea name="comentario"
-                                  class="form-control"
-                                  rows="4"
-                                  required></textarea>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">
-                        Guardar
-                    </button>
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
 {{ $cotizaciones->links() }}
 
-@section('js')
-<script>
-$('#modalComentario').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget);
-    var cotizacionId = button.data('id');
-    $('#cotizacion_id').val(cotizacionId);
-});
-</script>
-@endsection
 
 @stop
