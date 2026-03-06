@@ -18,16 +18,6 @@
 <form method="GET" action="{{ route('cotizaciones.index') }}" class="mb-3">
     <div class="row">
 
-        {{-- NO Cotización --}}
-        <div class="col-md-3">
-            <label>NO Cotización</label>
-            <input type="text"
-                   name="id"
-                   class="form-control"
-                   value="{{ request('id') }}"
-                   placeholder="Ej: 15">
-        </div>
-
         {{-- Cliente --}}
         <div class="col-md-3">
             <label>Cliente</label>

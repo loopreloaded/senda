@@ -15,11 +15,6 @@ class CotizacionController extends Controller
     {
         $query = Cotizacion::with('cliente')->latest();
 
-        // NO Cotización
-        if ($request->filled('id')) {
-            $query->where('id_cotizacion', $request->id);
-        }
-
         // Cliente (búsqueda parcial)
         if ($request->filled('cliente')) {
             $query->whereHas('cliente', function ($q) use ($request) {
@@ -60,8 +55,6 @@ class CotizacionController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
-
         $request->validate([
             'fecha_cot' => 'required|date',
             'id_cliente' => 'required|exists:clientes,id',
@@ -106,13 +99,10 @@ class CotizacionController extends Controller
                 ]);
             }
 
-            // dd($request->nro_pedido_asoc);
             // actualizar estado del pedido si corresponde
             if ($request->filled('nro_pedido_asoc')) {
 
                 $pedido = PedidoCotizacion::where('id_ped_cot', $request->nro_pedido_asoc)->first();
-
-                // dd($pedido);
 
                 if ($pedido) {
                     $pedido->update([
