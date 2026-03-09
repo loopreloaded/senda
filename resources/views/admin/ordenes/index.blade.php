@@ -83,10 +83,11 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Archivo</th>
-            <th>Cliente</th>
+            <th>Proveedor</th>
             <th>Fecha</th>
             <th>Motivo</th>
+            <th>Moneda</th>
+            <th>Total</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -98,17 +99,6 @@
 
             {{-- # --}}
             <td>{{ $orden->numero_oc }}</td>
-
-            {{-- Archivo --}}
-            <td>
-                @if($orden->archivo)
-                    <a href="{{ asset('storage/'.$orden->archivo) }}" target="_blank">
-                        <i class="fas fa-paperclip"></i>
-                    </a>
-                @else
-                    -
-                @endif
-            </td>
 
             {{-- Cliente --}}
             <td>{{ $orden->cliente->razon_social ?? '-' }}</td>
@@ -126,6 +116,19 @@
                     -
                 @endif
             </td>
+
+            {{-- Moneda --}}
+            <td>{{ $orden->moneda ?? '-' }}</td>
+
+            {{-- Total --}}
+            <td>
+                @if($orden->total)
+                    {{ number_format($orden->total, 2) }}
+                @else
+                    -
+                @endif
+            </td>
+
             {{-- Estado --}}
             <td>
                 @if($orden->estado == 'pendiente')
