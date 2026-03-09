@@ -21,6 +21,10 @@ class OrdenCompraController extends Controller
             });
         }
 
+        if ($request->filled('motivo')) {
+            $query->where('motivo', $request->motivo);
+        }
+
         // FILTRO ESTADO
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -52,6 +56,7 @@ class OrdenCompraController extends Controller
             'fecha_entrega'     => 'nullable|date',
             'condicion_compra'  => 'required|string|max:191',
             'solicitud_compra'  => 'nullable|string|max:191',
+            'motivo'            => 'required|in:cotizacion,stock',
             'observaciones'     => 'nullable|string',
 
             // ARCHIVO

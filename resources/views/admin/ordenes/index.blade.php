@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Listado de Ordenes')
+@section('title', 'Listado Orden de compra')
 
 @section('content_header')
-    <h2>Listado de Ordenes</h2>
+    <h2>Listado Orden de compra</h2>
 @stop
 
 @section('content')
@@ -14,43 +14,63 @@
 
     <div class="row">
 
-    {{-- Razon social --}}
-    <div class="col-md-3">
-        <label>Razon social</label>
-        <input type="text" name="proveedor" class="form-control"
-               value="{{ request('proveedor') }}" placeholder="">
+        {{-- Razon social --}}
+        <div class="col-md-3">
+            <label>Razón social</label>
+            <input type="text"
+                name="razon_social"
+                class="form-control"
+                value="{{ request('razon_social') }}"
+                placeholder="Buscar cliente...">
+        </div>
+
+        {{-- Motivo --}}
+        <div class="col-md-2">
+            <label>Motivo</label>
+            <select name="motivo" class="form-control">
+                <option value="">Todos</option>
+
+                <option value="cotizacion"
+                    {{ request('motivo')=='cotizacion'?'selected':'' }}>
+                    Cotización
+                </option>
+
+                <option value="stock"
+                    {{ request('motivo')=='stock'?'selected':'' }}>
+                    Stock
+                </option>
+            </select>
+        </div>
+
+        {{-- Estado --}}
+        <div class="col-md-2">
+            <label>Estado</label>
+            <select name="estado" class="form-control">
+                <option value="">Todos</option>
+                <option value="pendiente" {{ request('estado')=='pendiente'?'selected':'' }}>Pendiente</option>
+                <option value="anulada" {{ request('estado')=='anulada'?'selected':'' }}>Anulada</option>
+                <option value="parcial" {{ request('estado')=='parcial'?'selected':'' }}>Parcial</option>
+                <option value="cumplida" {{ request('estado')=='cumplida'?'selected':'' }}>Cumplida</option>
+            </select>
+        </div>
+
+        {{-- Buscar --}}
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        {{-- Limpiar --}}
+        <div class="col-md-1 d-flex align-items-end">
+            <a href="{{ route('ordenes.index') }}"
+            class="btn btn-secondary w-100"
+            title="Limpiar filtros">
+                <i class="fas fa-broom"></i>
+            </a>
+        </div>
+
     </div>
-
-    {{--    --}}
-    <div class="col-md-2">
-        <label>Estado</label>
-        <select name="estado" class="form-control">
-            <option value="">Todos</option>
-            <option value="pendiente" {{ request('estado')=='pendiente'?'selected':'' }}>Pendiente</option>
-            <option value="anulada" {{ request('estado')=='anulada'?'selected':'' }}>Anulada</option>
-            <option value="parcial" {{ request('estado')=='parcial'?'selected':'' }}>Parcial</option>
-            <option value="cumplida" {{ request('estado')=='cumplida'?'selected':'' }}>Cumplida</option>
-        </select>
-    </div>
-
-
-    {{-- Botón buscar --}}
-    <div class="col-md-1 d-flex align-items-end">
-        <button type="submit" class="btn btn-dark w-100">
-            <i class="fas fa-search"></i>
-        </button>
-    </div>
-
-    {{-- Limpiar --}}
-    <div class="col-md-1 d-flex align-items-end">
-        <a href="{{ route('ordenes.index') }}"
-           class="btn btn-secondary w-100" title="Limpiar filtros">
-            <i class="fas fa-broom"></i>
-        </a>
-    </div>
-
-</div>
-
 
 </form>
 
@@ -66,6 +86,7 @@
             <th>Archivo</th>
             <th>Cliente</th>
             <th>Fecha</th>
+            <th>Motivo</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -95,6 +116,16 @@
             {{-- Fecha --}}
             <td>{{ \Carbon\Carbon::parse($orden->fecha)->format('d/m/Y') }}</td>
 
+            {{--  --}}
+            <td>
+                @if($orden->motivo == 'cotizacion')
+                    <span class="badge badge-info">Cotización</span>
+                @elseif($orden->motivo == 'stock')
+                    <span class="badge badge-secondary">Stock</span>
+                @else
+                    -
+                @endif
+            </td>
             {{-- Estado --}}
             <td>
                 @if($orden->estado == 'pendiente')

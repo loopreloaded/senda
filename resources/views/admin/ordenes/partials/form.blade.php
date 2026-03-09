@@ -13,6 +13,19 @@
             required>
     </div>
 
+    <div class="col-md-3">
+        <label>Motivo</label>
+        <select name="motivo" class="form-control" required>
+            <option value="">Seleccionar...</option>
+            <option value="cotizacion" {{ old('motivo', $orden->motivo ?? '') == 'cotizacion' ? 'selected' : '' }}>
+                Cotización
+            </option>
+            <option value="stock" {{ old('motivo', $orden->motivo ?? '') == 'stock' ? 'selected' : '' }}>
+                Stock
+            </option>
+        </select>
+    </div>
+
     {{-- Razón Social --}}
     <div class="col-md-6">
         <div class="form-group">
