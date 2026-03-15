@@ -37,6 +37,16 @@
                required>
     </div>
 
+    {{-- Nro Solicitud --}}
+    <div class="col-md-3">
+        <label>N° Solicitud</label>
+        <input type="text"
+               name="nro_solicitud"
+               class="form-control"
+               placeholder="Ingrese N° de solicitud..."
+               value="{{ old('nro_solicitud', $pedido->nro_solicitud ?? '') }}">
+    </div>
+
     {{-- Cliente --}}
     <div class="col-md-6">
         <div class="form-group">

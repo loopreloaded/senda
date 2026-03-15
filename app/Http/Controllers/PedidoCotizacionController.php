@@ -44,8 +44,8 @@ class PedidoCotizacionController extends Controller
         $request->validate([
             'fecha'                => 'required|date',
             'id_cliente'           => 'required|exists:clientes,id',
-            'nro_pedido_asociado'  => 'nullable|string|max:50',
             'items_excluidos'      => 'nullable|string|max:255',
+            'nro_solicitud'        => 'nullable|string|max:100',
             'archivo'              => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'observaciones'        => 'nullable|string'
         ]);
@@ -55,6 +55,8 @@ class PedidoCotizacionController extends Controller
             'id_cliente'      => $request->id_cliente,
             'estado'          => $request->estado ?? 'p', // por defecto pendiente
             'items_excluidos' => $request->items_excluidos,
+            'nro_solicitud'   => $request->nro_solicitud,
+            'archivo'         => $request->archivo,
             'observaciones'   => $request->observaciones,
         ];
 
