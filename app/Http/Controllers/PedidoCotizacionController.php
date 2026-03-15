@@ -42,18 +42,20 @@ class PedidoCotizacionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fecha'         => 'required|date',
-            'id_cliente'    => 'required|exists:clientes,id',
-            'nro_pedido_asociado' => 'nullable|string|max:50',
-            'archivo'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'observaciones' => 'nullable|string'
+            'fecha'                => 'required|date',
+            'id_cliente'           => 'required|exists:clientes,id',
+            'nro_pedido_asociado'  => 'nullable|string|max:50',
+            'items_excluidos'      => 'nullable|string|max:255',
+            'archivo'              => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'observaciones'        => 'nullable|string'
         ]);
 
         $data = [
-            'fecha'         => $request->fecha,
-            'id_cliente'    => $request->id_cliente,
-            'estado'        => $request->estado ?? 'p', // por defecto pendiente
-            'observaciones' => $request->observaciones,
+            'fecha'           => $request->fecha,
+            'id_cliente'      => $request->id_cliente,
+            'estado'          => $request->estado ?? 'p', // por defecto pendiente
+            'items_excluidos' => $request->items_excluidos,
+            'observaciones'   => $request->observaciones,
         ];
 
         // Archivo

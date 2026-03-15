@@ -68,6 +68,20 @@
 
 </div>
 
+<div class="row">
+
+    {{-- Items Excluidos --}}
+    <div class="col-md-12">
+        <label>Items Excluidos</label>
+        <input type="text"
+               name="items_excluidos"
+               class="form-control"
+               placeholder="Ingrese los items que quedan excluidos del pedido..."
+               value="{{ old('items_excluidos', $pedido->items_excluidos ?? '') }}">
+    </div>
+
+</div>
+
 <hr>
 
 <div class="row">

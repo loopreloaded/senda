@@ -20,6 +20,7 @@ class PedidoCotizacion extends Model
         'id_cliente',
         'fecha',
         'archivo',
+        'items_excluidos',
         'observaciones',
         'comentarios',
         'estado_pc'
