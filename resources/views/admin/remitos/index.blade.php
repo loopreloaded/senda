@@ -14,67 +14,87 @@
 
 @section('content')
 
+{{-- ALERTAS --}}
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+@endif
+
 <div class="card">
     <div class="card-body table-responsive">
 
         <table class="table table-bordered table-striped">
             <thead class="thead-light">
                 <tr>
-                    <th>Número de remito</th>
+                    <th>Número</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
-                    <th>OC asociada</th>
-                    <th>Factura relacionada</th>
+                    <th>OC</th>
+                    <th>Factura</th>
                     <th>Estado</th>
-                    <th width="220px">Acciones</th>
+                    <th width="240px">Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
                 @forelse ($remitos as $remito)
                     <tr>
+
                         <td>{{ $remito->numero_remito }}</td>
 
-                        <td>
-                            {{ optional($remito->cliente)->razon_social }}
-                        </td>
+                        <td>{{ optional($remito->cliente)->razon_social ?? '-' }}</td>
 
                         <td>
                             {{ $remito->fecha ? $remito->fecha->format('d/m/Y') : '-' }}
                         </td>
 
-                        <td>
-                            {{ optional($remito->ordenCompra)->numero_oc ?? '-' }}
-                        </td>
+                        <td>{{ optional($remito->ordenCompra)->id ?? '-' }}</td>
 
-                        <td>
-                            {{ optional($remito->factura)->numero_factura ?? '-' }}
-                        </td>
+                        <td>{{ optional($remito->factura)->id ?? '-' }}</td>
 
+                        {{-- ESTADO --}}
                         <td>
-                            @if($remito->estado === 'emitido')
+                            @if($remito->estado === 'Emitido')
                                 <span class="badge badge-warning">Emitido</span>
-                            @elseif($remito->estado === 'confirmado')
+                            @elseif($remito->estado === 'Confirmado')
                                 <span class="badge badge-success">Confirmado</span>
-                            @elseif($remito->estado === 'anulado')
+                            @elseif($remito->estado === 'Anulado')
                                 <span class="badge badge-danger">Anulado</span>
+                            @else
+                                <span class="badge badge-secondary">{{ $remito->estado }}</span>
                             @endif
                         </td>
 
+                        {{-- ACCIONES --}}
                         <td>
-                            {{-- VER PDF --}}
+
+                            {{-- PDF --}}
                             <a href="{{ route('remitos.pdf', $remito) }}"
                                class="btn btn-sm btn-info"
-                               target="_blank">
+                               target="_blank"
+                               title="PDF">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
 
-                            {{-- ACCIONES SEGÚN ESTADO --}}
-                            @if($remito->estado === 'emitido')
+                            {{-- SOLO SI ESTÁ EMITIDO --}}
+                            @if($remito->estado === 'Emitido')
 
                                 {{-- EDITAR --}}
                                 <a href="{{ route('remitos.edit', $remito) }}"
-                                   class="btn btn-sm btn-primary">
+                                   class="btn btn-sm btn-primary"
+                                   title="Editar">
                                     <i class="fas fa-edit"></i>
+                                </a>
+
+                                {{-- CONFIRMAR --}}
+                                <a href="{{ route('remitos.confirmar', $remito) }}"
+                                   class="btn btn-sm btn-success"
+                                   onclick="return confirm('¿Confirmar remito?')"
+                                   title="Confirmar">
+                                    <i class="fas fa-check"></i>
                                 </a>
 
                                 {{-- ANULAR --}}
@@ -83,22 +103,26 @@
                                       style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
+
                                     <button type="submit"
                                             class="btn btn-sm btn-danger"
-                                            onclick="return confirm('¿Anular este remito?')">
-                                        <i class="fas fa-times"></i>
+                                            onclick="return confirm('¿Anular este remito?')"
+                                            title="Anular">
+                                        <i class="fas fa-ban"></i>
                                     </button>
                                 </form>
 
                             @endif
 
-                            {{-- COMENTAR (para todos los estados) --}}
+                            {{-- VER / COMENTAR --}}
                             <a href="{{ route('remitos.show', $remito) }}"
-                               class="btn btn-sm btn-secondary">
-                                <i class="fas fa-comment"></i>
+                               class="btn btn-sm btn-secondary"
+                               title="Ver">
+                                <i class="fas fa-eye"></i>
                             </a>
 
                         </td>
+
                     </tr>
                 @empty
                     <tr>
@@ -109,6 +133,9 @@
                 @endforelse
             </tbody>
         </table>
+
+        {{-- PAGINACIÓN --}}
+        {{ $remitos->links() }}
 
     </div>
 </div>

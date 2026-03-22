@@ -9,8 +9,8 @@ class Remito extends Model
     protected $table = 'remitos';
 
     protected $primaryKey = 'id_remito';
-    public $incrementing = true;
-    protected $keyType = 'int';
+    // public $incrementing = true;
+    // protected $keyType = 'int';
 
     protected $fillable = [
         'numero_remito',
@@ -19,11 +19,28 @@ class Remito extends Model
         'id_orden_compra',
         'id_factura',
         'estado',
+
+        // NUEVOS CAMPOS
+        'condicion_venta',
+
+        // FLETE
+        'transportista',
+        'domicilio_transportista',
+        'iva_transportista',
+        'cuit_transportista',
+        'observacion',
+
+        // CAI
+        'cai',
+        'cai_vto',
+
+        // otros
         'comentarios'
     ];
 
     protected $casts = [
-        'fecha' => 'date'
+        'fecha'   => 'date',
+        'cai_vto' => 'date',
     ];
 
     /*
@@ -47,6 +64,12 @@ class Remito extends Model
         return $this->belongsTo(Factura::class, 'id_factura');
     }
 
+    // 🔥 RELACIÓN NUEVA (recomendada)
+    public function items()
+    {
+        return $this->hasMany(RemitoItem::class, 'id_remito');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | ROUTE MODEL BINDING
@@ -66,16 +89,16 @@ class Remito extends Model
 
     public function esEmitido()
     {
-        return $this->estado === 'emitido';
+        return strtolower($this->estado) === 'emitido';
     }
 
     public function esConfirmado()
     {
-        return $this->estado === 'confirmado';
+        return strtolower($this->estado) === 'confirmado';
     }
 
     public function esAnulado()
     {
-        return $this->estado === 'anulado';
+        return strtolower($this->estado) === 'anulado';
     }
 }

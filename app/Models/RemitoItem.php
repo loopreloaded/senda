@@ -12,7 +12,7 @@ class RemitoItem extends Model
     protected $table = 'remito_items';
 
     protected $fillable = [
-        'remito_id',
+        'id_remito',
         'articulo',
         'cantidad',
         'descripcion',
