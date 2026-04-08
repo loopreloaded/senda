@@ -1,3 +1,5 @@
+{{-- resources/views/admin/clientes/partials/form.blade.php --}}
+
 {{-- FILA 1 --}}
 <div class="row">
 
@@ -6,7 +8,7 @@
         <input type="text"
                name="razon_social"
                class="form-control"
-               value="{{ old('razon_social', $orden->razon_social ?? '') }}"
+               value="{{ old('razon_social') }}"
                required>
     </div>
 
@@ -16,7 +18,7 @@
                name="cuit"
                class="form-control"
                maxlength="11"
-               value="{{ old('cuit', $orden->cuit ?? '') }}"
+               value="{{ old('cuit') }}"
                required>
     </div>
 
@@ -31,7 +33,7 @@
         <input type="text"
                name="domicilio_comercial"
                class="form-control"
-               value="{{ old('domicilio_comercial', $orden->domicilio_comercial ?? '') }}"
+               value="{{ old('domicilio_comercial') }}"
                required>
     </div>
 
@@ -40,7 +42,7 @@
         <input type="text"
                name="telefono"
                class="form-control"
-               value="{{ old('telefono', $orden->telefono ?? '') }}">
+               value="{{ old('telefono') }}">
     </div>
 
     <div class="col-md-4">
@@ -48,7 +50,7 @@
         <input type="email"
                name="email"
                class="form-control"
-               value="{{ old('email', $orden->email ?? '') }}">
+               value="{{ old('email') }}">
     </div>
 
 </div>
@@ -59,43 +61,25 @@
 
     <div class="col-md-4">
         <label>Condición IVA</label>
-        <select name="condicion_arca" class="form-control" required>
+        <select name="condicion_iva_id" class="form-control" required>
             <option value="">Seleccione...</option>
-
-            <option value="RI" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'RI' ? 'selected' : '' }}>
-                Responsable Inscripto
-            </option>
-
-            <option value="EX" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'EX' ? 'selected' : '' }}>
-                Exento
-            </option>
-
-            <option value="NR" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'NR' ? 'selected' : '' }}>
-                No Responsable
-            </option>
-
-            <option value="CF" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'CF' ? 'selected' : '' }}>
-                Consumidor Final
-            </option>
-
-            <option value="MT" {{ old('condicion_arca', $orden->condicion_arca ?? '') == 'MT' ? 'selected' : '' }}>
-                Responsable Monotributo
-            </option>
+            @foreach($condicionesIva as $iva)
+                <option value="{{ $iva->id }}" {{ old('condicion_iva_id') == $iva->id ? 'selected' : '' }}>
+                    {{ $iva->nombre }}
+                </option>
+            @endforeach
         </select>
     </div>
 
     <div class="col-md-4">
         <label>Condición IIBB</label>
-        <select name="condicion_iibb" class="form-control" required>
+        <select name="condicion_iibb_id" class="form-control" required>
             <option value="">Seleccione...</option>
-
-            <option value="L" {{ old('condicion_iibb', $orden->condicion_iibb ?? '') == 'L' ? 'selected' : '' }}>
-                Local
-            </option>
-
-            <option value="CM" {{ old('condicion_iibb', $orden->condicion_iibb ?? '') == 'CM' ? 'selected' : '' }}>
-                Convenio Multilateral
-            </option>
+            @foreach($condicionesIibb as $iibb)
+                <option value="{{ $iibb->id }}" {{ old('condicion_iibb_id') == $iibb->id ? 'selected' : '' }}>
+                    {{ $iibb->nombre }}
+                </option>
+            @endforeach
         </select>
     </div>
 
@@ -103,18 +87,9 @@
         <label>Tipo</label>
         <select name="tipo" class="form-control" required>
             <option value="">Seleccione...</option>
-
-            <option value="C" {{ old('tipo', $orden->tipo ?? '') == 'C' ? 'selected' : '' }}>
-                Cliente
-            </option>
-
-            <option value="P" {{ old('tipo', $orden->tipo ?? '') == 'P' ? 'selected' : '' }}>
-                Proveedor
-            </option>
-
-            <option value="A" {{ old('tipo', $orden->tipo ?? '') == 'A' ? 'selected' : '' }}>
-                Ambos
-            </option>
+            <option value="C" {{ old('tipo') == 'C' ? 'selected' : '' }}>Cliente</option>
+            <option value="P" {{ old('tipo') == 'P' ? 'selected' : '' }}>Proveedor</option>
+            <option value="A" {{ old('tipo') == 'A' ? 'selected' : '' }}>Ambos</option>
         </select>
     </div>
 

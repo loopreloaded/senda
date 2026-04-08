@@ -166,6 +166,16 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
 
 
 /* ============================================================
+| SECCIÓN: DESARROLLADOR
+| - Recuperación de datos y herramientas avanzadas
+| ============================================================ */
+Route::middleware(['auth', 'role:desarrollador'])->group(function () {
+    Route::post('clientes/{id}/restore', [ClienteController::class, 'restore'])
+        ->name('clientes.restore');
+});
+
+
+/* ============================================================
 | SECCIÓN: INGENIEROS
 | - Aprobaciones
 ============================================================ */

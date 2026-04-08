@@ -151,10 +151,10 @@ class FacturaController extends Controller
             $cliente = Cliente::firstOrCreate(
                 ['cuit' => $validated['cuit']],
                 [
-                    'razon_social'  => $validated['razon_social'],
-                    'condicion_iva' => $validated['condicion_iva'],
-                    'direccion'     => $validated['direccion'],
-                    'email'         => $validated['email'] ?? null,
+                    'razon_social'      => $validated['razon_social'],
+                    'condicion_iva_id'  => \App\Models\CondicionIva::where('codigo', $validated['condicion_iva'])->value('id'),
+                    'direccion'         => $validated['direccion'],
+                    'email'             => $validated['email'] ?? null,
                 ]
             );
 

@@ -64,13 +64,18 @@ class ClientesImport implements
 
         // CONDICIÓN IIBB
         $condicionRaw = strtoupper(trim($data['condicion'] ?? ''));
-        $condicionIibb = null;
+        $condicionIibbId = null;
 
         if ($condicionRaw !== '') {
+            $codigo = null;
             if (str_contains($condicionRaw, 'CM')) {
-                $condicionIibb = 'CM';
+                $codigo = 'CM';
             } elseif (str_contains($condicionRaw, 'L')) {
-                $condicionIibb = 'L';
+                $codigo = 'L';
+            }
+
+            if ($codigo) {
+                $condicionIibbId = \App\Models\CondicionIibb::where('codigo', $codigo)->value('id');
             }
         }
 
@@ -88,9 +93,9 @@ class ClientesImport implements
         Cliente::updateOrCreate(
             ['cuit' => $cuit],
             [
-                'razon_social'   => $razonSocial,
-                'condicion_iibb' => $condicionIibb,
-                'indice'         => $indice,
+                'razon_social'      => $razonSocial,
+                'condicion_iibb_id' => $condicionIibbId,
+                'indice'            => $indice,
             ]
         );
     }

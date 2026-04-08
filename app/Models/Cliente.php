@@ -4,16 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cliente extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'razon_social',
         'cuit',
-        'condicion_iva',
-        'condicion_iibb',
+        'condicion_iva_id',
+        'condicion_iibb_id',
         'indice',
         'direccion',
         'email',
@@ -28,6 +29,16 @@ class Cliente extends Model
         'observaciones',
     ];
 
+    public function condicionIva()
+    {
+        return $this->belongsTo(CondicionIva::class, 'condicion_iva_id');
+    }
+
+    public function condicionIibb()
+    {
+        return $this->belongsTo(CondicionIibb::class, 'condicion_iibb_id');
+    }
+
     public function facturas()
     {
         return $this->hasMany(Factura::class);
@@ -35,30 +46,13 @@ class Cliente extends Model
 
     public function getCondicionIvaTextoAttribute()
     {
-        return match ($this->condicion_iva) {
-            'RI'   => 'Responsable Inscripto',
-            'MT'   => 'Responsable Monotributo',
-            'MS'   => 'Monotributista Social',
-            'MTIP' => 'Monotributista Trabajador Independiente Promovido',
-            'CF'   => 'Consumidor Final',
-            'EX'   => 'IVA Sujeto Exento',
-            'NC'   => 'Sujeto No Categorizado',
-            'PE'   => 'Proveedor del Exterior',
-            'CE'   => 'Cliente del Exterior',
-            'IL'   => 'IVA Liberado - Ley N° 19.640',
-            'NA'   => 'IVA No Alcanzado',
-            default => $this->condicion_iva,
-        };
+        return $this->condicionIva ? $this->condicionIva->nombre : '-';
     }
 
 
     public function getCondicionIibbTextoAttribute()
     {
-        return match ($this->condicion_iibb) {
-            'L'  => 'Local',
-            'CM' => 'Convenio Multilateral',
-            default => '-',
-        };
+        return $this->condicionIibb ? $this->condicionIibb->nombre : '-';
     }
 
     public function ordenes()

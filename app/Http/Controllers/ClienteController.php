@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\CondicionIva;
+use App\Models\CondicionIibb;
 use Illuminate\Http\Request;
 use App\Imports\ClientesImport;
 use Maatwebsite\Excel\Facades\Excel;
-
-use Maatwebsite\Excel\Excel as ExcelExcel;
 
 class ClienteController extends Controller
 {
@@ -17,6 +17,11 @@ class ClienteController extends Controller
     public function index(Request $request)
     {
         $query = Cliente::query();
+
+        // Si es desarrollador, permitir ver eliminados
+        if (auth()->user() && auth()->user()->hasRole('desarrollador') && $request->has('ver_eliminados')) {
+            $query->onlyTrashed();
+        }
 
         if ($request->filled('cuit')) {
             $query->where('cuit', 'like', '%' . $request->cuit . '%');
@@ -31,6 +36,7 @@ class ClienteController extends Controller
         }
 
         $clientes = $query
+            ->with(['condicionIva', 'condicionIibb'])
             ->orderBy('razon_social')
             ->paginate(10)
             ->withQueryString();
@@ -43,7 +49,9 @@ class ClienteController extends Controller
      */
     public function create()
     {
-        return view('admin.clientes.create');
+        $condicionesIva = CondicionIva::all();
+        $condicionesIibb = CondicionIibb::all();
+        return view('admin.clientes.create', compact('condicionesIva', 'condicionesIibb'));
     }
 
     /**
@@ -56,41 +64,25 @@ class ClienteController extends Controller
             'razon_social'        => 'required|string|max:150',
             'domicilio_comercial' => 'required|string|max:255',
             'email'               => 'nullable|email|max:150',
-            'tipo' => 'required|in:C,P,A',
-
-            // Condición ARCA (se guarda en condicion_iva)
-            'condicion_arca'      => 'required|string|in:RI,EX,NR,CF,MT',
-
-            // Condición IIBB
-            'condicion_iibb'      => 'required|string|in:L,CM',
+            'tipo'                => 'required|in:C,P,A',
+            'condicion_iva_id'    => 'required|exists:condiciones_iva,id',
+            'condicion_iibb_id'   => 'required|exists:condiciones_iibb,id',
         ]);
 
         Cliente::create([
-            'cuit'          => $request->cuit,
-            'razon_social'  => $request->razon_social,
-            'direccion'     => $request->domicilio_comercial,
-            'email'         => $request->email,
-            'tipo'         => $request->tipo,
-            'telefono'         => $request->telefono,
-
-            // Guardado como campo existente en la tabla
-            'condicion_iva' => $request->condicion_arca,
-
-            // Campo nuevo en BD: condicion_iibb
-            'condicion_iibb' => $request->condicion_iibb,
+            'cuit'              => $request->cuit,
+            'razon_social'      => $request->razon_social,
+            'direccion'         => $request->domicilio_comercial,
+            'email'             => $request->email,
+            'tipo'              => $request->tipo,
+            'telefono'          => $request->telefono,
+            'condicion_iva_id'  => $request->condicion_iva_id,
+            'condicion_iibb_id' => $request->condicion_iibb_id,
         ]);
 
         return redirect()
             ->route('clientes.index')
-            ->with('success', 'Cliente creado correctamente');
-    }
-
-    /**
-     * Mostrar cliente (opcional)
-     */
-    public function show(Cliente $cliente)
-    {
-        return view('admin.clientes.show', compact('cliente'));
+            ->with('success', 'Socio comercial creado correctamente');
     }
 
     /**
@@ -98,7 +90,9 @@ class ClienteController extends Controller
      */
     public function edit(Cliente $cliente)
     {
-        return view('admin.clientes.edit', compact('cliente'));
+        $condicionesIva = CondicionIva::all();
+        $condicionesIibb = CondicionIibb::all();
+        return view('admin.clientes.edit', compact('cliente', 'condicionesIva', 'condicionesIibb'));
     }
 
     /**
@@ -107,36 +101,29 @@ class ClienteController extends Controller
     public function update(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'cuit'          => 'required|digits:11|unique:clientes,cuit,' . $cliente->id,
-            'razon_social'  => 'required|string|max:150',
-            'direccion'     => 'required|string|max:255',
-            'email'         => 'nullable|email|max:150',
-            'tipo' => 'required|in:C,P,A',
-
-            // Condición
-            'condicion_iva' => 'required|string|in:RI,EX,NR,CF,MT',
-
-            // Condición IIBB
-            'condicion_iibb' => 'required|string|in:L,CM',
+            'cuit'              => 'required|digits:11|unique:clientes,cuit,' . $cliente->id,
+            'razon_social'      => 'required|string|max:150',
+            'direccion'         => 'required|string|max:255',
+            'email'             => 'nullable|email|max:150',
+            'tipo'              => 'required|in:C,P,A',
+            'condicion_iva_id'  => 'required|exists:condiciones_iva,id',
+            'condicion_iibb_id' => 'required|exists:condiciones_iibb,id',
         ]);
 
         $cliente->update([
-            'cuit'          => $request->cuit,
-            'razon_social'  => $request->razon_social,
-            'direccion'     => $request->direccion,
-            'email'         => $request->email,
-            'tipo'         => $request->tipo,
-            'telefono'         => $request->telefono,
-            // Guardado como campo existente en la tabla
-            'condicion_iva' => $request->condicion_iva,
-
-            // Campo nuevo en BD: condicion_iibb
-            'condicion_iibb' => $request->condicion_iibb,
+            'cuit'              => $request->cuit,
+            'razon_social'      => $request->razon_social,
+            'direccion'         => $request->direccion,
+            'email'             => $request->email,
+            'tipo'              => $request->tipo,
+            'telefono'          => $request->telefono,
+            'condicion_iva_id'  => $request->condicion_iva_id,
+            'condicion_iibb_id' => $request->condicion_iibb_id,
         ]);
 
         return redirect()
             ->route('clientes.index')
-            ->with('success', 'Cliente actualizado correctamente');
+            ->with('success', 'Socio comercial actualizado correctamente');
     }
 
     /**
@@ -148,7 +135,20 @@ class ClienteController extends Controller
 
         return redirect()
             ->route('clientes.index')
-            ->with('success', 'Cliente eliminado correctamente');
+            ->with('success', 'Socio comercial eliminado correctamente');
+    }
+
+    /**
+     * Restaurar cliente eliminado
+     */
+    public function restore($id)
+    {
+        $cliente = Cliente::withTrashed()->findOrFail($id);
+        $cliente->restore();
+
+        return redirect()
+            ->route('clientes.index')
+            ->with('success', 'Socio comercial recuperado correctamente');
     }
 
     public function buscar(Request $request)
@@ -167,9 +167,8 @@ class ClienteController extends Controller
                 'id',
                 'razon_social',
                 'cuit',
-                'indice',
                 'telefono',
-                'condicion_iva',
+                'condicion_iva_id',
                 'direccion',
                 'email',
             ]);
@@ -187,7 +186,6 @@ class ClienteController extends Controller
 
         return redirect()
             ->route('clientes.index')
-            ->with('success', 'Clientes importados correctamente.');
+            ->with('success', 'Socios comerciales importados correctamente.');
     }
-
 }

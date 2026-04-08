@@ -8,17 +8,29 @@
 
 @section('content')
 
-<div class="d-flex gap-2 mb-3">
+<div class="d-flex justify-content-between mb-3">
+    <div class="d-flex gap-2">
+        <a href="{{ route('clientes.create') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Nuevo SC
+        </a>
 
-    <a href="{{ route('clientes.create') }}" class="btn btn-primary">
-        <i class="fas fa-user-plus"></i> Nuevo SC
-    </a>
+        {{-- BOTÓN IMPORTAR EXCEL --}}
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalImportExcel">
+            <i class="fas fa-file-excel"></i> Importar Excel
+        </button>
+    </div>
 
-    {{-- BOTÓN IMPORTAR EXCEL --}}
-    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalImportExcel">
-        <i class="fas fa-file-excel"></i> Importar Excel
-    </button>
-
+    @hasrole('desarrollador')
+    <div class="d-flex align-items-center">
+        <form action="{{ route('clientes.index') }}" method="GET" class="form-inline">
+            <div class="custom-control custom-switch">
+                <input type="checkbox" name="ver_eliminados" class="custom-control-input" id="switchEliminados" 
+                       {{ request('ver_eliminados') ? 'checked' : '' }} onchange="this.form.submit()">
+                <label class="custom-control-label" for="switchEliminados">Ver SC Eliminados</label>
+            </div>
+        </form>
+    </div>
+    @endhasrole
 </div>
 
 {{-- MODAL IMPORTACIÓN --}}
@@ -139,69 +151,75 @@
             <th>Tipo</th>
             <th>Condición IVA</th>
             <th>Condición IIBB</th>
-            <th width="120">Acciones</th>
+            <th width="150">Acciones</th>
         </tr>
     </thead>
 
 
     <tbody>
         @forelse($clientes as $cliente)
-            <tr>
+            <tr class="{{ $cliente->trashed() ? 'table-danger' : '' }}">
                 <td>{{ $cliente->id }}</td>
                 <td>{{ $cliente->cuit }}</td>
                 <td>{{ $cliente->razon_social }}</td>
                 <td>
                     @switch($cliente->tipo)
-                        @case('C')
-                            Cliente
-                            @break
-
-                        @case('P')
-                            Proveedor
-                            @break
-
-                        @case('A')
-                            Ambos
-                            @break
-
-                        @default
-                            -
+                        @case('C') Cliente @break
+                        @case('P') Proveedor @break
+                        @case('A') Ambos @break
+                        @default -
                     @endswitch
                 </td>
                 <td>{{ $cliente->condicion_iva_texto }}</td>
                 <td>{{ $cliente->condicion_iibb_texto }}</td>
 
                 <td>
+                    @if(!$cliente->trashed())
+                        {{-- EDITAR --}}
+                        <a href="{{ route('clientes.edit', $cliente->id) }}"
+                           class="btn btn-sm btn-info"
+                           title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
 
-                    {{-- EDITAR --}}
-                    <a href="{{ route('clientes.edit', $cliente->id) }}"
-                       class="btn btn-sm btn-info"
-                       title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </a>
+                        {{-- ELIMINAR --}}
+                        @hasanyrole('admin|ingeniero|desarrollador')
+                        <form action="{{ route('clientes.destroy', $cliente->id) }}"
+                              method="POST"
+                              style="display:inline">
+                            @csrf
+                            @method('DELETE')
 
-                    {{-- ELIMINAR --}}
-                    @hasanyrole('admin|ingeniero')
-                    <form action="{{ route('clientes.destroy', $cliente->id) }}"
-                          method="POST"
-                          style="display:inline">
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="submit"
-                                class="btn btn-sm btn-danger"
-                                title="Eliminar"
-                                onclick="return confirm('¿Eliminar este cliente?')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
-                    @endhasanyrole
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    title="Eliminar"
+                                    onclick="return confirm('¿Eliminar este socio comercial?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                        @endhasanyrole
+                    @else
+                        {{-- RECUPERAR --}}
+                        @hasrole('desarrollador')
+                        <form action="{{ route('clientes.restore', $cliente->id) }}"
+                              method="POST"
+                              style="display:inline">
+                            @csrf
+                            <button type="submit"
+                                    class="btn btn-sm btn-success"
+                                    title="Recuperar"
+                                    onclick="return confirm('¿Recuperar este socio comercial?')">
+                                <i class="fas fa-trash-restore"></i> Recuperar
+                            </button>
+                        </form>
+                        @endrole
+                    @endif
 
                 </td>
             </tr>
         @empty
             <tr>
-                <td colspan="6" class="text-center text-muted">
+                <td colspan="7" class="text-center text-muted">
                     No se encontraron socios comerciales
                 </td>
             </tr>
