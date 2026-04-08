@@ -33,7 +33,37 @@
         @enderror
     </div>
 
+    {{-- Nro Solicitud --}}
+    <div class="col-md-4 mb-3">
+        <label class="form-label">N° Solicitud</label>
+        <input type="text"
+               name="nro_solicitud"
+               class="form-control @error('nro_solicitud') is-invalid @enderror"
+               placeholder="Ingrese N° de solicitud..."
+               value="{{ old('nro_solicitud', $pedido_cotizacion->nro_solicitud ?? '') }}">
+        @error('nro_solicitud')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
 </div>
+
+<div class="row">
+
+    {{-- Cantidad --}}
+    <div class="col-md-3 mb-3">
+        <label class="form-label">Cantidad de Artículos *</label>
+        <input type="number"
+               name="cantidad"
+               class="form-control @error('cantidad') is-invalid @enderror"
+               min="1"
+               placeholder="Total"
+               value="{{ old('cantidad', $pedido_cotizacion->cantidad ?? '') }}"
+               required>
+        @error('cantidad')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
 
 <div class="row">
 

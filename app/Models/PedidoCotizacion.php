@@ -22,14 +22,15 @@ class PedidoCotizacion extends Model
         'archivo',
         'items_excluidos',
         'nro_solicitud',
+        'cantidad',
         'observaciones',
         'comentarios',
         'estado_pc'
     ];
 
-    public function cotizacion()
+    public function cotizaciones()
     {
-        return $this->belongsTo(Cotizacion::class, 'id_cotizacion');
+        return $this->hasMany(Cotizacion::class, 'nro_pedido_asoc', 'id_ped_cot');
     }
 
     public function cliente()

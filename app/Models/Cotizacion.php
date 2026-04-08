@@ -46,10 +46,6 @@ class Cotizacion extends Model
         return $this->belongsTo(Cliente::class, 'id_cliente');
     }
 
-    public function pedidos()
-    {
-        return $this->hasMany(PedidoCotizacion::class, 'id_cotizacion');
-    }
 
     public function items()
     {

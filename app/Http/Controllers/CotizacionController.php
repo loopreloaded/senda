@@ -140,15 +140,36 @@ class CotizacionController extends Controller
             // actualizar estado del pedido si corresponde
             if ($request->filled('nro_pedido_asoc')) {
 
-                $pedido = PedidoCotizacion::where(
+                $pedido = PedidoCotizacion::with('cotizaciones.items')->where(
                     'id_ped_cot',
                     $request->nro_pedido_asoc
                 )->first();
 
                 if ($pedido) {
 
+                    // Calcular cantidad total cotizada hasta ahora (incluyendo la actual)
+                    // Como ya guardamos la actual y el commit no se ha hecho, el $pedido->cotizaciones ya debería incluirla si refrescamos o si sumamos manualmente.
+                    // Para ser seguros, sumamos de la base (refrescando la relación)
+
+                    $pedido->load('cotizaciones.items');
+
+                    $totalCotizado = 0;
+                    foreach ($pedido->cotizaciones as $cot) {
+                        $totalCotizado += $cot->items->sum('cantidad');
+                    }
+
+                    $nuevoEstado = 'p'; // Default Pendiente
+
+                    if ($totalCotizado > 0) {
+                        if ($totalCotizado >= $pedido->cantidad) {
+                            $nuevoEstado = 'c'; // Cotizado (completo)
+                        } else {
+                            $nuevoEstado = 's'; // Parcial
+                        }
+                    }
+
                     $pedido->update([
-                        'estado_pc' => 'c'
+                        'estado_pc' => $nuevoEstado
                     ]);
                 }
             }

@@ -11,7 +11,7 @@ class PedidoCotizacionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PedidoCotizacion::with('cliente')
+        $query = PedidoCotizacion::with(['cliente', 'cotizaciones.items'])
             ->where('estado_pc', '!=', 'b'); // 🔥 Excluir bajas lógicas
 
         // Filtro cliente
@@ -46,6 +46,7 @@ class PedidoCotizacionController extends Controller
             'id_cliente'      => 'required|exists:clientes,id',
             'items_excluidos' => 'nullable|string|max:255',
             'nro_solicitud'   => 'nullable|string|max:100',
+            'cantidad'        => 'required|integer|min:1',
             'archivo'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'observaciones'   => 'nullable|string',
             'motivo'          => 'nullable|string|max:50'
@@ -68,6 +69,7 @@ class PedidoCotizacionController extends Controller
             'estado'          => $estado,
             'items_excluidos' => $request->items_excluidos,
             'nro_solicitud'   => $request->nro_solicitud,
+            'cantidad'        => $request->cantidad,
             'observaciones'   => $request->observaciones,
         ];
 
@@ -103,7 +105,8 @@ class PedidoCotizacionController extends Controller
     {
         $validated = $request->validate([
             'id_cliente'    => 'required|exists:clientes,id',
-            'nro_pedido_asociado' => 'nullable|string|max:50',
+            'nro_solicitud' => 'nullable|string|max:100',
+            'cantidad'      => 'required|integer|min:1',
             'archivo'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'fecha'         => 'required|date',
             'observaciones' => 'nullable|string'

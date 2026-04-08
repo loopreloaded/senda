@@ -80,10 +80,12 @@
         <tr>
             <th>#</th>
             <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Archivo</th>
-            <th>Solicitud</th>
-            <th>Articulos Excluidos</th>
+            <th>Fecha Ped.</th>
+            <th>Archivo Ped.</th>
+            <th>N° Ped.</th>
+            <th>Cant. Art. Ped.</th>
+            <th>Cant. Art. Cot.</th>
+            <th>Art. Cot.</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -118,14 +120,34 @@
                 </td>
 
 
-               {{--  --}}
+                {{-- N° Ped --}}
                 <td>
                     {{ $pedido->nro_solicitud ?? '-' }}
                 </td>
 
-                {{--  --}}
+                {{-- Cant Art Ped --}}
+                <td class="text-center">
+                    {{ $pedido->cantidad }}
+                </td>
+
+                {{-- Cant Art Cot --}}
+                <td class="text-center text-primary">
+                    @php
+                        $cantCot = 0;
+                        foreach($pedido->cotizaciones as $cot) {
+                            $cantCot += $cot->items->sum('cantidad');
+                        }
+                    @endphp
+                    {{ $cantCot }}
+                </td>
+
+                {{-- Art Cot --}}
                 <td>
-                    {{ $pedido->items_excluidos ?? '-' }}
+                    @foreach($pedido->cotizaciones as $cot)
+                        @foreach($cot->items as $item)
+                            <small class="badge badge-light border">{{ $item->producto }} ({{ $item->cantidad }})</small>
+                        @endforeach
+                    @endforeach
                 </td>
 
                 {{-- Estado --}}
@@ -133,16 +155,18 @@
                    @php
                         $estadoTexto = match($pedido->estado_pc) {
                             'p' => 'Pendiente',
+                            's' => 'Parcial',
                             'c' => 'Cotizado',
                             'n' => 'No cotizó',
                             default => 'Sin definir'
                         };
 
                         $color = match($pedido->estado_pc) {
-                            'p' => 'warning',
+                            'p' => 'secondary',
+                            's' => 'warning',
                             'c' => 'success',
                             'n' => 'danger',
-                            default => 'secondary'
+                            default => 'dark'
                         };
                     @endphp
 

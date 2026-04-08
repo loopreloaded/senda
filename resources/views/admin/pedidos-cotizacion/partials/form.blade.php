@@ -47,8 +47,20 @@
                value="{{ old('nro_solicitud', $pedido->nro_solicitud ?? '') }}">
     </div>
 
+    {{-- Cantidad --}}
+    <div class="col-md-2">
+        <label>Cantidad de Artículos</label>
+        <input type="number"
+               name="cantidad"
+               class="form-control"
+               min="1"
+               placeholder="Total"
+               value="{{ old('cantidad', $pedido->cantidad ?? '') }}"
+               required>
+    </div>
+
     {{-- Cliente --}}
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="form-group">
             <label for="razon_social">Cliente</label>
 
