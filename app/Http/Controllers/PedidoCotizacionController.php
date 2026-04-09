@@ -23,7 +23,7 @@ class PedidoCotizacionController extends Controller
 
         // Filtro estado
         if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
+            $query->where('estado_pc', $request->estado);
         }
 
 
@@ -43,16 +43,19 @@ class PedidoCotizacionController extends Controller
         $include_id = $request->query('include_id');
 
         $query = PedidoCotizacion::query()
-            ->where('estado_pc', '!=', 'b');
+            ->where('estado_pc', '!=', 'b'); // Excluir bajas
 
         if ($id_cliente) {
             $query->where('id_cliente', $id_cliente);
         }
 
-        // Si hay un ID específico que incluir (ej: al editar), asegurar que está en el resultado
-        if ($include_id && is_numeric($include_id)) {
-            $query->orWhere('id_ped_cot', $include_id);
-        }
+        // --- SOLUCIÓN: Excluir cotizados ('c') pero permitir el incluido (para edición) ---
+        $query->where(function($sub) use ($include_id) {
+            $sub->where('estado_pc', '!=', 'c');
+            if ($include_id && is_numeric($include_id)) {
+                $sub->orWhere('id_ped_cot', $include_id);
+            }
+        });
 
         if ($q) {
             $query->where('nro_solicitud', 'LIKE', "%$q%");
@@ -96,7 +99,7 @@ class PedidoCotizacionController extends Controller
         $data = [
             'fecha'           => $request->fecha,
             'id_cliente'      => $request->id_cliente,
-            'estado'          => $estado,
+            'estado_pc'       => $estado, // Guardar en el campo correcto
             'items_excluidos' => $request->items_excluidos,
             'nro_solicitud'   => $request->nro_solicitud,
             'cantidad'        => $request->cantidad,
