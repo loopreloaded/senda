@@ -132,23 +132,18 @@
 
                 {{-- Cant Art Cot --}}
                 <td class="text-center text-primary">
-                    @php
-                        $cantCot = 0;
-                        foreach($pedido->cotizaciones as $cot) {
-                            $cantCot += $cot->items->sum('cantidad');
-                        }
-                    @endphp
-                    {{ $cantCot }}
+                    {{ $pedido->cotizaciones->sum('pivot.cantidad') }}
                 </td>
 
                 {{-- Art Cot --}}
                 <td>
                     @foreach($pedido->cotizaciones as $cot)
-                        @foreach($cot->items as $item)
-                            <small class="badge badge-light border">{{ $item->producto }} ({{ $item->cantidad }})</small>
-                        @endforeach
+                        <small class="badge badge-light border" title="Cotización #{{ $cot->nro_cotizacion }}">
+                            {{ $cot->pivot->producto }} ({{ $cot->pivot->cantidad }})
+                        </small>
                     @endforeach
                 </td>
+
 
                 {{-- Estado --}}
                 <td>

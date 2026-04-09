@@ -18,6 +18,7 @@ class CotizacionItem extends Model
 
     protected $fillable = [
         'id_cotizacion',
+        'id_pedido_cot',
         'producto',
         'cantidad',
         'precio_unitario',

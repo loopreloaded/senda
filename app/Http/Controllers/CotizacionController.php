@@ -13,7 +13,7 @@ class CotizacionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Cotizacion::with(['cliente','pedidoCotizacion'])
+        $query = Cotizacion::with(['cliente','pedidos'])
                     ->orderBy('fecha_cot','desc');
 
         // Cliente (búsqueda parcial)
@@ -56,6 +56,26 @@ class CotizacionController extends Controller
         return view('admin.cotizaciones.index', compact('cotizaciones'));
     }
 
+    /**
+     * Buscar cotizaciones para vincular en Orden de Compra
+     */
+    public function buscar(Request $request)
+    {
+        $cliente_id = $request->query('cliente_id');
+        
+        $query = Cotizacion::query()
+            ->whereIn('estado_cotizacion', ['v', 'p']) // Vigente o Parcial
+            ->whereNotNull('id_cliente');
+
+        if ($cliente_id) {
+            $query->where('id_cliente', $cliente_id);
+        }
+
+        $cotizaciones = $query->with('cliente')->limit(20)->get();
+
+        return response()->json($cotizaciones);
+    }
+
     public function create()
     {
         $clientes = Cliente::all();
@@ -96,13 +116,11 @@ class CotizacionController extends Controller
 
             // Crear cotización
             $cotizacion = Cotizacion::create([
-
+                'nro_cotizacion' => $request->nro_cotizacion,
                 'fecha_cot' => $request->fecha_cot,
                 'id_cliente' => $request->id_cliente,
 
                 'quien_cotiza' => $request->quien_cotiza,
-
-                'nro_pedido_asoc' => $request->nro_pedido_asoc,
 
                 'moneda' => $request->moneda,
                 'forma_pago' => $request->forma_pago,
@@ -118,61 +136,41 @@ class CotizacionController extends Controller
 
                 'observaciones' => $request->observaciones,
 
-                'importe_total' => $request->importe_total ?? 0
+                'importe_total' => $request->importe_total ?? 0,
+                'estado_cotizacion' => 'v' // Vigente por defecto
 
             ]);
 
 
-            // Guardar items
+            // Guardar items y relaciones
             foreach ($request->items as $item) {
 
-                $cotizacion->items()->create([
-
+                $cotItem = $cotizacion->items()->create([
+                    'id_pedido_cot' => $item['id_pedido_cot'] ?? null,
                     'producto' => $item['producto'],
                     'cantidad' => $item['cantidad'],
                     'precio_unitario' => $item['precio_unitario'],
                     'iva' => $item['iva'] ?? 0
-
                 ]);
-            }
 
-
-            // actualizar estado del pedido si corresponde
-            if ($request->filled('nro_pedido_asoc')) {
-
-                $pedido = PedidoCotizacion::with('cotizaciones.items')->where(
-                    'id_ped_cot',
-                    $request->nro_pedido_asoc
-                )->first();
-
-                if ($pedido) {
-
-                    // Calcular cantidad total cotizada hasta ahora (incluyendo la actual)
-                    // Como ya guardamos la actual y el commit no se ha hecho, el $pedido->cotizaciones ya debería incluirla si refrescamos o si sumamos manualmente.
-                    // Para ser seguros, sumamos de la base (refrescando la relación)
-
-                    $pedido->load('cotizaciones.items');
-
-                    $totalCotizado = 0;
-                    foreach ($pedido->cotizaciones as $cot) {
-                        $totalCotizado += $cot->items->sum('cantidad');
-                    }
-
-                    $nuevoEstado = 'p'; // Default Pendiente
-
-                    if ($totalCotizado > 0) {
-                        if ($totalCotizado >= $pedido->cantidad) {
-                            $nuevoEstado = 'c'; // Cotizado (completo)
-                        } else {
-                            $nuevoEstado = 's'; // Parcial
-                        }
-                    }
-
-                    $pedido->update([
-                        'estado_pc' => $nuevoEstado
+                // Si está vinculado a un pedido, guardar en tabla intermedia
+                if (!empty($item['id_pedido_cot'])) {
+                    $cotizacion->pedidos()->attach($item['id_pedido_cot'], [
+                        'producto' => $item['producto'],
+                        'cantidad' => $item['cantidad']
                     ]);
                 }
             }
+
+
+            // actualizar estado del/los pedido(s) si corresponde
+            // (Esta lógica se puede refinar para iterar sobre todos los pedidos vinculados)
+            if ($cotizacion->pedidos()->count() > 0) {
+                foreach ($cotizacion->pedidos as $pedido) {
+                    $this->actualizarEstadoPedido($pedido);
+                }
+            }
+
 
 
             DB::commit();
@@ -208,11 +206,58 @@ class CotizacionController extends Controller
 
     public function update(Request $request, Cotizacion $cotizacion)
     {
-        $cotizacion->update($request->all());
+        DB::beginTransaction();
+        try {
+            $cotizacion->update($request->except('items'));
+            
+            // Capturar IDs de pedidos vinculados ANTES de desvincular
+            $pedidoIdsPrevios = $cotizacion->pedidos->pluck('id_ped_cot')->toArray();
 
-        return redirect()->route('cotizaciones.index')
-            ->with('success', 'Cotización actualizada');
+            // Eliminar items y relaciones previas para re-insertar
+            $cotizacion->items()->delete();
+            $cotizacion->pedidos()->detach();
+
+            foreach ($request->items as $item) {
+                $cotizacion->items()->create([
+                    'id_pedido_cot' => $item['id_pedido_cot'] ?? null,
+                    'producto' => $item['producto'],
+                    'cantidad' => $item['cantidad'],
+                    'precio_unitario' => $item['precio_unitario'],
+                    'iva' => $item['iva'] ?? 0
+                ]);
+
+                if (!empty($item['id_pedido_cot'])) {
+                    $cotizacion->pedidos()->attach($item['id_pedido_cot'], [
+                        'producto' => $item['producto'],
+                        'cantidad' => $item['cantidad']
+                    ]);
+                }
+            }
+
+            // Recargar relación para tener los pedidos actuales
+            $cotizacion->load('pedidos');
+            $pedidoIdsActuales = $cotizacion->pedidos->pluck('id_ped_cot')->toArray();
+
+            // Unir IDs previos y actuales para actualizar todos los afectados
+            $todosLosAfectados = array_unique(array_merge($pedidoIdsPrevios, $pedidoIdsActuales));
+
+            foreach ($todosLosAfectados as $pedidoId) {
+                $pedido = PedidoCotizacion::find($pedidoId);
+                if ($pedido) {
+                    $this->actualizarEstadoPedido($pedido);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('cotizaciones.index')
+                ->with('success', 'Cotización actualizada correctamente');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al actualizar la cotización')->withInput();
+        }
     }
+
 
     public function destroy(Cotizacion $cotizacion)
     {
@@ -263,5 +308,29 @@ class CotizacionController extends Controller
 
         }
     }
+
+    /**
+     * Lógica para actualizar el estado del pedido basado en lo cotizado
+     */
+    protected function actualizarEstadoPedido(PedidoCotizacion $pedido)
+    {
+        // Calcular lo cotizado para este pedido a través de la tabla intermedia
+        $totalCotizado = DB::table('pedido_cotizacion')
+            ->where('id_pedido_cot', $pedido->id_ped_cot)
+            ->sum('cantidad');
+
+        $nuevoEstado = 'p'; // Pendiente
+
+        if ($totalCotizado > 0) {
+            if ($totalCotizado >= $pedido->cantidad) {
+                $nuevoEstado = 'c'; // Cotizado
+            } else {
+                $nuevoEstado = 's'; // Parcial
+            }
+        }
+
+        $pedido->update(['estado_pc' => $nuevoEstado]);
+    }
 }
+
 

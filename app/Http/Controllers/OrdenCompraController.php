@@ -128,10 +128,11 @@ class OrdenCompraController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Guardar ítems
+        | Guardar ítems y actualizar estado de Cotización (si aplica)
         |--------------------------------------------------------------------------
         */
 
+        $cantidadTotalOC = 0;
         foreach ($validated['items'] as $item) {
 
             $cantidad  = floatval($item['cantidad']);
@@ -155,11 +156,31 @@ class OrdenCompraController extends Controller
                 'total'           => $totalItem,
                 'fecha_entrega'   => $item['fecha_entrega'] ?? null,
             ]);
+
+            $cantidadTotalOC += $cantidad;
+        }
+
+        // Actualizar estado de la cotización vinculada
+        if ($request->filled('cotizacion_id')) {
+            $cotizacion = \App\Models\Cotizacion::find($request->cotizacion_id);
+            if ($cotizacion) {
+                $cantidadTotalCot = $cotizacion->items()->sum('cantidad');
+
+                if ($cantidadTotalOC >= $cantidadTotalCot) {
+                    $cotizacion->update(['estado_cotizacion' => 'a']); // Aceptada
+                } else {
+                    $cotizacion->update(['estado_cotizacion' => 'p']); // Parcial
+                }
+
+                // Vincular la OC
+                $orden->update(['cotizacion_id' => $cotizacion->id_cotizacion]);
+            }
         }
 
         return redirect()
             ->route('ordenes.index')
             ->with('success', 'Orden de compra creada correctamente.');
+
     }
 
 

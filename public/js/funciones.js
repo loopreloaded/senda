@@ -8,5 +8,5 @@ $(function () {
 //activa el Switch de bootstrap
 $("[name='roles[]'").bootstrapSwitch();
 
-//activa el select2 global
-$('select').select2();
+//activa el select2 global (excluye los que tienen clase no-select2)
+$('select:not(.no-select2)').select2();

@@ -15,7 +15,7 @@
 
     <div class="col-md-3">
         <label>Motivo</label>
-        <select name="motivo" class="form-control" required>
+        <select name="motivo" id="motivo" class="form-control" required>
             <option value="">Seleccionar...</option>
             <option value="cotizacion" {{ old('motivo', $orden->motivo ?? '') == 'cotizacion' ? 'selected' : '' }}>
                 Cotización
@@ -25,6 +25,14 @@
             </option>
         </select>
     </div>
+
+    <div class="col-md-3" id="grupo-cotizacion" style="display: none;">
+        <label>Vincular Cotización</label>
+        <select name="cotizacion_id" id="cotizacion_id" class="form-control">
+            <option value="">(Ninguna)</option>
+        </select>
+    </div>
+
 
     {{-- Razón Social --}}
     <div class="col-md-6">
@@ -508,6 +516,10 @@
                 if (inputDireccion) inputDireccion.value = cli.direccion ?? '';
                 if (inputTelefono)  inputTelefono.value  = cli.telefono ?? '';
                 if (inputEmail)     inputEmail.value     = cli.email ?? '';
+                
+                if (inputClienteId.value) {
+                    poblarSelectCotizaciones(inputClienteId.value);
+                }
 
                 ocultarDropdown();
             });
@@ -518,6 +530,44 @@
 
         mostrarDropdown();
     }
+
+    async function poblarSelectCotizaciones(clienteId) {
+        const select = document.getElementById('cotizacion_id');
+        const resp = await fetch(`{{ route('cotizaciones.buscar') }}?cliente_id=${clienteId}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        if (!resp.ok) return;
+        const cotizaciones = await resp.json();
+
+        select.innerHTML = '<option value="">(Ninguna)</option>';
+        cotizaciones.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id_cotizacion;
+            opt.textContent = `${c.nro_cotizacion || ('# ' + c.id_cotizacion)} (${c.fecha_cot})`;
+            select.appendChild(opt);
+        });
+
+        actualizarVisibilidadCotizacion();
+    }
+
+    function actualizarVisibilidadCotizacion() {
+        const motivo = document.getElementById('motivo').value;
+        const grupo = document.getElementById('grupo-cotizacion');
+        if (motivo === 'cotizacion') {
+            grupo.style.display = 'block';
+        } else {
+            grupo.style.display = 'none';
+        }
+    }
+
+    document.getElementById('motivo').addEventListener('change', actualizarVisibilidadCotizacion);
+
+    window.addEventListener('load', () => {
+        actualizarVisibilidadCotizacion();
+        const ci = document.getElementById('id_cliente').value;
+        if (ci) poblarSelectCotizaciones(ci);
+    });
 
     async function buscarClientes(q) {
         const url = `{{ route('clientes.buscar') }}?q=${encodeURIComponent(q)}`;

@@ -84,14 +84,16 @@
             <th>#</th>
             <th>Cliente</th>
             <th>Fecha</th>
+            <th>Nro. Cot.</th>
             <th>Motivo</th>
-            <th>Forma Pago</th>
-            <th>Moneda</th>
-            <th>Total</th>
+            <th>Cant. Art. Cot.</th>
+            <th>Cant. Art. OC</th>
+            <th>Art. OC</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
+
     <tbody>
         @foreach($cotizaciones as $cotizacion)
             <tr>
@@ -104,10 +106,13 @@
                 {{-- Fecha --}}
                 <td>{{ optional($cotizacion->fecha_cot)->format('d/m/Y') }}</td>
 
+                {{-- Nro. Cot --}}
+                <td>{{ $cotizacion->nro_cotizacion ?? '—' }}</td>
+
                 {{-- Motivo --}}
                 <td>
                     @if($cotizacion->motivo == 'pedido')
-                        <span class="badge badge-primary">Pedido</span>
+                        <span class="badge badge-info">Pedido</span>
                     @elseif($cotizacion->motivo == 'particular')
                         <span class="badge badge-secondary">Particular</span>
                     @else
@@ -115,20 +120,24 @@
                     @endif
                 </td>
 
-                {{--  --}}
-                <td>{{ $cotizacion->forma_pago }}</td>
+                {{-- Cant. Art. Cot --}}
+                <td>{{ $cotizacion->cant_art_cot }}</td>
 
-                {{-- Moneda --}}
-                <td>{{ $cotizacion->moneda }}</td>
-
-                {{-- Total --}}
+                {{-- Cant. Art. OC --}}
                 <td>
-                    ${{ number_format($cotizacion->importe_total, 2, ',', '.') }}
+                    {{ $cotizacion->ordenesCompra->sum(function($oc) { return $oc->items->sum('cantidad'); }) }}
+                </td>
+
+                {{-- Art. OC --}}
+                <td>
+                    <small>
+                    {{ $cotizacion->ordenesCompra->flatMap->items->pluck('descripcion')->unique()->implode(', ') ?: '—' }}
+                    </small>
                 </td>
 
                 {{-- Estado --}}
                 <td>
-                    @if($cotizacion->vigencia_oferta && now()->gt($cotizacion->vigencia_oferta))
+                    @if($cotizacion->vigencia_oferta && now()->gt($cotizacion->vigencia_oferta) && $cotizacion->estado_cotizacion != 'a')
                         <span class="badge badge-danger">Vencida</span>
                     @else
                         @switch($cotizacion->estado_cotizacion)
@@ -136,12 +145,8 @@
                                 <span class="badge badge-success">Vigente</span>
                                 @break
 
-                            @case('e')
-                                <span class="badge badge-danger">Vencida</span>
-                                @break
-
                             @case('r')
-                                <span class="badge badge-secondary">Rechazada</span>
+                                <span class="badge badge-dark">Rechazada</span>
                                 @break
 
                             @case('p')
@@ -153,10 +158,11 @@
                                 @break
 
                             @default
-                                <span class="badge badge-light">—</span>
+                                <span class="badge badge-light">Vigente</span>
                         @endswitch
                     @endif
                 </td>
+
 
                 {{-- Acciones --}}
                 <td>

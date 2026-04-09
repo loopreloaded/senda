@@ -12,6 +12,7 @@ class OrdenCompra extends Model
     protected $table = 'orden_compras';
 
     protected $fillable = [
+        'cotizacion_id',
         'numero_oc',
         'fecha',
         'fecha_entrega',
@@ -40,6 +41,11 @@ class OrdenCompra extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'id_cliente');
+    }
+
+    public function cotizacion()
+    {
+        return $this->belongsTo(Cotizacion::class, 'cotizacion_id', 'id_cotizacion');
     }
 
 

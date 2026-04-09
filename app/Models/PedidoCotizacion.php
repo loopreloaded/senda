@@ -30,7 +30,9 @@ class PedidoCotizacion extends Model
 
     public function cotizaciones()
     {
-        return $this->hasMany(Cotizacion::class, 'nro_pedido_asoc', 'id_ped_cot');
+        return $this->belongsToMany(Cotizacion::class, 'pedido_cotizacion', 'id_pedido_cot', 'id_cotizacion')
+                    ->withPivot('producto', 'cantidad')
+                    ->withTimestamps();
     }
 
     public function cliente()

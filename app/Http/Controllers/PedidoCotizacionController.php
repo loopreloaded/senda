@@ -33,6 +33,36 @@ class PedidoCotizacionController extends Controller
         return view('admin.pedidos-cotizacion.index', compact('pedidos'));
     }
 
+    /**
+     * Buscar pedidos para autocompletado en Cotizaciones
+     */
+    public function buscar(Request $request)
+    {
+        $q = $request->query('q');
+        $id_cliente = $request->query('cliente_id');
+        $include_id = $request->query('include_id');
+
+        $query = PedidoCotizacion::query()
+            ->where('estado_pc', '!=', 'b');
+
+        if ($id_cliente) {
+            $query->where('id_cliente', $id_cliente);
+        }
+
+        // Si hay un ID específico que incluir (ej: al editar), asegurar que está en el resultado
+        if ($include_id && is_numeric($include_id)) {
+            $query->orWhere('id_ped_cot', $include_id);
+        }
+
+        if ($q) {
+            $query->where('nro_solicitud', 'LIKE', "%$q%");
+        }
+
+        $pedidos = $query->limit(20)->get();
+
+        return response()->json($pedidos);
+    }
+
     public function create()
     {
         $cotizaciones = Cotizacion::all();

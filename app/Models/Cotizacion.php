@@ -13,6 +13,7 @@ class Cotizacion extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
+        'nro_cotizacion',
         'fecha_cot',
         'id_cliente',
         'nro_pedido_asoc',
@@ -57,8 +58,37 @@ class Cotizacion extends Model
         return 'id_cotizacion';
     }
 
-    public function pedidoCotizacion()
+    /**
+     * Relación N:N con Pedidos de Cotización
+     */
+    public function pedidos()
     {
-        return $this->belongsTo(\App\Models\PedidoCotizacion::class, 'nro_pedido_asoc', 'id_ped_cot');
+        return $this->belongsToMany(PedidoCotizacion::class, 'pedido_cotizacion', 'id_cotizacion', 'id_pedido_cot')
+                    ->withPivot('producto', 'cantidad')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Órdenes de Compra vinculadas
+     */
+    public function ordenesCompra()
+    {
+        return $this->hasMany(OrdenCompra::class, 'cotizacion_id');
+    }
+
+    /**
+     * Atributo derivado para cantidad total cotizada
+     */
+    public function getCantArtCotAttribute()
+    {
+        return $this->items()->sum('cantidad');
+    }
+
+    /**
+     * Atributo derivado para nombres de artículos
+     */
+    public function getArtCotAttribute()
+    {
+        return $this->items()->pluck('producto')->implode(', ');
     }
 }

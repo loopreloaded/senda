@@ -80,6 +80,9 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
    | cotizacion
    ======================= */
 
+    Route::get('cotizaciones/buscar', [CotizacionController::class, 'buscar'])
+        ->name('cotizaciones.buscar');
+
     Route::resource('cotizaciones', CotizacionController::class)
         ->parameters([
             'cotizaciones' => 'cotizacion'
@@ -100,6 +103,9 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
      | pedido cotizacion
      ======================= */
     // Route::resource('pedidos-cotizacion', PedidoCotizacionController::class);
+
+    Route::get('pedidos-cotizacion/buscar', [PedidoCotizacionController::class, 'buscar'])
+        ->name('pedidos-cotizacion.buscar');
 
     Route::resource('pedidos-cotizacion', PedidoCotizacionController::class)
     ->parameters([

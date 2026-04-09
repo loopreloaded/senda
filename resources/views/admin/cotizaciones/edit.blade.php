@@ -28,7 +28,7 @@
             @method('PUT')
 
             {{-- Reutilizamos el mismo formulario --}}
-            @include('admin.cotizaciones.partials.edit', ['cotizacion' => $cotizacion])
+            @include('admin.cotizaciones.partials.form', ['cotizacion' => $cotizacion])
 
             <div class="mt-4">
                 <button type="submit" class="btn btn-success">
