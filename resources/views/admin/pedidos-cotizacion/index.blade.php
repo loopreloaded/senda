@@ -138,7 +138,7 @@
                 {{-- Art Cot --}}
                 <td>
                     @foreach($pedido->cotizaciones as $cot)
-                        <small class="badge badge-light border" title="Cotización #{{ $cot->nro_cotizacion }}">
+                        <small class="badge badge-light border" title="Cotización #{{ $cot->nro_cotizacion ?? $cot->id_cotizacion }}">
                             {{ $cot->pivot->producto }} ({{ $cot->pivot->cantidad }})
                         </small>
                     @endforeach

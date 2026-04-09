@@ -95,7 +95,7 @@
             <td width="30%" class="right">
                 <div class="titulo">COTIZACIÓN</div>
                 <br>
-                <strong>N°:</strong> {{ $cotizacion->id_cotizacion }}<br>
+                <strong>N°:</strong> {{ $cotizacion->nro_cotizacion ?? $cotizacion->id_cotizacion }}<br>
                 <strong>Fecha:</strong> {{ \Carbon\Carbon::parse($cotizacion->fecha_cot)->format('d/m/Y') }}
             </td>
         </tr>

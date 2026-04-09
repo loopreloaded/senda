@@ -16,7 +16,6 @@ class Cotizacion extends Model
         'nro_cotizacion',
         'fecha_cot',
         'id_cliente',
-        'nro_pedido_asoc',
         'moneda',
         'forma_pago',
         'lugar_entrega',

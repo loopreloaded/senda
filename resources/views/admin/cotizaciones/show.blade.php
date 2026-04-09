@@ -3,7 +3,7 @@
 @section('title','Cotización')
 
 @section('content_header')
-    <h1>Cotización #{{ $cotizacion->id_cotizacion }}</h1>
+    <h1>Cotización: {{ $cotizacion->nro_cotizacion ?? ('#' . $cotizacion->id_cotizacion) }}</h1>
 @stop
 
 @section('content')

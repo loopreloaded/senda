@@ -79,7 +79,12 @@ class CotizacionController extends Controller
     public function create()
     {
         $clientes = Cliente::all();
-        return view('admin.cotizaciones.create', compact('clientes'));
+        
+        // Obtener el próximo ID autoincremental de la tabla cotizaciones
+        $statement = DB::select("SHOW TABLE STATUS LIKE 'cotizaciones'");
+        $nextId = $statement[0]->Auto_increment ?? 1;
+
+        return view('admin.cotizaciones.create', compact('clientes', 'nextId'));
     }
 
     public function store(Request $request)
@@ -98,14 +103,15 @@ class CotizacionController extends Controller
 
             'motivo' => 'required|in:pedido,particular',
 
-            'nro_pedido_asoc' => 'nullable|string|max:50',
+
 
             'items' => 'required|array|min:1',
 
             'items.*.producto' => 'required|string|max:255',
             'items.*.cantidad' => 'required|numeric|min:1',
             'items.*.precio_unitario' => 'required|numeric|min:0',
-            'items.*.iva' => 'nullable|numeric|min:0'
+            'items.*.iva' => 'nullable|numeric|min:0',
+            'items.*.id_pedido_cot' => 'required_if:motivo,pedido'
 
         ]);
 
@@ -137,10 +143,10 @@ class CotizacionController extends Controller
                 'observaciones' => $request->observaciones,
 
                 'importe_total' => $request->importe_total ?? 0,
+
                 'estado_cotizacion' => 'v' // Vigente por defecto
 
             ]);
-
 
             // Guardar items y relaciones
             foreach ($request->items as $item) {
