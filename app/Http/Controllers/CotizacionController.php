@@ -212,6 +212,20 @@ class CotizacionController extends Controller
 
     public function update(Request $request, Cotizacion $cotizacion)
     {
+        $request->validate([
+            'fecha_cot' => 'required|date',
+            'id_cliente' => 'required|exists:clientes,id',
+            'moneda' => 'required|in:ARS,USD_BILLETE,USD_DIVISA',
+            'forma_pago' => 'required|string|max:20',
+            'motivo' => 'required|in:pedido,particular',
+            'items' => 'required|array|min:1',
+            'items.*.producto' => 'required|string|max:255',
+            'items.*.cantidad' => 'required|numeric|min:1',
+            'items.*.precio_unitario' => 'required|numeric|min:0',
+            'items.*.iva' => 'nullable|numeric|min:0',
+            'items.*.id_pedido_cot' => 'required_if:motivo,pedido'
+        ]);
+
         DB::beginTransaction();
         try {
             $cotizacion->update($request->except('items'));

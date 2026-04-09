@@ -239,6 +239,14 @@
 {{-- =========================
 SCRIPT GLOBAL COTIZACIONES
 ========================= --}}
+<style>
+    .celda-bloqueada {
+        opacity: 0.5;
+        pointer-events: none;
+        background-color: #f8f9fa;
+    }
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
         console.log('DOM Cargado - Iniciando Scripts de Cotización');
@@ -299,10 +307,14 @@ SCRIPT GLOBAL COTIZACIONES
                 const pedidos = await resp.json();
                 console.log(`Pedidos encontrados para fila: ${pedidos.length}`);
 
-                // Limpiar y cargar opciones
+                // 3. Destruir Select2 SI existe para reemplazar opciones limpiamente
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+
+                // 4. Limpiar y cargar opciones
                 selectElement.innerHTML = '<option value="">(Ninguno)</option>';
                 pedidos.forEach(p => {
-                    // Formatear fecha YYYY-MM-DD HH:MM:SS a DD/MM/YYYY
                     let fechaFormateada = 'S/F';
                     if (p.fecha) {
                         const partes = p.fecha.split(' ')[0].split('-');
@@ -317,29 +329,18 @@ SCRIPT GLOBAL COTIZACIONES
                     selectElement.appendChild(opt);
                 });
 
-                // Forzar el valor en el select nativo antes de Select2
+                // 5. Forzar el valor en el select nativo antes de Select2
                 if (selectedId) {
-                    $(selectElement).val(selectedId);
+                    $select.val(selectedId);
                 }
 
-                // Re-inicializar Select2
-                if (window.jQuery) {
-                    const $sel = $(selectElement);
-                    if ($sel.hasClass('select2-hidden-accessible')) {
-                        $sel.select2('destroy');
-                    }
+                // 6. Re-inicializar Select2
+                $select.select2({
+                    placeholder: '(Ninguno)',
+                    allowClear: true,
+                    width: '100%'
+                });
 
-                    const motivo = document.getElementById('motivo').value;
-                    const isDisabled = (motivo === 'particular');
-
-                    $sel.select2({
-                        placeholder: '(Ninguno)',
-                        allowClear: true,
-                        width: '100%',
-                        disabled: isDisabled
-                    });
-                    console.log('Select2 reinicializado con valor:', $sel.val());
-                }
             } catch (e) {
                 console.error('Error en poblarSelectPedidos:', e);
             }
@@ -370,35 +371,39 @@ SCRIPT GLOBAL COTIZACIONES
          * Ajusta el estado de los combos de pedido según el motivo
          */
         function actualizarEstadoPedidos() {
-            const motivo = document.getElementById('motivo').value;
+            const motivoEl = document.getElementById('motivo');
+            if (!motivoEl) return;
+            
+            const motivo = motivoEl.value;
             const selectPedidos = document.querySelectorAll('.select-pedido');
+            const isParticular = (motivo === 'particular');
+            const isPedido = (motivo === 'pedido');
 
+            console.log('Validación Motivo -> Seleccionado:', motivo, '| Particular:', isParticular);
+
+            // Evitamos problemas visuales bloqueando/desbloqueando Select2 dinámicamente
             selectPedidos.forEach(sel => {
                 const $sel = $(sel);
-                if (motivo === 'particular') {
-                    // Bloquear y limpiar
-                    sel.value = "";
-                    sel.required = false;
-                    if ($sel.hasClass('select2-hidden-accessible')) {
-                        $sel.val("").trigger('change').prop('disabled', true);
+
+                if (isParticular) {
+                    $sel.val("").trigger('change');
+                }
+
+                // Deshabilitar nativo (Select2 también lo lee)
+                sel.disabled = isParticular;
+                sel.required = isPedido;
+                
+                // Actualizar estado de Select2 explícitamente sin destruirlo
+                if ($sel.hasClass('select2-hidden-accessible')) {
+                    $sel.prop('disabled', isParticular);
+                }
+
+                const td = sel.closest('td');
+                if (td) {
+                    if (isParticular) {
+                        td.classList.add('celda-bloqueada');
                     } else {
-                        sel.disabled = true;
-                    }
-                } else if (motivo === 'pedido') {
-                    // Habilitar y hacer obligatorio
-                    sel.required = true;
-                    if ($sel.hasClass('select2-hidden-accessible')) {
-                        $sel.prop('disabled', false).trigger('change');
-                    } else {
-                        sel.disabled = false;
-                    }
-                } else {
-                    // Reset normal
-                    sel.required = false;
-                    if ($sel.hasClass('select2-hidden-accessible')) {
-                        $sel.prop('disabled', false).trigger('change');
-                    } else {
-                        sel.disabled = false;
+                        td.classList.remove('celda-bloqueada');
                     }
                 }
             });
@@ -426,15 +431,18 @@ SCRIPT GLOBAL COTIZACIONES
             // Si hay cliente, cargar pedidos para esta nueva fila
             const cliId = inputClienteId.value;
             if (cliId) {
-                poblarSelectPedidos(tr.querySelector('.select-pedido'), cliId);
+                poblarSelectPedidos(tr.querySelector('.select-pedido'), cliId).then(() => {
+                    actualizarEstadoPedidos();
+                });
+            } else {
+                actualizarEstadoPedidos();
             }
 
             rowCount++;
-            calcularTotales();
-            actualizarEstadoPedidos(); // Aplicar restricción de motivo a la nueva fila
+            actualizarEstadoPedidos();
         });
 
-        document.getElementById('motivo').addEventListener('change', actualizarEstadoPedidos);
+        $('#motivo').on('change', actualizarEstadoPedidos);
 
         itemsTable.addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-row')) {
@@ -473,6 +481,8 @@ SCRIPT GLOBAL COTIZACIONES
                         for (const sel of selects) {
                             await poblarSelectPedidos(sel, cli.id);
                         }
+                        // Re-aplicar estado del motivo DESPUÉS de poblar todos los combos
+                        actualizarEstadoPedidos();
                     };
                     dropdownClientes.appendChild(btn);
                 });
@@ -483,6 +493,38 @@ SCRIPT GLOBAL COTIZACIONES
         document.addEventListener('click', function (e) {
             if (!dropdownClientes.contains(e.target) && !inputRazon.contains(e.target)) {
                 ocultarDropdown();
+            }
+        });
+
+        // Validación extra al enviar
+        const form = document.getElementById('motivo').closest('form');
+        form.addEventListener('submit', function (e) {
+            const motivo = document.getElementById('motivo').value;
+            if (motivo === 'pedido') {
+                const selects = document.querySelectorAll('.select-pedido');
+                let valid = true;
+                selects.forEach(sel => {
+                    if (!sel.value) {
+                        valid = false;
+                        sel.style.border = '2px solid red';
+                        // Si es Select2, resaltar el container
+                        const $sel = $(sel);
+                        if ($sel.hasClass('select2-hidden-accessible')) {
+                            $sel.next('.select2-container').css('border', '2px solid red');
+                        }
+                    } else {
+                        sel.style.border = '';
+                        const $sel = $(sel);
+                        if ($sel.hasClass('select2-hidden-accessible')) {
+                            $sel.next('.select2-container').css('border', '');
+                        }
+                    }
+                });
+
+                if (!valid) {
+                    e.preventDefault();
+                    alert('Debe vincular cada ítem a un pedido cuando el motivo es "Pedido"');
+                }
             }
         });
 
@@ -498,5 +540,7 @@ SCRIPT GLOBAL COTIZACIONES
                 await poblarSelectPedidos(sel, initialCliId);
             }
         }
+        // Aplicar estado de motivo DESPUÉS de toda la inicialización
+        actualizarEstadoPedidos();
     });
 </script>
