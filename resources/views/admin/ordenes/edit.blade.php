@@ -16,7 +16,7 @@
             @method('PUT')
 
             {{-- Reutilizamos el mismo formulario --}}
-            @include('admin.ordenes.partials.edit', ['orden' => $orden])
+            @include('admin.ordenes.partials.form', ['orden' => $orden])
 
             <div class="mt-4">
                 <button type="submit" class="btn btn-success">

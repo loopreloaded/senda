@@ -29,16 +29,8 @@
             <label>Motivo</label>
             <select name="motivo" class="form-control">
                 <option value="">Todos</option>
-
-                <option value="cotizacion"
-                    {{ request('motivo')=='cotizacion'?'selected':'' }}>
-                    Cotización
-                </option>
-
-                <option value="stock"
-                    {{ request('motivo')=='stock'?'selected':'' }}>
-                    Stock
-                </option>
+                <option value="pedido" {{ request('motivo')=='pedido'?'selected':'' }}>Pedido</option>
+                <option value="particular" {{ request('motivo')=='particular'?'selected':'' }}>Particular</option>
             </select>
         </div>
 
@@ -50,7 +42,7 @@
                 <option value="pendiente" {{ request('estado')=='pendiente'?'selected':'' }}>Pendiente</option>
                 <option value="anulada" {{ request('estado')=='anulada'?'selected':'' }}>Anulada</option>
                 <option value="parcial" {{ request('estado')=='parcial'?'selected':'' }}>Parcial</option>
-                <option value="cumplida" {{ request('estado')=='cumplida'?'selected':'' }}>Cumplida</option>
+                <option value="completa" {{ request('estado')=='completa'?'selected':'' }}>Completa</option>
             </select>
         </div>
 
@@ -82,13 +74,16 @@
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>#</th>
-            <th>Proveedor</th>
+            <th>ID OC (#)</th>
+            <th>Nro OC (Ext.)</th>
+            <th>Cliente</th>
             <th>Fecha</th>
             <th>Motivo</th>
-            <th>Moneda</th>
-            <th>Total</th>
-            <th>Estado</th>
+            <th>Cant. Art. OC</th>
+            <th>Art. Cotizados</th>
+            <th>Cant. Art. Rem.</th>
+            <th>Art. Remitidos</th>
+            <th>Status</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -96,8 +91,10 @@
     <tbody>
         @foreach($ordenes as $orden)
         <tr>
+            {{-- ID OC (#) --}}
+            <td><span class="badge badge-dark">OC-{{ $orden->id }}</span></td>
 
-            {{-- # --}}
+            {{-- Nro OC (Ext.) --}}
             <td>{{ $orden->numero_oc }}</td>
 
             {{-- Cliente --}}
@@ -106,37 +103,45 @@
             {{-- Fecha --}}
             <td>{{ \Carbon\Carbon::parse($orden->fecha)->format('d/m/Y') }}</td>
 
-            {{--  --}}
+            {{-- Motivo --}}
             <td>
-                @if($orden->motivo == 'cotizacion')
-                    <span class="badge badge-info">Cotización</span>
-                @elseif($orden->motivo == 'stock')
-                    <span class="badge badge-secondary">Stock</span>
+                @if($orden->motivo == 'pedido')
+                    <span class="badge badge-info">Pedido</span>
+                @elseif($orden->motivo == 'particular')
+                    <span class="badge badge-secondary">Particular</span>
                 @else
                     -
                 @endif
             </td>
 
-            {{-- Moneda --}}
-            <td>{{ $orden->moneda ?? '-' }}</td>
+            {{-- Cant. Art. OC --}}
+            <td class="text-center">{{ number_format($orden->cant_art_oc, 2) }}</td>
 
-            {{-- Total --}}
+            {{-- Art. Cotizados --}}
             <td>
-                @if($orden->total)
-                    {{ number_format($orden->total, 2) }}
-                @else
-                    -
-                @endif
+                <small title="{{ $orden->art_cot }}">
+                    {{ Str::limit($orden->art_cot, 20) }}
+                </small>
             </td>
 
-            {{-- Estado --}}
+            {{-- Cant. Art. Rem. --}}
+            <td class="text-center">{{ number_format($orden->cant_art_rem, 2) }}</td>
+
+            {{-- Art. Remitidos --}}
+            <td>
+                <small title="{{ $orden->art_rem }}">
+                    {{ Str::limit($orden->art_rem, 20) }}
+                </small>
+            </td>
+
+            {{-- Status --}}
             <td>
                 @if($orden->estado == 'pendiente')
                     <span class="badge badge-warning">Pendiente</span>
                 @elseif($orden->estado == 'parcial')
                     <span class="badge badge-info">Parcial</span>
-                @elseif($orden->estado == 'cumplida')
-                    <span class="badge badge-success">Cumplida</span>
+                @elseif($orden->estado == 'completa')
+                    <span class="badge badge-success">Completa</span>
                 @elseif($orden->estado == 'anulada')
                     <span class="badge badge-danger">Anulada</span>
                 @else
@@ -146,39 +151,42 @@
 
             {{-- Acciones --}}
             <td>
+                <div class="btn-group">
+                    <a href="{{ route('ordenes.show', $orden->id) }}"
+                       class="btn btn-sm btn-info"
+                       title="Ver Detalle">
+                        <i class="fas fa-eye"></i>
+                    </a>
 
-                @hasanyrole('admin|ingeniero')
-                <a href="{{ route('ordenes.edit', $orden->id) }}"
-                   class="btn btn-sm btn-primary"
-                   title="Editar">
-                    <i class="fas fa-edit"></i>
-                </a>
-                @endhasanyrole
+                    @hasanyrole('admin|ingeniero')
+                    <a href="{{ route('ordenes.edit', $orden->id) }}"
+                       class="btn btn-sm btn-primary"
+                       title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    @endhasanyrole
 
-                <a href="{{ route('ordenes.pdf', $orden->id) }}"
-                   class="btn btn-sm btn-light"
-                   title="PDF"
-                   target="_blank">
-                    <i class="fas fa-file-pdf" style="color:#d9534f;"></i>
-                </a>
+                    <a href="{{ route('ordenes.pdf', $orden->id) }}"
+                       class="btn btn-sm btn-light"
+                       title="PDF"
+                       target="_blank">
+                        <i class="fas fa-file-pdf text-danger"></i>
+                    </a>
 
-                @hasanyrole('admin|ingeniero')
-                <form action="{{ route('ordenes.destroy', $orden->id) }}"
-                      method="POST"
-                      style="display:inline">
-                    @csrf
-                    @method('DELETE')
-
-                    <button type="submit"
-                            class="btn btn-sm btn-danger"
-                            onclick="return confirm('¿Eliminar esta orden?')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </form>
-                @endhasanyrole
-
+                    @hasanyrole('admin|ingeniero')
+                    <form action="{{ route('ordenes.destroy', $orden->id) }}"
+                          method="POST"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar esta orden?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    @endhasanyrole
+                </div>
             </td>
-
         </tr>
         @endforeach
     </tbody>

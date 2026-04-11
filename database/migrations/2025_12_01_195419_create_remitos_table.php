@@ -11,25 +11,27 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('remitos', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('cliente_id');
-            $table->unsignedBigInteger('creado_por');
+        if (!Schema::hasTable('remitos')) {
+            Schema::create('remitos', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('cliente_id');
+                $table->unsignedBigInteger('creado_por');
 
-            $table->string('numero_remito')->nullable();
-            $table->date('fecha')->nullable();
+                $table->string('numero_remito')->nullable();
+                $table->date('fecha')->nullable();
 
-            // Estado del remito
-            $table->enum('estado', ['pendiente', 'aprobado', 'entregado', 'anulado'])
-                ->default('pendiente');
+                // Estado del remito
+                $table->enum('estado', ['pendiente', 'aprobado', 'entregado', 'anulado'])
+                    ->default('pendiente');
 
-            $table->text('observaciones')->nullable();
+                $table->text('observaciones')->nullable();
 
-            $table->timestamps();
+                $table->timestamps();
 
-            $table->foreign('cliente_id')->references('id')->on('clientes');
-            $table->foreign('creado_por')->references('id')->on('users');
-        });
+                $table->foreign('cliente_id')->references('id')->on('clientes');
+                $table->foreign('creado_por')->references('id')->on('users');
+            });
+        }
     }
 
 

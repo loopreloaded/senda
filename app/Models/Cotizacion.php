@@ -68,11 +68,13 @@ class Cotizacion extends Model
     }
 
     /**
-     * Órdenes de Compra vinculadas
+     * Órdenes de Compra vinculadas (Relación N:N)
      */
     public function ordenesCompra()
     {
-        return $this->hasMany(OrdenCompra::class, 'cotizacion_id');
+        return $this->belongsToMany(OrdenCompra::class, 'cotizacion_oc', 'id_cot', 'id_oc')
+                    ->withPivot('articulo', 'cantidad')
+                    ->withTimestamps();
     }
 
     /**

@@ -12,18 +12,38 @@ class RemitoItem extends Model
     protected $table = 'remito_items';
 
     protected $fillable = [
-        'id_remito',
+        'remito_id',
         'articulo',
         'cantidad',
         'descripcion',
     ];
 
     /* ================================
-       RELACIÓN CON REMITO
+       EVENTOS
     =================================*/
+
+    protected static function booted()
+    {
+        static::saved(function ($item) {
+            // Recargar remito para asegurar que tenemos el id_orden_compra
+            $remito = $item->remito;
+            if ($remito && $remito->id_orden_compra) {
+                $oc = OrdenCompra::find($remito->id_orden_compra);
+                if ($oc) $oc->actualizarEstado();
+            }
+        });
+
+        static::deleted(function ($item) {
+            $remito = $item->remito;
+            if ($remito && $remito->id_orden_compra) {
+                $oc = OrdenCompra::find($remito->id_orden_compra);
+                if ($oc) $oc->actualizarEstado();
+            }
+        });
+    }
 
     public function remito()
     {
-        return $this->belongsTo(Remito::class);
+        return $this->belongsTo(Remito::class, 'remito_id');
     }
 }

@@ -1,15 +1,22 @@
 <div class="row">
-    <div class="col-md-3">
-        <label>Número de OC</label>
+    {{-- ID OC (Auto) --}}
+    <div class="col-md-2">
+        <label>ID OC (#)</label>
+        <input type="text" class="form-control" readonly placeholder="Auto"
+            value="{{ isset($orden->id) ? 'OC-' . $orden->id : 'OC-' . ($nextId ?? '') }}">
+    </div>
+
+    <div class="col-md-2">
+        <label>Nro OC (Ext.)</label>
         <input type="number" name="numero_oc" class="form-control" value="{{ old('numero_oc', $orden->numero_oc ?? '') }}" required>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-2">
         <label>Fecha</label>
         <input type="date"
             name="fecha"
             class="form-control"
-            value="{{ old('fecha', isset($orden) ? $orden->fecha : now()->format('Y-m-d')) }}"
+            value="{{ old('fecha', isset($orden->fecha) ? $orden->fecha : now()->format('Y-m-d')) }}"
             required>
     </div>
 
@@ -17,44 +24,30 @@
         <label>Motivo</label>
         <select name="motivo" id="motivo" class="form-control" required>
             <option value="">Seleccionar...</option>
-            <option value="cotizacion" {{ old('motivo', $orden->motivo ?? '') == 'cotizacion' ? 'selected' : '' }}>
-                Cotización
+            <option value="pedido" {{ old('motivo', $orden->motivo ?? '') == 'pedido' ? 'selected' : '' }}>
+                Pedido (Vincular a Cotizaciones)
             </option>
-            <option value="stock" {{ old('motivo', $orden->motivo ?? '') == 'stock' ? 'selected' : '' }}>
-                Stock
+            <option value="particular" {{ old('motivo', $orden->motivo ?? '') == 'particular' ? 'selected' : '' }}>
+                Particular (Sin Vínculos)
             </option>
         </select>
     </div>
-
-    <div class="col-md-3" id="grupo-cotizacion" style="display: none;">
-        <label>Vincular Cotización</label>
-        <select name="cotizacion_id" id="cotizacion_id" class="form-control">
-            <option value="">(Ninguna)</option>
-        </select>
-    </div>
-
 
     {{-- Razón Social --}}
-    <div class="col-md-6">
+    <div class="col-md-3">
         <div class="form-group">
-            <label for="razon_social">Razón Social</label>
-
+            <label for="razon_social">Cliente</label>
             <div class="position-relative">
                 <input type="text"
                     name="razon_social"
                     id="razon_social"
-                    value="{{ old('razon_social') }}"
+                    value="{{ old('razon_social', $orden->cliente->razon_social ?? '') }}"
                     class="form-control"
                     autocomplete="off"
                     required>
 
-                {{-- ID cliente --}}
-                <input type="hidden"
-                    name="id_cliente"
-                    id="id_cliente"
-                    value="{{ old('id_cliente') }}">
+                <input type="hidden" name="id_cliente" id="id_cliente" value="{{ old('id_cliente', $orden->id_cliente ?? '') }}">
 
-                {{-- dropdown --}}
                 <div id="dropdown-clientes"
                     class="list-group position-absolute w-100 shadow"
                     style="z-index:9999; max-height:240px; overflow-y:auto; display:none;">
@@ -62,45 +55,27 @@
             </div>
         </div>
     </div>
-
 </div>
+
 <div class="row mt-3">
     <div class="col-md-3">
         <label>CUIT</label>
-        <input type="text"
-               id="cuit"
-               name="cuit"
-               class="form-control"
-               maxlength="11"
-               value="{{ old('cuit', $orden->cuit ?? '') }}"
-               required>
+        <input type="text" id="cuit" name="cuit" class="form-control" maxlength="11" value="{{ old('cuit', $orden->cuit ?? '') }}" required>
     </div>
 
     <div class="col-md-3">
         <label>Dirección</label>
-        <input type="text"
-               id="direccion"
-               name="direccion"
-               class="form-control"
-               value="{{ old('direccion', $orden->direccion ?? '') }}">
+        <input type="text" id="direccion" name="direccion" class="form-control" value="{{ old('direccion', $orden->direccion ?? '') }}">
     </div>
 
     <div class="col-md-3">
         <label>Teléfono</label>
-        <input type="text"
-               id="telefono"
-               name="telefono"
-               class="form-control"
-               value="{{ old('telefono', $orden->telefono ?? '') }}">
+        <input type="text" id="telefono" name="telefono" class="form-control" value="{{ old('telefono', $orden->telefono ?? '') }}">
     </div>
 
     <div class="col-md-3">
         <label>Email</label>
-        <input type="email"
-               id="email"
-               name="email"
-               class="form-control"
-               value="{{ old('email', $orden->email ?? '') }}">
+        <input type="email" id="email" name="email" class="form-control" value="{{ old('email', $orden->email ?? '') }}">
     </div>
 </div>
 
@@ -108,54 +83,54 @@
     <div class="col-md-4">
         <label>Moneda</label>
         <select name="moneda" class="form-control" required>
-            <option value="ARS" {{ old('moneda', $orden->moneda ?? 'ARS') == 'ARS' ? 'selected' : '' }}>
-                ARS - Peso Argentino
-            </option>
-
-            <option value="USD_BILLETE" {{ old('moneda', $orden->moneda ?? '') == 'USD_BILLETE' ? 'selected' : '' }}>
-                USD - Billete
-            </option>
-
-            <option value="USD_DIVISA" {{ old('moneda', $orden->moneda ?? '') == 'USD_DIVISA' ? 'selected' : '' }}>
-                USD - Divisa
-            </option>
+            <option value="ARS" {{ old('moneda', $orden->moneda ?? 'ARS') == 'ARS' ? 'selected' : '' }}>ARS - Peso Argentino</option>
+            <option value="USD_BILLETE" {{ old('moneda', $orden->moneda ?? '') == 'USD_BILLETE' ? 'selected' : '' }}>USD - Billete</option>
+            <option value="USD_DIVISA" {{ old('moneda', $orden->moneda ?? '') == 'USD_DIVISA' ? 'selected' : '' }}>USD - Divisa</option>
         </select>
     </div>
 
     <div class="col-md-4">
-            <label>Condición de compra</label>
-            <input type="text" name="condicion_compra" class="form-control" value="{{ old('condicion_compra', $orden->condicion_compra ?? '') }}" required>
-        </div>
+        <label>Condición de compra</label>
+        <input type="text" name="condicion_compra" class="form-control" value="{{ old('condicion_compra', $orden->condicion_compra ?? '') }}" required>
+    </div>
 
-        <div class="col-md-4">
-        <label>Archivo (PDF / Imagen)</label>
+    <div class="col-md-4">
+        <label>Solicitud de Compra (#)</label>
+        <input type="text" name="solicitud_compra" class="form-control" value="{{ old('solicitud_compra', $orden->solicitud_compra ?? '') }}">
+    </div>
+</div>
 
-        <input type="file"
-            name="archivo"
-            class="form-control"
-            accept=".pdf,.png,.jpg,.jpeg">
-
+<div class="row mt-3">
+    <div class="col-md-4">
+        <label>Archivo OC (PDF / Imagen)</label>
+        <input type="file" name="archivo" class="form-control" accept=".pdf,.png,.jpg,.jpeg">
         @if(isset($orden) && $orden->archivo)
             <small class="text-muted d-block mt-1">
-                Archivo actual:
-                <a href="{{ asset('storage/'.$orden->archivo) }}" target="_blank">
-                    Ver archivo
-                </a>
+                Archivo actual: <a href="{{ asset('storage/'.$orden->archivo) }}" target="_blank">Ver archivo</a>
             </small>
         @endif
     </div>
-
 </div>
+
+
+
+<style>
+    .celda-bloqueada {
+        opacity: 0.5;
+        pointer-events: none;
+        background-color: #f8f9fa;
+    }
+</style>
 
 <hr class="mt-4">
 
-<h4>Ítems</h4>
-
+<h4>Detalle de Ítems (General)</h4>
 <table class="table table-bordered mt-2">
     <thead>
         <tr>
             <th>Código</th>
             <th>Descripción</th>
+            <th>Cotización</th>
             <th>Cantidad</th>
             <th style="width:15%;">Unidad</th>
             <th>Precio Unitario</th>
@@ -163,448 +138,400 @@
             <th>Desc. (%)</th>
             <th>Fecha Entrega</th>
             <th>Total</th>
-            <th></th>
+            <th style="width:40px;"></th>
         </tr>
     </thead>
-
     <tbody id="items-table">
         @php
             $oldItems = old('items');
             $items = $oldItems ?? ($orden->items ?? [ [] ]);
         @endphp
-
         @foreach($items as $i => $item)
             <tr>
-                <td><input type="text" name="items[{{ $i }}][codigo]" class="form-control"
-                    value="{{ $item['codigo'] ?? '' }}"></td>
+                <td><input type="text" name="items[{{ $i }}][codigo]" class="form-control" value="{{ $item['codigo'] ?? '' }}"></td>
+                <td><input type="text" name="items[{{ $i }}][descripcion]" class="form-control" value="{{ $item['descripcion'] ?? '' }}"></td>
+                @php
+                    $id_cot_item = is_object($item) ? $item->id_cotizacion_item : ($item['id_cotizacion_item'] ?? null);
+                    $nro_cot = '';
+                    if (is_object($item) && $item->cotizacionItem) {
+                        $nro_cot = $item->cotizacionItem->id_cotizacion;
+                    }
+                @endphp
+                <td class="col-cotizacion">
+                    <input type="hidden" name="items[{{ $i }}][id_cotizacion_item]" class="hidden-id-item" value="{{ $id_cot_item }}">
+                    <input type="hidden" name="items[{{ $i }}][id_cotizacion]" class="hidden-id-cot" value="{{ is_object($item) ? $item->id_cotizacion : ($item['id_cotizacion'] ?? '') }}">
+                    
+                    <select class="form-control form-control-sm select-cotizacion no-select2" 
+                        data-selected="{{ $id_cot_item }}"
+                        style="display: {{ old('motivo', $orden->motivo ?? '') == 'pedido' ? 'block' : 'none' }};">
+                        <option value="">(Ninguno)</option>
+                    </select>
 
-                <td><input type="text" name="items[{{ $i }}][descripcion]" class="form-control"
-                    value="{{ $item['descripcion'] ?? '' }}"></td>
-
-                <td><input type="number" step="0.01" name="items[{{ $i }}][cantidad]" class="form-control"
-                    value="{{ $item['cantidad'] ?? '' }}"></td>
-
+                    <span class="text-muted small badge-no-cot" style="display: {{ old('motivo', $orden->motivo ?? '') == 'pedido' ? 'none' : 'inline' }};">-</span>
+                </td>
+                <td><input type="number" step="0.01" name="items[{{ $i }}][cantidad]" class="form-control" value="{{ $item['cantidad'] ?? '' }}"></td>
                 <td>
                     <select name="items[{{ $i }}][unidad]" class="form-control">
                         <option value="">seleccionar...</option>
-
-                        @php
-                            $unidadSeleccionada = $item['unidad'] ?? '';
-                        @endphp
-
-                        <option value="1"  {{ $unidadSeleccionada == 1 ? 'selected' : '' }}>kilogramos</option>
-                        <option value="2"  {{ $unidadSeleccionada == 2 ? 'selected' : '' }}>metros</option>
-                        <option value="3"  {{ $unidadSeleccionada == 3 ? 'selected' : '' }}>metros cuadrados</option>
-                        <option value="4"  {{ $unidadSeleccionada == 4 ? 'selected' : '' }}>metros cúbicos</option>
-                        <option value="5"  {{ $unidadSeleccionada == 5 ? 'selected' : '' }}>litros</option>
-                        <option value="6"  {{ $unidadSeleccionada == 6 ? 'selected' : '' }}>1000 kWh</option>
-                        <option value="7"  {{ $unidadSeleccionada == 7 ? 'selected' : '' }}>unidades</option>
-                        <option value="8"  {{ $unidadSeleccionada == 8 ? 'selected' : '' }}>pares</option>
-                        <option value="9"  {{ $unidadSeleccionada == 9 ? 'selected' : '' }}>docenas</option>
-                        <option value="10" {{ $unidadSeleccionada == 10 ? 'selected' : '' }}>quilates</option>
-                        <option value="11" {{ $unidadSeleccionada == 11 ? 'selected' : '' }}>millares</option>
-                        <option value="14" {{ $unidadSeleccionada == 14 ? 'selected' : '' }}>gramos</option>
-                        <option value="15" {{ $unidadSeleccionada == 15 ? 'selected' : '' }}>milímetros</option>
-                        <option value="16" {{ $unidadSeleccionada == 16 ? 'selected' : '' }}>mm cúbicos</option>
-                        <option value="17" {{ $unidadSeleccionada == 17 ? 'selected' : '' }}>kilómetros</option>
-                        <option value="18" {{ $unidadSeleccionada == 18 ? 'selected' : '' }}>hectolitros</option>
-                        <option value="20" {{ $unidadSeleccionada == 20 ? 'selected' : '' }}>centímetros</option>
-                        <option value="25" {{ $unidadSeleccionada == 25 ? 'selected' : '' }}>jgo. pqt. mazo naipes</option>
-                        <option value="27" {{ $unidadSeleccionada == 27 ? 'selected' : '' }}>cm cúbicos</option>
-                        <option value="29" {{ $unidadSeleccionada == 29 ? 'selected' : '' }}>toneladas</option>
-                        <option value="30" {{ $unidadSeleccionada == 30 ? 'selected' : '' }}>dam cúbicos</option>
-                        <option value="31" {{ $unidadSeleccionada == 31 ? 'selected' : '' }}>hm cúbicos</option>
-                        <option value="32" {{ $unidadSeleccionada == 32 ? 'selected' : '' }}>km cúbicos</option>
-                        <option value="33" {{ $unidadSeleccionada == 33 ? 'selected' : '' }}>microgramos</option>
-                        <option value="34" {{ $unidadSeleccionada == 34 ? 'selected' : '' }}>nanogramos</option>
-                        <option value="35" {{ $unidadSeleccionada == 35 ? 'selected' : '' }}>picogramos</option>
-                        <option value="41" {{ $unidadSeleccionada == 41 ? 'selected' : '' }}>miligramos</option>
-                        <option value="47" {{ $unidadSeleccionada == 47 ? 'selected' : '' }}>mililitros</option>
-                        <option value="48" {{ $unidadSeleccionada == 48 ? 'selected' : '' }}>curie</option>
-                        <option value="49" {{ $unidadSeleccionada == 49 ? 'selected' : '' }}>milicurie</option>
-                        <option value="50" {{ $unidadSeleccionada == 50 ? 'selected' : '' }}>microcurie</option>
-                        <option value="51" {{ $unidadSeleccionada == 51 ? 'selected' : '' }}>uiacthor</option>
-                        <option value="52" {{ $unidadSeleccionada == 52 ? 'selected' : '' }}>muiacthor</option>
-                        <option value="53" {{ $unidadSeleccionada == 53 ? 'selected' : '' }}>kg base</option>
-                        <option value="54" {{ $unidadSeleccionada == 54 ? 'selected' : '' }}>gruesa</option>
-                        <option value="61" {{ $unidadSeleccionada == 61 ? 'selected' : '' }}>kg bruto</option>
-                        <option value="62" {{ $unidadSeleccionada == 62 ? 'selected' : '' }}>uiactant</option>
-                        <option value="63" {{ $unidadSeleccionada == 63 ? 'selected' : '' }}>muiactant</option>
-                        <option value="64" {{ $unidadSeleccionada == 64 ? 'selected' : '' }}>uiactig</option>
-                        <option value="65" {{ $unidadSeleccionada == 65 ? 'selected' : '' }}>muiactig</option>
-                        <option value="66" {{ $unidadSeleccionada == 66 ? 'selected' : '' }}>kg activo</option>
-                        <option value="67" {{ $unidadSeleccionada == 67 ? 'selected' : '' }}>gramo activo</option>
-                        <option value="68" {{ $unidadSeleccionada == 68 ? 'selected' : '' }}>gramo base</option>
-                        <option value="96" {{ $unidadSeleccionada == 96 ? 'selected' : '' }}>packs</option>
-                        <option value="98" {{ $unidadSeleccionada == 98 ? 'selected' : '' }}>otras unidades</option>
+                        @php $un = $item['unidad'] ?? ''; @endphp
+                        <option value="1" {{ $un == 1 ? 'selected' : '' }}>kg</option>
+                        <option value="7" {{ $un == 7 ? 'selected' : '' }}>unidades</option>
                     </select>
                 </td>
-
-                <td><input type="number" step="0.01" name="items[{{ $i }}][precio_unitario]" class="form-control"
-                    value="{{ $item['precio_unitario'] ?? '' }}"></td>
-
-                <td>
-                    <input type="number" step="0.01"
-                        name="items[{{ $i }}][iva]"
-                        class="form-control"
-                        value="{{ $item['iva'] ?? 21 }}">
-                </td>
-
-
-                <td><input type="number" step="0.01" name="items[{{ $i }}][descuento]" class="form-control"
-                    value="{{ $item['descuento'] ?? 0 }}"></td>
-
-                <td><input type="date" name="items[{{ $i }}][fecha_entrega]" class="form-control"
-                    value="{{ $item['fecha_entrega'] ?? '' }}"></td>
-
-                <td><input type="number" step="0.01" name="items[{{ $i }}][total]" class="form-control item-total"
-                    value="{{ $item['total'] ?? '' }}" readonly></td>
-
+                <td><input type="number" step="0.01" name="items[{{ $i }}][precio_unitario]" class="form-control" value="{{ $item['precio_unitario'] ?? '' }}"></td>
+                <td><input type="number" step="0.01" name="items[{{ $i }}][iva]" class="form-control" value="{{ $item['iva'] ?? 21 }}"></td>
+                <td><input type="number" step="0.01" name="items[{{ $i }}][descuento]" class="form-control" value="{{ $item['descuento'] ?? 0 }}"></td>
+                <td><input type="date" name="items[{{ $i }}][fecha_entrega]" class="form-control" value="{{ $item['fecha_entrega'] ?? '' }}"></td>
+                <td><input type="number" step="0.01" name="items[{{ $i }}][total]" class="form-control item-total" value="{{ $item['total'] ?? '' }}" readonly></td>
                 <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
             </tr>
         @endforeach
-
     </tbody>
-
 </table>
-
-
 <button type="button" id="add-row" class="btn btn-primary btn-sm">Agregar Ítem</button>
 
-<hr class="mt-4">
-
-<div class="row mt-3">
-    <div class="col-md-12">
+<div class="row mt-4">
+    <div class="col-md-9">
         <label>Observaciones</label>
         <textarea name="observaciones" class="form-control" rows="3">{{ old('observaciones', $orden->observaciones ?? '') }}</textarea>
     </div>
-</div>
-
-<div class="row mt-3">
-
-    <div class="col-md-4">
-        <label>Subtotal c/IVA</label>
-        <input type="number" step="0.01"
-               name="subtotal"
-               class="form-control"
-               value="{{ old('subtotal', $orden->subtotal ?? 0) }}"
-               readonly>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Subtotal c/IVA</label>
+            <input type="number" step="0.01" name="subtotal" class="form-control" value="{{ old('subtotal', $orden->subtotal ?? 0) }}" readonly>
+        </div>
+        <div class="form-group">
+            <label>Total Final</label>
+            <input type="number" step="0.01" name="total" class="form-control" value="{{ old('total', $orden->total ?? 0) }}" readonly>
+        </div>
     </div>
-
-    <div class="col-md-4">
-        <label>Descuentos Totales</label>
-        <input type="number" step="0.01"
-               name="descuentos_totales"
-               class="form-control"
-               value="{{ old('descuentos_totales', $orden->descuentos_totales ?? 0) }}"
-               readonly>
-    </div>
-
-    <div class="col-md-4">
-        <label>Total Final</label>
-        <input type="number" step="0.01"
-               name="total"
-               class="form-control"
-               value="{{ old('total', $orden->total ?? 0) }}"
-               readonly>
-    </div>
-
 </div>
 
 <script>
-    let row = {{ count($items) }};
+    let rowIdx = {{ count($items) }};
 
+    let allCotItems = []; // Almacén global para ítems de cotizaciones del cliente
+
+    // --- MOTIVO LOGIC ---
+    function actualizarEstadoCotizaciones() {
+        const motivo = document.getElementById('motivo').value;
+        const seccionVinculos = document.getElementById('seccion-vinculos');
+        const selectCots = document.querySelectorAll('.select-cotizacion');
+        const badgeNoCots = document.querySelectorAll('.badge-no-cot');
+        const isPedido = (motivo === 'pedido');
+
+        if (seccionVinculos) seccionVinculos.style.display = isPedido ? 'block' : 'none';
+
+        selectCots.forEach(sel => {
+            const $sel = $(sel);
+            const td = sel.closest('td');
+
+            if (!isPedido) {
+                $sel.val("").trigger('change');
+                if (td) td.classList.add('celda-bloqueada');
+                sel.style.display = 'none';
+            } else {
+                if (td) td.classList.remove('celda-bloqueada');
+                sel.style.display = 'block';
+            }
+
+            sel.required = isPedido;
+            if ($sel.hasClass('select2-hidden-accessible')) {
+                $sel.prop('disabled', !isPedido);
+            }
+        });
+
+        badgeNoCots.forEach(b => {
+            b.style.display = isPedido ? 'none' : 'inline';
+        });
+    }
+    document.getElementById('motivo').addEventListener('change', actualizarEstadoCotizaciones);
+
+    // --- CLIENTE AUTOCOMPLETE & COTIZACIONES ---
+    const inputRazon = document.getElementById('razon_social');
+    const inputClienteId = document.getElementById('id_cliente');
+    const dropdownClientes = document.getElementById('dropdown-clientes');
+
+    inputRazon.addEventListener('input', debounce(async function() {
+        const q = inputRazon.value.trim();
+        if (q.length < 2) { dropdownClientes.style.display = 'none'; return; }
+        const resp = await fetch(`{{ route('clientes.buscar') }}?q=${q}`);
+        const clientes = await resp.json();
+        dropdownClientes.innerHTML = '';
+        clientes.forEach(cli => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'list-group-item list-group-item-action';
+            btn.innerHTML = `${cli.razon_social} <small class="text-muted">(${cli.cuit})</small>`;
+            btn.onclick = () => selectCliente(cli);
+            dropdownClientes.appendChild(btn);
+        });
+        dropdownClientes.style.display = 'block';
+    }, 300));
+
+    function selectCliente(cli) {
+        inputRazon.value = cli.razon_social;
+        inputClienteId.value = cli.id;
+        document.getElementById('cuit').value = cli.cuit || '';
+        document.getElementById('direccion').value = cli.direccion || '';
+        document.getElementById('telefono').value = cli.telefono || '';
+        document.getElementById('email').value = cli.email || '';
+        dropdownClientes.style.display = 'none';
+        cargarCotizaciones(cli.id);
+    }
+
+    async function cargarCotizaciones(clienteId) {
+        const resp = await fetch(`{{ route('cotizaciones.buscar') }}?cliente_id=${clienteId}`);
+        const cots = await resp.json();
+        
+        allCotItems = [];
+        
+        for (const c of cots) {
+            
+            const respItems = await fetch(`{{ url('cotizaciones') }}/${c.id_cotizacion}/json-items`);
+            if (respItems.ok) {
+                const items = await respItems.json();
+                items.forEach(it => {
+                    allCotItems.push({
+                        ...it,
+                        nro_cot: c.nro_cotizacion || c.id_cotizacion,
+                        id_cot: c.id_cotizacion
+                    });
+                });
+            }
+        }
+
+        // Poblar todos los combos de la tabla
+        const selectors = document.querySelectorAll('.select-cotizacion');
+        for (const sel of selectors) {
+            await poblarSelectCotizacionRow(sel);
+        }
+    }
+
+    async function poblarSelectCotizacionRow(selectElement) {
+        const $select = $(selectElement);
+        const selectedId = $select.attr('data-selected');
+
+        if ($select.hasClass('select2-hidden-accessible')) {
+            $select.select2('destroy');
+        }
+
+        selectElement.innerHTML = '<option value="">(Ninguno)</option>';
+        allCotItems.forEach(it => {
+            const isSelected = (it.id_cot_item == selectedId);
+            const text = `Cot #${it.nro_cot} - ${it.producto}`;
+            const opt = new Option(text, it.id_cot_item, isSelected, isSelected);
+            opt.dataset.id_cot = it.id_cot;
+            selectElement.appendChild(opt);
+        });
+
+        $select.select2({
+            placeholder: '(Ninguno)',
+            allowClear: true,
+            width: '100%'
+        });
+        
+        actualizarEstadoCotizaciones();
+    }
+
+    document.addEventListener('change', e => {
+        if (e.target.classList.contains('select-cotizacion')) {
+            const row = e.target.closest('tr');
+            const hiddenIdItem = row.querySelector('.hidden-id-item');
+            const hiddenIdCot = row.querySelector('.hidden-id-cot');
+            const idItem = e.target.value;
+            
+            hiddenIdItem.value = idItem;
+
+            if (idItem) {
+                const it = allCotItems.find(x => x.id_cot_item == idItem);
+                if (it) {
+                    hiddenIdCot.value = it.id_cot;
+                    row.querySelector('input[name*="[descripcion]"]').value = it.producto;
+                    row.querySelector('input[name*="[precio_unitario]"]').value = it.precio_unitario;
+                    row.querySelector('input[name*="[iva]"]').value = it.iva;
+                    calcularTotales();
+                }
+            } else {
+                hiddenIdCot.value = '';
+            }
+        }
+    });
+
+
+
+    function agregarItemGeneral(descripcion, cantidad, idCotItem = null, idCot = null, precio = 0, iva = 21) {
+        // Buscar si ya existe un item con esa descripción y VÍNCULO para sumar
+        const rows = document.querySelectorAll('#items-table tr');
+        let found = false;
+        rows.forEach(r => {
+            const descInput = r.querySelector('input[name*="[descripcion]"]');
+            const cotInput = r.querySelector('input[name*="[id_cotizacion_item]"]');
+            if (descInput && descInput.value === descripcion && cotInput && cotInput.value == (idCotItem || '')) {
+                const cantInput = r.querySelector('input[name*="[cantidad]"]');
+                cantInput.value = (parseFloat(cantInput.value) || 0) + parseFloat(cantidad);
+                found = true;
+            }
+        });
+
+        if (!found) {
+            const table = document.getElementById('items-table');
+            const newRow = `
+                <tr>
+                    <td><input type="text" name="items[${rowIdx}][codigo]" class="form-control"></td>
+                    <td><input type="text" name="items[${rowIdx}][descripcion]" class="form-control" value="${descripcion}"></td>
+                    <td>
+                        <input type="hidden" name="items[${rowIdx}][id_cotizacion_item]" class="hidden-id-item" value="${idCotItem || ''}">
+                        <input type="hidden" name="items[${rowIdx}][id_cotizacion]" class="hidden-id-cot" value="${idCot || ''}">
+                        <select class="form-control form-control-sm select-cotizacion no-select2" 
+                            data-selected="${idCotItem || ''}"
+                            style="display: ${document.getElementById('motivo').value === 'pedido' ? 'block' : 'none'};">
+                            <option value="">(Ninguno)</option>
+                        </select>
+                        <span class="text-muted small badge-no-cot" style="display: ${document.getElementById('motivo').value === 'pedido' ? 'none' : 'inline'};">-</span>
+                    </td>
+                    <td><input type="number" step="0.01" name="items[${rowIdx}][cantidad]" class="form-control" value="${cantidad}"></td>
+                    <td><select name="items[${rowIdx}][unidad]" class="form-control"><option value="7" selected>unidades</option></select></td>
+                    <td><input type="number" step="0.01" name="items[${rowIdx}][precio_unitario]" class="form-control" value="${precio}"></td>
+                    <td><input type="number" step="0.01" name="items[${rowIdx}][iva]" class="form-control" value="${iva}"></td>
+                    <td><input type="number" step="0.01" name="items[${rowIdx}][descuento]" class="form-control" value="0"></td>
+                    <td><input type="date" name="items[${rowIdx}][fecha_entrega]" class="form-control"></td>
+                    <td><input type="number" step="0.01" name="items[${rowIdx}][total]" class="form-control item-total" readonly></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
+                </tr>
+            `;
+            table.insertAdjacentHTML('beforeend', newRow);
+            const newSel = table.lastElementChild.querySelector('.select-cotizacion');
+            rowIdx++;
+            poblarSelectCotizacionRow(newSel);
+        }
+        calcularTotales();
+    }
+
+    // --- ITEMS GENERAL ---
     document.getElementById('add-row').addEventListener('click', function() {
-        var table = document.getElementById('items-table');
-
-        var newRow = ''
-        + '<tr>'
-        + '  <td><input type="text" name="items['+row+'][codigo]" class="form-control"></td>'
-        + '  <td><input type="text" name="items['+row+'][descripcion]" class="form-control"></td>'
-        + '  <td><input type="number" step="0.01" name="items['+row+'][cantidad]" class="form-control"></td>'
-        + '  <td>'
-        + '    <select name="items['+row+'][unidad]" class="form-control">'
-        + '        <option value="">seleccionar...</option>'
-        + '        <option value="1">kilogramos</option>'
-        + '        <option value="2">metros</option>'
-        + '        <option value="3">metros cuadrados</option>'
-        + '        <option value="4">metros cúbicos</option>'
-        + '        <option value="5">litros</option>'
-        + '        <option value="6">1000 kWh</option>'
-        + '        <option value="7">unidades</option>'
-        + '        <option value="8">pares</option>'
-        + '        <option value="9">docenas</option>'
-        + '        <option value="10">quilates</option>'
-        + '        <option value="11">millares</option>'
-        + '        <option value="14">gramos</option>'
-        + '        <option value="15">milímetros</option>'
-        + '        <option value="16">mm cúbicos</option>'
-        + '        <option value="17">kilómetros</option>'
-        + '        <option value="18">hectolitros</option>'
-        + '        <option value="20">centímetros</option>'
-        + '        <option value="25">jgo. pqt. mazo naipes</option>'
-        + '        <option value="27">cm cúbicos</option>'
-        + '        <option value="29">toneladas</option>'
-        + '        <option value="30">dam cúbicos</option>'
-        + '        <option value="31">hm cúbicos</option>'
-        + '        <option value="32">km cúbicos</option>'
-        + '        <option value="33">microgramos</option>'
-        + '        <option value="34">nanogramos</option>'
-        + '        <option value="35">picogramos</option>'
-        + '        <option value="41">miligramos</option>'
-        + '        <option value="47">mililitros</option>'
-        + '        <option value="48">curie</option>'
-        + '        <option value="49">milicurie</option>'
-        + '        <option value="50">microcurie</option>'
-        + '        <option value="51">uiacthor</option>'
-        + '        <option value="52">muiacthor</option>'
-        + '        <option value="53">kg base</option>'
-        + '        <option value="54">gruesa</option>'
-        + '        <option value="61">kg bruto</option>'
-        + '        <option value="62">uiactant</option>'
-        + '        <option value="63">muiactant</option>'
-        + '        <option value="64">uiactig</option>'
-        + '        <option value="65">muiactig</option>'
-        + '        <option value="66">kg activo</option>'
-        + '        <option value="67">gramo activo</option>'
-        + '        <option value="68">gramo base</option>'
-        + '        <option value="96">packs</option>'
-        + '        <option value="98">otras unidades</option>'
-        + '    </select>'
-        + '  </td>'
-        + '  <td><input type="number" step="0.01" name="items['+row+'][precio_unitario]" class="form-control"></td>'
-        + '  <td><input type="number" step="0.01" name="items['+row+'][iva]" class="form-control" value="21"></td>'
-        + '  <td><input type="number" step="0.01" name="items['+row+'][descuento]" class="form-control" value="0"></td>'
-        + '  <td><input type="date" name="items['+row+'][fecha_entrega]" class="form-control"></td>'
-        + '  <td><input type="number" step="0.01" name="items['+row+'][total]" class="form-control item-total" readonly></td>'
-        + '  <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>'
-        + '</tr>';
-
+        const table = document.getElementById('items-table');
+        const newRow = `
+            <tr>
+                <td><input type="text" name="items[${rowIdx}][codigo]" class="form-control"></td>
+                <td><input type="text" name="items[${rowIdx}][descripcion]" class="form-control"></td>
+                <td>
+                    <input type="hidden" name="items[${rowIdx}][id_cotizacion_item]" class="hidden-id-item" value="">
+                    <input type="hidden" name="items[${rowIdx}][id_cotizacion]" class="hidden-id-cot" value="">
+                    <select class="form-control form-control-sm select-cotizacion no-select2" 
+                        data-selected=""
+                        style="display: ${document.getElementById('motivo').value === 'pedido' ? 'block' : 'none'};">
+                        <option value="">(Ninguno)</option>
+                    </select>
+                    <span class="text-muted small badge-no-cot" style="display: ${document.getElementById('motivo').value === 'pedido' ? 'none' : 'inline'};">-</span>
+                </td>
+                <td><input type="number" step="0.01" name="items[${rowIdx}][cantidad]" class="form-control"></td>
+                <td><select name="items[${rowIdx}][unidad]" class="form-control"><option value="7">unidades</option></select></td>
+                <td><input type="number" step="0.01" name="items[${rowIdx}][precio_unitario]" class="form-control"></td>
+                <td><input type="number" step="0.01" name="items[${rowIdx}][iva]" class="form-control" value="21"></td>
+                <td><input type="number" step="0.01" name="items[${rowIdx}][descuento]" class="form-control" value="0"></td>
+                <td><input type="date" name="items[${rowIdx}][fecha_entrega]" class="form-control"></td>
+                <td><input type="number" step="0.01" name="items[${rowIdx}][total]" class="form-control item-total" readonly></td>
+                <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
+            </tr>
+        `;
         table.insertAdjacentHTML('beforeend', newRow);
-        row++;
-
+        const newSel = table.lastElementChild.querySelector('.select-cotizacion');
+        rowIdx++;
+        poblarSelectCotizacionRow(newSel);
         calcularTotales();
     });
 
-    // Eliminar fila
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-row')) {
-            e.target.closest('tr').remove();
-            calcularTotales();
-        }
-    });
-
-    document.addEventListener('input', function(e) {
-        if (!e.target.name) return;
-
-        if (
-            e.target.name.indexOf('[cantidad]') !== -1 ||
-            e.target.name.indexOf('[precio_unitario]') !== -1 ||
-            e.target.name.indexOf('[descuento]') !== -1 ||
-            e.target.name.indexOf('[iva]') !== -1
-        ) {
-            calcularTotales();
-        }
-    });
+    document.addEventListener('click', e => { if (e.target.classList.contains('remove-row')) { e.target.closest('tr').remove(); calcularTotales(); } });
+    document.addEventListener('input', e => { if (e.target.name && e.target.name.includes('items[')) calcularTotales(); });
 
     function calcularTotales() {
-        var filas = document.querySelectorAll('#items-table tr');
-        var subtotalConIVA = 0;
-        var totalGeneral   = 0;
-        var descuentosTotales = 0;
+        let subtotal = 0; let total = 0;
+        document.querySelectorAll('#items-table tr').forEach(r => {
+            const cant = parseFloat(r.querySelector('[name*="[cantidad]"]').value) || 0;
+            const prec = parseFloat(r.querySelector('[name*="[precio_unitario]"]').value) || 0;
+            const iva = parseFloat(r.querySelector('[name*="[iva]"]').value) || 0;
+            const desc = parseFloat(r.querySelector('[name*="[descuento]"]').value) || 0;
 
-        filas.forEach(function(row) {
+            const base = cant * prec;
+            const conIva = base * (1 + (iva/100));
+            const itemTotal = conIva * (1 - (desc/100));
 
-            var inputCantidad  = row.querySelector('input[name*="[cantidad]"]');
-            var inputPrecio    = row.querySelector('input[name*="[precio_unitario]"]');
-            var inputIVA       = row.querySelector('input[name*="[iva]"]');
-            var inputDescuento = row.querySelector('input[name*="[descuento]"]');
-            var inputTotal     = row.querySelector('input[name*="[total]"]');
+            r.querySelector('.item-total').value = itemTotal.toFixed(2);
+            subtotal += conIva;
+            total += itemTotal;
+        });
+        document.querySelector('[name="subtotal"]').value = subtotal.toFixed(2);
+        document.querySelector('[name="total"]').value = total.toFixed(2);
+    }
 
-            if (!inputCantidad || !inputPrecio || !inputTotal) return;
+    function debounce(func, wait) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
 
-            var cantidad  = parseFloat(inputCantidad.value)  || 0;
-            var precio    = parseFloat(inputPrecio.value)    || 0;
-            var iva       = parseFloat(inputIVA?.value)      || 0;
-            var descuento = parseFloat(inputDescuento.value) || 0;
+    window.onload = async () => {
+        actualizarEstadoCotizaciones();
+        const cid = inputClienteId.value;
+        if (cid) await cargarCotizaciones(cid);
+        calcularTotales();
+        
+        // Forzar visibilidad si hay vínculos previos (Edición)
+        if ({{ isset($orden) ? $orden->items->whereNotNull('id_cotizacion')->count() : 0 }} > 0) {
+            document.getElementById('motivo').value = 'pedido';
+            actualizarEstadoCotizaciones();
+        }
+    };
 
-            var totalBase   = cantidad * precio;
-            var totalConIVA = totalBase + (totalBase * (iva / 100));
-            var descuentoMonto = totalConIVA * (descuento / 100);
-            var totalFinal  = totalConIVA - descuentoMonto;
+    // Validación y sincronización de valores al enviar el formulario
+    const orderForm = document.getElementById('motivo').closest('form');
+    orderForm.addEventListener('submit', function (e) {
+        const motivo = document.getElementById('motivo').value;
+        
+        // PASO 1: Siempre sincronizar los valores del select al hidden antes de enviar
+        document.querySelectorAll('.select-cotizacion').forEach(sel => {
+            const row = sel.closest('tr');
+            if (!row) return;
+            const hiddenIdItem = row.querySelector('.hidden-id-item');
+            const hiddenIdCot = row.querySelector('.hidden-id-cot');
+            const idItem = sel.value;
 
-            inputTotal.value = totalFinal.toFixed(2);
+            if (hiddenIdItem) hiddenIdItem.value = idItem;
 
-            subtotalConIVA   += totalConIVA;
-            descuentosTotales += descuentoMonto;
-            totalGeneral     += totalFinal;
+            if (idItem) {
+                const it = allCotItems.find(x => x.id_cot_item == idItem);
+                if (it && hiddenIdCot) {
+                    hiddenIdCot.value = it.id_cot;
+                }
+            } else {
+                if (hiddenIdCot) hiddenIdCot.value = '';
+            }
         });
 
-        document.querySelector('input[name="subtotal"]').value =
-            subtotalConIVA.toFixed(2);
-
-        document.querySelector('input[name="descuentos_totales"]').value =
-            descuentosTotales.toFixed(2);
-
-        document.querySelector('input[name="total"]').value =
-            totalGeneral.toFixed(2);
-    }
-
-
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', calcularTotales);
-    } else {
-        calcularTotales();
-    }
-</script>
-
-<script>
-/* ============================================================
-   AUTOCOMPLETADO CLIENTES – ÓRDENES
-   ============================================================ */
-
-    const inputRazon = document.getElementById('razon_social');
-    const dropdownClientes = document.getElementById('dropdown-clientes');
-    const inputClienteId = document.getElementById('id_cliente');
-
-    // campos opcionales
-    const inputCuit      = document.getElementById('cuit');
-    const inputDireccion = document.getElementById('direccion');
-    const inputTelefono  = document.getElementById('telefono');
-    const inputEmail     = document.getElementById('email');
-
-
-    let debounceTimer = null;
-
-    function ocultarDropdown() {
-        dropdownClientes.style.display = 'none';
-        dropdownClientes.innerHTML = '';
-    }
-
-    function mostrarDropdown() {
-        dropdownClientes.style.display = 'block';
-    }
-
-    function renderSugerencias(clientes) {
-        dropdownClientes.innerHTML = '';
-
-        if (!clientes.length) {
-            dropdownClientes.innerHTML =
-                `<div class="list-group-item text-muted">Sin resultados</div>`;
-            mostrarDropdown();
-            return;
-        }
-
-        clientes.forEach(cli => {
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'list-group-item list-group-item-action';
-
-            item.innerHTML = `
-                <strong>${cli.razon_social ?? ''}</strong>
-                <br>
-                <small class="text-muted">${cli.cuit ?? ''}</small>
-            `;
-
-            item.addEventListener('click', () => {
-
-                inputRazon.value     = cli.razon_social ?? '';
-                inputClienteId.value = cli.id ?? '';
-
-                if (inputCuit)      inputCuit.value      = cli.cuit ?? '';
-                if (inputDireccion) inputDireccion.value = cli.direccion ?? '';
-                if (inputTelefono)  inputTelefono.value  = cli.telefono ?? '';
-                if (inputEmail)     inputEmail.value     = cli.email ?? '';
-                
-                if (inputClienteId.value) {
-                    poblarSelectCotizaciones(inputClienteId.value);
+        // PASO 2: Validar que todos los ítems estén vinculados si el motivo es Pedido
+        if (motivo === 'pedido') {
+            const selects = document.querySelectorAll('.select-cotizacion');
+            let valid = true;
+            selects.forEach(sel => {
+                if (!sel.value) {
+                    valid = false;
+                    const $sel = $(sel);
+                    if ($sel.hasClass('select2-hidden-accessible')) {
+                        $sel.next('.select2-container').css('border', '2px solid red');
+                    } else {
+                        sel.style.border = '2px solid red';
+                    }
+                } else {
+                    const $sel = $(sel);
+                    if ($sel.hasClass('select2-hidden-accessible')) {
+                        $sel.next('.select2-container').css('border', '');
+                    } else {
+                        sel.style.border = '';
+                    }
                 }
-
-                ocultarDropdown();
             });
 
-
-            dropdownClientes.appendChild(item);
-        });
-
-        mostrarDropdown();
-    }
-
-    async function poblarSelectCotizaciones(clienteId) {
-        const select = document.getElementById('cotizacion_id');
-        const resp = await fetch(`{{ route('cotizaciones.buscar') }}?cliente_id=${clienteId}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-
-        if (!resp.ok) return;
-        const cotizaciones = await resp.json();
-
-        select.innerHTML = '<option value="">(Ninguna)</option>';
-        cotizaciones.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.id_cotizacion;
-            opt.textContent = `${c.nro_cotizacion || ('# ' + c.id_cotizacion)} (${c.fecha_cot})`;
-            select.appendChild(opt);
-        });
-
-        actualizarVisibilidadCotizacion();
-    }
-
-    function actualizarVisibilidadCotizacion() {
-        const motivo = document.getElementById('motivo').value;
-        const grupo = document.getElementById('grupo-cotizacion');
-        if (motivo === 'cotizacion') {
-            grupo.style.display = 'block';
-        } else {
-            grupo.style.display = 'none';
+            if (!valid) {
+                e.preventDefault();
+                alert('Debe vincular cada ítem a una cotización cuando el motivo es "Pedido"');
+            }
         }
-    }
-
-    document.getElementById('motivo').addEventListener('change', actualizarVisibilidadCotizacion);
-
-    window.addEventListener('load', () => {
-        actualizarVisibilidadCotizacion();
-        const ci = document.getElementById('id_cliente').value;
-        if (ci) poblarSelectCotizaciones(ci);
-    });
-
-    async function buscarClientes(q) {
-        const url = `{{ route('clientes.buscar') }}?q=${encodeURIComponent(q)}`;
-
-        const resp = await fetch(url, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-
-        if (!resp.ok) return [];
-        return await resp.json();
-    }
-
-    inputRazon.addEventListener('input', () => {
-        inputClienteId.value = '';
-
-        const q = inputRazon.value.trim();
-        if (q.length < 2) {
-            ocultarDropdown();
-            return;
-        }
-
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-            const clientes = await buscarClientes(q);
-            renderSugerencias(clientes);
-        }, 250);
-    });
-
-    // click afuera
-    document.addEventListener('click', e => {
-        if (!dropdownClientes.contains(e.target) && !inputRazon.contains(e.target)) {
-            ocultarDropdown();
-        }
-    });
-
-    // ESC
-    inputRazon.addEventListener('keydown', e => {
-        if (e.key === 'Escape') ocultarDropdown();
     });
 </script>

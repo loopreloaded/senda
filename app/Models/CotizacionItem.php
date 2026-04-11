@@ -42,6 +42,11 @@ class CotizacionItem extends Model
         return $this->belongsTo(Cotizacion::class, 'id_cotizacion');
     }
 
+    public function ordenItems()
+    {
+        return $this->hasMany(OrdenItem::class, 'id_cotizacion_item');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accessors opcionales

@@ -83,6 +83,9 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     Route::get('cotizaciones/buscar', [CotizacionController::class, 'buscar'])
         ->name('cotizaciones.buscar');
 
+    Route::get('cotizaciones/{cotizacion}/json-items', [CotizacionController::class, 'jsonItems'])
+        ->name('cotizaciones.jsonItems');
+
     Route::resource('cotizaciones', CotizacionController::class)
         ->parameters([
             'cotizaciones' => 'cotizacion'

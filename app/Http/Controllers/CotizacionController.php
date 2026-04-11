@@ -66,14 +66,23 @@ class CotizacionController extends Controller
         $query = Cotizacion::query()
             ->whereIn('estado_cotizacion', ['v', 'p']) // Vigente o Parcial
             ->whereNotNull('id_cliente');
-
         if ($cliente_id) {
-            $query->where('id_cliente', $cliente_id);
+            $query->where("id_cliente", $cliente_id);
         }
 
-        $cotizaciones = $query->with('cliente')->limit(20)->get();
+        $cotizaciones = $query->with("cliente")->limit(20)->get();
 
         return response()->json($cotizaciones);
+    }
+
+
+    /**
+     * Obtener ítems de la cotización en formato JSON
+     */
+    public function jsonItems($id)
+    {
+        $cotizacion = Cotizacion::with('items')->findOrFail($id);
+        return response()->json($cotizacion->items);
     }
 
     public function create()

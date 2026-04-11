@@ -8,33 +8,29 @@ class Remito extends Model
 {
     protected $table = 'remitos';
 
-    protected $primaryKey = 'id_remito';
-    // public $incrementing = true;
-    // protected $keyType = 'int';
+    // La base de datos usa 'id' como PK estándar
+    protected $primaryKey = 'id';
 
     protected $fillable = [
+        'id_orden_compra',
+        'id_cliente',
         'numero_remito',
         'fecha',
-        'id_cliente',
-        'id_orden_compra',
-        'id_factura',
+        'razon_social',
+        'domicilio',
+        'localidad',
+        'orden_compra',
+        'cuit',
         'estado',
-
-        // NUEVOS CAMPOS
+        'creado_por',
         'condicion_venta',
-
-        // FLETE
         'transportista',
         'domicilio_transportista',
         'iva_transportista',
         'cuit_transportista',
         'observacion',
-
-        // CAI
         'cai',
         'cai_vto',
-
-        // otros
         'comentarios'
     ];
 
@@ -59,26 +55,32 @@ class Remito extends Model
         return $this->belongsTo(OrdenCompra::class, 'id_orden_compra');
     }
 
-    public function factura()
-    {
-        return $this->belongsTo(Factura::class, 'id_factura');
-    }
-
-    // 🔥 RELACIÓN NUEVA (recomendada)
     public function items()
     {
-        return $this->hasMany(RemitoItem::class, 'id_remito');
+        // La clave foránea en remito_items es 'remito_id'
+        return $this->hasMany(RemitoItem::class, 'remito_id');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | ROUTE MODEL BINDING
+    | EVENTOS
     |--------------------------------------------------------------------------
     */
-
-    public function getRouteKeyName()
+    protected static function booted()
     {
-        return 'id_remito';
+        static::saved(function ($remito) {
+            if ($remito->id_orden_compra) {
+                $oc = OrdenCompra::find($remito->id_orden_compra);
+                if ($oc) $oc->actualizarEstado();
+            }
+        });
+
+        static::deleted(function ($remito) {
+            if ($remito->id_orden_compra) {
+                $oc = OrdenCompra::find($remito->id_orden_compra);
+                if ($oc) $oc->actualizarEstado();
+            }
+        });
     }
 
     /*
@@ -89,12 +91,7 @@ class Remito extends Model
 
     public function esEmitido()
     {
-        return strtolower($this->estado) === 'emitido';
-    }
-
-    public function esConfirmado()
-    {
-        return strtolower($this->estado) === 'confirmado';
+        return strtolower($this->estado) === 'emitido' || strtolower($this->estado) === 'confirmado';
     }
 
     public function esAnulado()

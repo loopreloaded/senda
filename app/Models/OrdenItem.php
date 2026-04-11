@@ -15,14 +15,26 @@ class OrdenItem extends Model
         'cantidad',
         'unidad',
         'precio_unitario',
-        'descuento',
         'iva',
+        'descuento',
         'total',
-        'fecha_entrega'
+        'fecha_entrega',
+        'id_cotizacion_item',
+        'id_cotizacion'
     ];
 
     public function orden()
     {
         return $this->belongsTo(OrdenCompra::class, 'orden_compra_id');
+    }
+
+    public function cotizacionItem()
+    {
+        return $this->belongsTo(CotizacionItem::class, 'id_cotizacion_item');
+    }
+
+    public function cotizacion()
+    {
+        return $this->belongsTo(Cotizacion::class, 'id_cotizacion');
     }
 }
