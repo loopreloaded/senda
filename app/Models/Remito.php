@@ -8,22 +8,17 @@ class Remito extends Model
 {
     protected $table = 'remitos';
 
-    // La base de datos usa 'id' como PK estándar
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id_orden_compra',
         'id_cliente',
         'numero_remito',
+        'motivo',
+        'id_cot',
         'fecha',
-        'razon_social',
-        'domicilio',
-        'localidad',
-        'orden_compra',
-        'cuit',
+        'condicion_venta',
         'estado',
         'creado_por',
-        'condicion_venta',
         'transportista',
         'domicilio_transportista',
         'iva_transportista',
@@ -50,15 +45,94 @@ class Remito extends Model
         return $this->belongsTo(Cliente::class, 'id_cliente');
     }
 
-    public function ordenCompra()
+    /**
+     * Relación N a N con Orden de Compra según especificación 5.5
+     */
+    public function ordenesCompra()
     {
-        return $this->belongsTo(OrdenCompra::class, 'id_orden_compra');
+        return $this->belongsToMany(OrdenCompra::class, 'oc_remito', 'id_rem', 'id_oc')
+                    ->withPivot('articulo', 'cantidad')
+                    ->withTimestamps();
     }
 
     public function items()
     {
-        // La clave foránea en remito_items es 'remito_id'
         return $this->hasMany(RemitoItem::class, 'remito_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESSORS (Trazabilidad 5.2)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Cantidad total de artículos en el remito
+     */
+    public function getCantArtRemAttribute()
+    {
+        return $this->items()->sum('cantidad');
+    }
+
+    /**
+     * Cantidad total de artículos facturados
+     * Se basa en la relación con FacturaRemito (lógica actual mantenida)
+     */
+    public function getCantArtFacAttribute()
+    {
+        $facturaRemitos = FacturaRemito::where('comprobante', $this->numero_remito)->get();
+        
+        $total = 0;
+        foreach($facturaRemitos as $fr) {
+            $factura = $fr->factura;
+            if ($factura && in_array(strtolower($factura->estado), ['aprobada', 'facturada', 'confirmada', 'cae_asignado'])) {
+                $total += $factura->items()->sum('cantidad');
+            }
+        }
+        return $total;
+    }
+
+    /**
+     * Listado de artículos facturados
+     */
+    public function getArtFacAttribute()
+    {
+        $facturaRemitos = FacturaRemito::where('comprobante', $this->numero_remito)->get();
+        $articulos = collect();
+
+        foreach($facturaRemitos as $fr) {
+            $factura = $fr->factura;
+            if ($factura) {
+                $articulos = $articulos->concat($factura->items()->pluck('descripcion'));
+            }
+        }
+        return $articulos->unique()->implode(', ');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LÓGICA DE ESTADOS (5.3)
+    |--------------------------------------------------------------------------
+    */
+
+    public function actualizarEstado()
+    {
+        if ($this->estado === 'Anulado') return;
+
+        $cantRem = $this->cant_art_rem;
+        $cantFac = $this->cant_art_fac;
+
+        if ($cantFac <= 0) {
+            $nuevoEstado = 'Emitido';
+        } elseif ($cantFac < $cantRem) {
+            $nuevoEstado = 'Parcial';
+        } else {
+            $nuevoEstado = 'Facturado';
+        }
+
+        if ($this->estado !== $nuevoEstado) {
+            $this->update(['estado' => $nuevoEstado]);
+        }
     }
 
     /*
@@ -69,16 +143,15 @@ class Remito extends Model
     protected static function booted()
     {
         static::saved(function ($remito) {
-            if ($remito->id_orden_compra) {
-                $oc = OrdenCompra::find($remito->id_orden_compra);
-                if ($oc) $oc->actualizarEstado();
+            // Actualizar estado de las OCs vinculadas
+            foreach ($remito->ordenesCompra as $oc) {
+                $oc->actualizarEstado();
             }
         });
 
         static::deleted(function ($remito) {
-            if ($remito->id_orden_compra) {
-                $oc = OrdenCompra::find($remito->id_orden_compra);
-                if ($oc) $oc->actualizarEstado();
+            foreach ($remito->ordenesCompra as $oc) {
+                $oc->actualizarEstado();
             }
         });
     }
@@ -91,7 +164,7 @@ class Remito extends Model
 
     public function esEmitido()
     {
-        return strtolower($this->estado) === 'emitido' || strtolower($this->estado) === 'confirmado';
+        return strtolower($this->estado) === 'emitido';
     }
 
     public function esAnulado()

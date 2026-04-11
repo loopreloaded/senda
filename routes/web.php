@@ -141,6 +141,9 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     Route::get('ordenes/{orden}/pdf', [OrdenCompraController::class, 'orden_pdf'])
         ->name('ordenes.pdf');
 
+    Route::get('ordenes/{orden}/json-items', [OrdenCompraController::class, 'jsonItems'])
+        ->name('ordenes.jsonItems');
+
     Route::post('ordenes/observaciones/update', [OrdenCompraController::class, 'updateObservaciones'])
         ->name('ordenes.observaciones.update')
         ->middleware('role:admin|ingeniero');

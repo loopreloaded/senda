@@ -123,7 +123,7 @@
             <strong>Cond. Venta:</strong> {{ $remito->condicion_venta }}
         </div>
         <div class="col">
-            <strong>OC Asociada:</strong> {{ $remito->id_orden_compra ?? '-' }}
+            <strong>OC Asociada:</strong> {{ $remito->ordenesCompra->pluck('numero_oc')->implode(', ') ?: '-' }}
         </div>
     </div>
 

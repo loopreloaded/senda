@@ -29,38 +29,45 @@
         <table class="table table-bordered table-striped">
             <thead class="thead-light">
                 <tr>
-                    <th>Número</th>
+                    <th>#</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
-                    <th>OC</th>
-                    <th>Factura</th>
+                    <th>Nro. Rem.</th>
+                    <th>Motivo</th>
+                    <th>Cant. Art. Rem.</th>
+                    <th>Cant. Art. Fac.</th>
+                    <th>Art. Fac.</th>
                     <th>Estado</th>
-                    <th width="240px">Acciones</th>
+                    <th width="150px">Acciones</th>
                 </tr>
             </thead>
 
             <tbody>
                 @forelse ($remitos as $remito)
                     <tr>
-
-                        <td>{{ $remito->numero_remito }}</td>
-
+                        <td>{{ $remito->id }}</td>
                         <td>{{ optional($remito->cliente)->razon_social ?? '-' }}</td>
-
+                        <td>{{ $remito->fecha ? $remito->fecha->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $remito->numero_remito }}</td>
                         <td>
-                            {{ $remito->fecha ? $remito->fecha->format('d/m/Y') : '-' }}
+                            <span class="badge {{ $remito->motivo == 'pedido' ? 'badge-info' : 'badge-secondary' }}">
+                                {{ ucfirst($remito->motivo == 'pedido' ? 'Vinculado' : 'Particular') }}
+                            </span>
                         </td>
-
-                        <td>{{ optional($remito->ordenCompra)->id ?? '-' }}</td>
-
-                        <td>{{ optional($remito->factura)->id ?? '-' }}</td>
+                        <td>{{ $remito->cant_art_rem }}</td>
+                        <td>{{ $remito->cant_art_fac }}</td>
+                        <td>
+                            <small class="text-muted">{{ Str::limit($remito->art_fac, 30) }}</small>
+                        </td>
 
                         {{-- ESTADO --}}
                         <td>
                             @if($remito->estado === 'Emitido')
                                 <span class="badge badge-warning">Emitido</span>
-                            @elseif($remito->estado === 'Confirmado')
-                                <span class="badge badge-success">Confirmado</span>
+                            @elseif($remito->estado === 'Facturado')
+                                <span class="badge badge-success">Facturado</span>
+                            @elseif($remito->estado === 'Parcial')
+                                <span class="badge badge-primary">Parcial</span>
                             @elseif($remito->estado === 'Anulado')
                                 <span class="badge badge-danger">Anulado</span>
                             @else
@@ -70,63 +77,49 @@
 
                         {{-- ACCIONES --}}
                         <td>
-
-                            {{-- PDF --}}
-                            <a href="{{ route('remitos.pdf', $remito) }}"
-                               class="btn btn-sm btn-info"
-                               target="_blank"
-                               title="PDF">
-                                <i class="fas fa-file-pdf"></i>
-                            </a>
-
-                            {{-- SOLO SI ESTÁ EMITIDO --}}
-                            @if($remito->estado === 'Emitido')
-
-                                {{-- EDITAR --}}
-                                <a href="{{ route('remitos.edit', $remito) }}"
-                                   class="btn btn-sm btn-primary"
-                                   title="Editar">
-                                    <i class="fas fa-edit"></i>
+                            <div class="btn-group">
+                                {{-- PDF --}}
+                                <a href="{{ route('remitos.pdf', $remito) }}"
+                                   class="btn btn-sm btn-info"
+                                   target="_blank"
+                                   title="Ver PDF">
+                                    <i class="fas fa-file-pdf"></i>
                                 </a>
 
-                                {{-- CONFIRMAR --}}
-                                <a href="{{ route('remitos.confirmar', $remito) }}"
-                                   class="btn btn-sm btn-success"
-                                   onclick="return confirm('¿Confirmar remito?')"
-                                   title="Confirmar">
-                                    <i class="fas fa-check"></i>
+                                {{-- SHOW --}}
+                                <a href="{{ route('remitos.show', $remito) }}"
+                                   class="btn btn-sm btn-secondary"
+                                   title="Ver Detalle">
+                                    <i class="fas fa-eye"></i>
                                 </a>
 
-                                {{-- ANULAR --}}
-                                <form action="{{ route('remitos.destroy', $remito) }}"
-                                      method="POST"
-                                      style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
+                                {{-- EDITAR / ANULAR (Solo si es Emitido o Parcial) --}}
+                                @if(in_array($remito->estado, ['Emitido', 'Parcial']))
+                                    <a href="{{ route('remitos.edit', $remito) }}"
+                                       class="btn btn-sm btn-primary"
+                                       title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
 
-                                    <button type="submit"
-                                            class="btn btn-sm btn-danger"
-                                            onclick="return confirm('¿Anular este remito?')"
-                                            title="Anular">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
-                                </form>
-
-                            @endif
-
-                            {{-- VER / COMENTAR --}}
-                            <a href="{{ route('remitos.show', $remito) }}"
-                               class="btn btn-sm btn-secondary"
-                               title="Ver">
-                                <i class="fas fa-eye"></i>
-                            </a>
-
+                                    <form action="{{ route('remitos.destroy', $remito) }}"
+                                          method="POST"
+                                          class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('¿Anular este remito?')"
+                                                title="Anular">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
 
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">
+                        <td colspan="10" class="text-center">
                             No hay remitos registrados.
                         </td>
                     </tr>

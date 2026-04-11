@@ -32,6 +32,11 @@ class OrdenCompra extends Model
         'estado'
     ];
 
+    protected $casts = [
+        'fecha'         => 'date',
+        'fecha_entrega' => 'date',
+    ];
+
     /**
      * Motivos posibles: 'pedido' (vinculado a cotización), 'particular'.
      */
@@ -66,7 +71,9 @@ class OrdenCompra extends Model
 
     public function remitos()
     {
-        return $this->hasMany(Remito::class, 'id_orden_compra');
+        return $this->belongsToMany(Remito::class, 'oc_remito', 'id_oc', 'id_rem')
+                    ->withPivot('articulo', 'cantidad')
+                    ->withTimestamps();
     }
 
     /**

@@ -18,7 +18,7 @@ class RemitoController extends Controller
      */
     public function index()
     {
-        $remitos = Remito::with(['cliente', 'ordenCompra', 'factura'])
+        $remitos = Remito::with(['cliente', 'ordenesCompra'])
             ->latest()
             ->paginate(15);
 
@@ -42,13 +42,14 @@ class RemitoController extends Controller
      */
     public function store(Request $request)
     {
-
         $request->validate([
             'numero_remito' => 'required|unique:remitos,numero_remito',
             'fecha' => 'required|date',
-            'id_cliente' => 'required',
+            'id_cliente' => 'required|exists:clientes,id',
+            'motivo' => 'required|in:pedido,particular',
 
             // items
+            'items' => 'required|array|min:1',
             'items.*.articulo' => 'required',
             'items.*.cantidad' => 'required|integer|min:1',
         ]);
@@ -56,38 +57,59 @@ class RemitoController extends Controller
         DB::beginTransaction();
 
         try {
-
             $remito = Remito::create([
                 'numero_remito' => $request->numero_remito,
                 'fecha' => $request->fecha,
                 'id_cliente' => $request->id_cliente,
-                'id_orden_compra' => $request->id_orden_compra,
-                'id_factura' => $request->id_factura,
+                'motivo' => $request->motivo,
+                'id_cot' => $request->id_cot,
                 'estado' => 'Emitido',
 
-                // nuevos
                 'condicion_venta' => $request->condicion_venta,
                 'transportista' => $request->transportista,
                 'domicilio_transportista' => $request->domicilio_transportista,
                 'iva_transportista' => $request->iva_transportista,
                 'cuit_transportista' => $request->cuit_transportista,
                 'observacion' => $request->observacion,
+                // CAI/VTO omitidos de acciones automáticas por pedido del usuario
                 'cai' => $request->cai,
                 'cai_vto' => $request->cai_vto,
-
-                'comentarios' => $request->observacion,
             ]);
 
-            // 🔥 Guardar items
+            // 🔥 Guardar items y manejar vínculos N:N con OC
+            $oc_vincular = []; // Para agrupar vínculos a enviar a la tabla intermedia
+
             if ($request->has('items')) {
                 foreach ($request->items as $item) {
                     RemitoItem::create([
-                        'id_remito' => $remito->id_remito,
+                        'remito_id' => $remito->id,
+                        'codigo' => $item['codigo'] ?? null,
                         'articulo' => $item['articulo'],
                         'cantidad' => $item['cantidad'],
                         'descripcion' => $item['descripcion'] ?? null,
+                        'id_orden_item' => $item['id_orden_item'] ?? null,
                     ]);
+
+                    // Si viene de una OC, recolectamos para la tabla oc_remito
+                    if (isset($item['id_orden_compra']) && $item['id_orden_compra']) {
+                        $oc_id = $item['id_orden_compra'];
+                        if (!isset($oc_vincular[$oc_id])) {
+                            $oc_vincular[$oc_id] = [
+                                'articulo' => $item['articulo'],
+                                'cantidad' => 0
+                            ];
+                        }
+                        $oc_vincular[$oc_id]['cantidad'] += $item['cantidad'];
+                    }
                 }
+            }
+
+            // Guardar vínculos en la tabla intermedia
+            foreach ($oc_vincular as $oc_id => $data) {
+                $remito->ordenesCompra()->attach($oc_id, [
+                    'articulo' => $data['articulo'],
+                    'cantidad' => $data['cantidad']
+                ]);
             }
 
             DB::commit();
@@ -98,8 +120,7 @@ class RemitoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-
-            return back()->with('error', 'Error al crear el remito: ' . $e->getMessage());
+            return back()->with('error', 'Error al crear el remito: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -108,8 +129,7 @@ class RemitoController extends Controller
      */
     public function show(Remito $remito)
     {
-        $remito->load('items');
-
+        $remito->load(['items', 'cliente', 'ordenesCompra']);
         return view('admin.remitos.show', compact('remito'));
     }
 
@@ -120,11 +140,9 @@ class RemitoController extends Controller
     {
         $clientes = Cliente::all();
         $ordenes = OrdenCompra::all();
-        $facturas = Factura::all();
+        $remito->load(['items', 'ordenesCompra']);
 
-        $remito->load('items');
-
-        return view('admin.remitos.edit', compact('remito', 'clientes', 'ordenes', 'facturas'));
+        return view('admin.remitos.edit', compact('remito', 'clientes', 'ordenes'));
     }
 
     /**
@@ -133,10 +151,13 @@ class RemitoController extends Controller
     public function update(Request $request, Remito $remito)
     {
         $request->validate([
-            'numero_remito' => 'required|unique:remitos,numero_remito,' . $remito->id_remito . ',id_remito',
+            'numero_remito' => 'required|unique:remitos,numero_remito,' . $remito->id,
             'fecha' => 'required|date',
+            'id_cliente' => 'required|exists:clientes,id',
+            'motivo' => 'required|in:pedido,particular',
 
             // items
+            'items' => 'required|array|min:1',
             'items.*.articulo' => 'required',
             'items.*.cantidad' => 'required|integer|min:1',
         ]);
@@ -144,15 +165,13 @@ class RemitoController extends Controller
         DB::beginTransaction();
 
         try {
-
             $remito->update([
                 'numero_remito' => $request->numero_remito,
                 'fecha' => $request->fecha,
                 'id_cliente' => $request->id_cliente,
-                'id_orden_compra' => $request->id_orden_compra,
-                'id_factura' => $request->id_factura,
+                'motivo' => $request->motivo,
+                'id_cot' => $request->id_cot,
 
-                // nuevos
                 'condicion_venta' => $request->condicion_venta,
                 'transportista' => $request->transportista,
                 'domicilio_transportista' => $request->domicilio_transportista,
@@ -161,22 +180,43 @@ class RemitoController extends Controller
                 'observacion' => $request->observacion,
                 'cai' => $request->cai,
                 'cai_vto' => $request->cai_vto,
-
-                'comentarios' => $request->comentarios,
             ]);
 
-            // 🔥 Sync items (simple: borrar y recrear)
-            RemitoItem::where('id_remito', $remito->id_remito)->delete();
+            // Sync items (borrar y recrear)
+            $remito->items()->delete();
+            $remito->ordenesCompra()->detach();
+
+            $oc_vincular = [];
 
             if ($request->has('items')) {
                 foreach ($request->items as $item) {
                     RemitoItem::create([
-                        'id_remito' => $remito->id_remito,
+                        'remito_id' => $remito->id,
+                        'codigo' => $item['codigo'] ?? null,
                         'articulo' => $item['articulo'],
                         'cantidad' => $item['cantidad'],
                         'descripcion' => $item['descripcion'] ?? null,
+                        'id_orden_item' => $item['id_orden_item'] ?? null,
                     ]);
+
+                    if (isset($item['id_orden_compra']) && $item['id_orden_compra']) {
+                        $oc_id = $item['id_orden_compra'];
+                        if (!isset($oc_vincular[$oc_id])) {
+                            $oc_vincular[$oc_id] = [
+                                'articulo' => $item['articulo'],
+                                'cantidad' => 0
+                            ];
+                        }
+                        $oc_vincular[$oc_id]['cantidad'] += $item['cantidad'];
+                    }
                 }
+            }
+
+            foreach ($oc_vincular as $oc_id => $data) {
+                $remito->ordenesCompra()->attach($oc_id, [
+                    'articulo' => $data['articulo'],
+                    'cantidad' => $data['cantidad']
+                ]);
             }
 
             DB::commit();
@@ -187,8 +227,7 @@ class RemitoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-
-            return back()->with('error', 'Error al actualizar: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar: ' . $e->getMessage())->withInput();
         }
     }
 
