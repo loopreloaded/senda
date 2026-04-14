@@ -9,6 +9,7 @@ use App\Models\OrdenCompra;
 use App\Models\Factura;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class RemitoController extends Controller
@@ -55,12 +56,21 @@ class RemitoController extends Controller
             // items
             'items' => 'required|array|min:1',
             'items.*.articulo' => 'required',
-            'items.*.cantidad' => 'required|integer|min:1',
+            'items.*.cantidad' => 'required|numeric|min:0.01',
+        ], [
+            'items.required' => 'Debe agregar al menos un ítem al remito.',
+            'items.min' => 'El remito debe tener al menos un ítem.',
+            'items.*.articulo.required' => 'La descripción del artículo es obligatoria.',
+            'items.*.cantidad.required' => 'La cantidad es obligatoria.',
+            'items.*.cantidad.numeric' => 'La cantidad debe ser un número.',
+            'items.*.cantidad.min' => 'La cantidad debe ser mayor a 0.',
         ]);
 
         DB::beginTransaction();
 
         try {
+            $cliente = Cliente::findOrFail($request->id_cliente);
+
             $remito = Remito::create([
                 'numero_remito' => $request->numero_remito,
                 'fecha' => $request->fecha,
@@ -68,6 +78,13 @@ class RemitoController extends Controller
                 'motivo' => $request->motivo,
                 'id_cot' => $request->id_cot,
                 'estado' => 'Emitido',
+
+                // Campos obligatorios denormalizados
+                'razon_social' => $cliente->razon_social,
+                'domicilio'    => $cliente->direccion ?? 'S/D',
+                'localidad'    => $cliente->localidad ?? 'S/D',
+                'cuit'         => $cliente->cuit ?? '00000000000',
+                'creado_por'   => Auth::id() ?? 1, // Fallback a 1 si no hay auth en este contexto
 
                 'condicion_venta' => $request->condicion_venta,
                 'transportista' => $request->transportista,
@@ -163,18 +180,33 @@ class RemitoController extends Controller
             // items
             'items' => 'required|array|min:1',
             'items.*.articulo' => 'required',
-            'items.*.cantidad' => 'required|integer|min:1',
+            'items.*.cantidad' => 'required|numeric|min:0.01',
+        ], [
+            'items.required' => 'Debe agregar al menos un ítem al remito.',
+            'items.min' => 'El remito debe tener al menos un ítem.',
+            'items.*.articulo.required' => 'La descripción del artículo es obligatoria.',
+            'items.*.cantidad.required' => 'La cantidad es obligatoria.',
+            'items.*.cantidad.numeric' => 'La cantidad debe ser un número.',
+            'items.*.cantidad.min' => 'La cantidad debe ser mayor a 0.',
         ]);
 
         DB::beginTransaction();
 
         try {
+            $cliente = Cliente::findOrFail($request->id_cliente);
+
             $remito->update([
                 'numero_remito' => $request->numero_remito,
                 'fecha' => $request->fecha,
                 'id_cliente' => $request->id_cliente,
                 'motivo' => $request->motivo,
                 'id_cot' => $request->id_cot,
+
+                // Actualizar info del cliente (por si cambió)
+                'razon_social' => $cliente->razon_social,
+                'domicilio'    => $cliente->direccion ?? 'S/D',
+                'localidad'    => $cliente->localidad ?? 'S/D',
+                'cuit'         => $cliente->cuit ?? '00000000000',
 
                 'condicion_venta' => $request->condicion_venta,
                 'transportista' => $request->transportista,

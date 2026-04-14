@@ -230,11 +230,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectOC = document.getElementById('select-oc');
 
     // Usamos el evento de jQuery que Select2 siempre dispara para asegurar captura del cambio
+    let lastClienteId = "{{ old('id_cliente', $remito->id_cliente ?? '') }}";
+
     $(document).on('change', '#id_cliente', function() {
         const clienteId = this.value;
+        
+        // Evitar limpiar si es el mismo cliente que ya estaba cargado (ej. al inicio del Edit)
+        if (clienteId && clienteId == lastClienteId) {
+            console.log("Senda: Mismo cliente detected, ignorando clear");
+            return;
+        }
+        
         console.log("Senda: Cambio detectado en id_cliente:", clienteId);
+        lastClienteId = clienteId;
 
-        // 1. Limpiar la tabla de ítems (como pidió el usuario anteriormente)
+        // 1. Limpiar la tabla de ítems
         document.querySelector('#tabla-items tbody').innerHTML = '';
 
         // 2. Limpiar el selector de OC

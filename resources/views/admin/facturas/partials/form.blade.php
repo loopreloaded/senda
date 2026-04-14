@@ -319,6 +319,7 @@
         <tr>
             <th style="width: 100px;">Código</th>
             <th>Descripción</th>
+            <th style="width: 200px; display: none;" class="col-remito">Remito</th>
             <th style="width: 120px;">Cant.</th>
             <th style="width: 140px;">Unidad</th>
             <th style="width: 150px;">Precio Unit.</th>
@@ -494,31 +495,38 @@
 let fila = 0;
 let filaRemito = 0;
 
-/* ============================================================
-   LÓGICA DE MOTIVO (PEDIDO vs PARTICULAR)
-   ============================================================ */
-document.getElementById('motivo').addEventListener('change', function() {
-    const motivo = this.value;
+function updateOperacionVisibility() {
+    const motivo = document.getElementById('motivo').value;
     const sectionRemitos = document.getElementById('section-remitos');
     const btnAgregarItem = document.getElementById('agregar-item');
     const btnAgregarRemitoManual = document.getElementById('agregar-remito');
+    const colRemitoElements = document.querySelectorAll('.col-remito');
 
     if (motivo === 'pedido') {
-        sectionRemitos.style.display = 'block';
-        btnAgregarItem.style.display = 'none'; // ocultar agregar manual de items
-        btnAgregarRemitoManual.style.display = 'inline-block';
-        // Limpiar items si cambia a pedido? Tal vez avisar
+        if (sectionRemitos) sectionRemitos.style.display = 'block';
+        if (btnAgregarItem) btnAgregarItem.style.display = 'none';
+        if (btnAgregarRemitoManual) btnAgregarRemitoManual.style.display = 'inline-block';
+        colRemitoElements.forEach(el => el.style.display = 'table-cell'); // Usar table-cell para TDs/THs
+        // Excepto si es un contenedor diferente
+        colRemitoElements.forEach(el => {
+            if (el.tagName !== 'TD' && el.tagName !== 'TH') el.style.display = 'block';
+        });
     } else {
-        sectionRemitos.style.display = 'none';
-        btnAgregarItem.style.display = 'inline-block';
-        btnAgregarRemitoManual.style.display = 'none';
+        if (sectionRemitos) sectionRemitos.style.display = 'none';
+        if (btnAgregarItem) btnAgregarItem.style.display = 'inline-block';
+        if (btnAgregarRemitoManual) btnAgregarRemitoManual.style.display = 'none';
+        colRemitoElements.forEach(el => el.style.display = 'none');
     }
-});
+}
 
-// Al cargar
-window.addEventListener('load', () => {
-    document.getElementById('motivo').dispatchEvent(new Event('change'));
-});
+// Escuchar cambios
+document.getElementById('motivo').addEventListener('change', updateOperacionVisibility);
+
+// Al cargar el DOM
+document.addEventListener('DOMContentLoaded', updateOperacionVisibility);
+
+// Por compatibilidad con AdminLTE/window load
+window.addEventListener('load', updateOperacionVisibility);
 
 /* ============================================================
    BÚSQUEDA DE REMITOS AJAX
@@ -529,7 +537,10 @@ function cargarRemitosCliente() {
 
     if (!clienteId) return;
 
-    fetch(`/api/remitos/cliente/${clienteId}`)
+    const url = `{{ url('/api/remitos/cliente') }}/${clienteId}`;
+    fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
         .then(r => r.json())
         .then(data => {
             selectRemito.innerHTML = '<option value="">Seleccione un remito...</option>';
@@ -540,7 +551,34 @@ function cargarRemitosCliente() {
                 opt.dataset.json = JSON.stringify(rem);
                 selectRemito.appendChild(opt);
             });
+
+            // También poblar todos los selects de remito en las filas de la tabla
+            document.querySelectorAll('.select-remito').forEach(sel => {
+                poblarSelectRemitosDesdeData(sel, data);
+            });
         });
+}
+
+function poblarSelectRemitosDesdeData(selectElement, remitos) {
+    const selectedId = selectElement.getAttribute('data-selected');
+    selectElement.innerHTML = '<option value="">(Ninguno)</option>';
+    remitos.forEach(rem => {
+        const isSelected = (rem.id == selectedId);
+        const opt = new Option(`REM ${rem.numero_remito} - ${rem.fecha}`, rem.id, isSelected, isSelected);
+        selectElement.appendChild(opt);
+    });
+}
+
+async function poblarSelectRemitosCliente(selectElement, clienteId) {
+    if (!clienteId) return;
+    const url = `{{ url('/api/remitos/cliente') }}/${clienteId}`;
+    const resp = await fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    if (resp.ok) {
+        const remitos = await resp.json();
+        poblarSelectRemitosDesdeData(selectElement, remitos);
+    }
 }
 
 // Observar cambio de cliente para recargar remitos
@@ -585,6 +623,9 @@ document.getElementById('btn-vincular-remito').addEventListener('click', functio
         });
     }
 
+    // Actualizar todos los combos de remitos en la tabla (para que incluyan el nuevo vinculado?)
+    // O tal vez solo poblar el de las nuevas filas.
+
     // Quitar de las opciones para no repetir?
     opt.remove();
 });
@@ -607,6 +648,11 @@ function agregarItemDesdeRemito(item, remitoId) {
         </td>
         <td>
             <input type="text" name="items[${fila}][descripcion]" class="form-control item-desc" value="${item.articulo}" readonly>
+        </td>
+        <td class="col-remito" style="display: none;">
+            <select name="items[${fila}][remito_id]" class="form-control select-remito no-select2" data-selected="${remitoId}">
+                <option value="">(Ninguno)</option>
+            </select>
         </td>
         <td>
             <input type="number" name="items[${fila}][cantidad]" class="form-control item-cantidad" value="${item.cantidad}" min="0.01" step="0.01" required>
@@ -648,10 +694,16 @@ function agregarItemDesdeRemito(item, remitoId) {
     `;
 
     tbody.insertAdjacentHTML('beforeend', nuevaFila);
+
+    // Poblar el combo de remitos para esta nueva fila
+    const sel = tbody.lastElementChild.querySelector('.select-remito');
+    poblarSelectRemitosCliente(sel, document.getElementById('cliente_id').value);
+
     fila++;
     actualizarCodigos();
     reindexarItems();
     recalcular();
+    updateOperacionVisibility(); // Asegurar visibilidad de la nueva fila
 }
 
 
@@ -676,6 +728,13 @@ document.getElementById('agregar-item').addEventListener('click', function () {
         <!-- Descripción -->
         <td>
             <input type="text" name="items[${fila}][descripcion]" class="form-control item-desc" required>
+        </td>
+
+        <!-- Remito Source -->
+        <td class="col-remito" style="display: none;">
+            <select name="items[${fila}][remito_id]" class="form-control select-remito no-select2">
+                <option value="">(Ninguno)</option>
+            </select>
         </td>
 
         <!-- Cantidad -->
@@ -789,12 +848,18 @@ document.getElementById('agregar-item').addEventListener('click', function () {
     `;
 
     tbody.insertAdjacentHTML('beforeend', nuevaFila);
+    
+    // Poblar el combo de remitos para esta nueva fila
+    const sel = tbody.lastElementChild.querySelector('.select-remito');
+    poblarSelectRemitosCliente(sel, document.getElementById('cliente_id').value);
+
     fila++;
     actualizarCodigos();
     reindexarItems();
 
     setTimeout(() => {
         recalcular();
+        updateOperacionVisibility(); // Asegurar visibilidad de la nueva fila
     }, 50);
 });
 
@@ -1359,6 +1424,10 @@ function renderSugerencias(clientes) {
             // completar campos
             inputRazon.value = cli.razon_social ?? '';
             inputClienteId.value = cli.id ?? '';
+            inputClienteId.dispatchEvent(new Event('change'));
+
+            // Cargar remitos explícitamente al seleccionar cliente
+            cargarRemitosCliente();
 
             inputCuit.value = cli.cuit ?? '';
             inputDireccion.value = cli.direccion ?? '';
