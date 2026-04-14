@@ -413,4 +413,14 @@ class OrdenCompraController extends Controller
         $orden->load('items');
         return response()->json($orden->items);
     }
+
+    public function getByCliente($clienteId)
+    {
+        $ordenes = OrdenCompra::where('id_cliente', $clienteId)
+            ->where('estado', '!=', OrdenCompra::ESTADO_ANULADA)
+            ->latest()
+            ->get(['id', 'numero_oc', 'fecha']);
+        
+        return response()->json($ordenes);
+    }
 }

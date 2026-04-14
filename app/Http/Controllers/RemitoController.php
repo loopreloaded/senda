@@ -31,7 +31,7 @@ class RemitoController extends Controller
     public function create()
     {
         $clientes = Cliente::all();
-        $ordenes = OrdenCompra::all();
+        $ordenes = collect(); 
         $facturas = Factura::all();
 
         // Obtener el próximo ID autoincremental de la tabla remitos
@@ -143,7 +143,7 @@ class RemitoController extends Controller
     public function edit(Remito $remito)
     {
         $clientes = Cliente::all();
-        $ordenes = OrdenCompra::all();
+        $ordenes = OrdenCompra::where('id_cliente', $remito->id_cliente)->get();
         $remito->load(['items', 'ordenesCompra']);
 
         return view('admin.remitos.edit', compact('remito', 'clientes', 'ordenes'));

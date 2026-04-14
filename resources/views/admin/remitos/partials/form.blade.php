@@ -224,6 +224,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('No se pudieron cargar los ítems de la OC');
             });
     });
+
+    // --- FILTRADO DE OC POR CLIENTE ---
+    const selectCliente = document.getElementById('id_cliente');
+    const selectOC = document.getElementById('select-oc');
+
+    // Usamos el evento de jQuery que Select2 siempre dispara para asegurar captura del cambio
+    $(document).on('change', '#id_cliente', function() {
+        const clienteId = this.value;
+        console.log("Senda: Cambio detectado en id_cliente:", clienteId);
+
+        // 1. Limpiar la tabla de ítems (como pidió el usuario anteriormente)
+        document.querySelector('#tabla-items tbody').innerHTML = '';
+
+        // 2. Limpiar el selector de OC
+        selectOC.innerHTML = '<option value="">Seleccione OC</option>';
+        if (typeof $ !== 'undefined' && $(selectOC).data('select2')) {
+            $(selectOC).val(null).trigger('change');
+        }
+
+        if (!clienteId) return;
+
+        // 3. Cargar OCs del cliente por AJAX
+        fetchOrdenes(clienteId);
+    });
+
+    function fetchOrdenes(clienteId) {
+        let url = "{{ route('ordenes.byCliente', ['clienteId' => ':id']) }}".replace(':id', clienteId);
+        console.log("Senda: Fetching OCs desde:", url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Senda: OCs recibidas:", data.length);
+                data.forEach(oc => {
+                    const fecha = oc.fecha ? new Date(oc.fecha).toLocaleDateString('es-AR') : 'S/F';
+                    const option = new Option(`${oc.numero_oc} (${fecha})`, oc.id);
+                    selectOC.add(option);
+                });
+                
+                if (typeof $ !== 'undefined' && $(selectOC).data('select2')) {
+                    $(selectOC).trigger('change');
+                }
+            })
+            .catch(error => {
+                console.error('Senda Error fetching OCs:', error);
+            });
+    }
+
+    // Si al cargar ya hay un cliente (ej. Edit o validación fallida), nos aseguramos de que el selector de OC sea coherente
+    if (selectCliente.value && selectOC.options.length <= 1) {
+        fetchOrdenes(selectCliente.value);
+    }
 });
 
 function addRow(itemData = null, ocId = null) {
