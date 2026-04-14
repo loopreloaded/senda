@@ -6,8 +6,15 @@
 
 <div class="row">
 
+    {{-- ID FAC (Auto) --}}
+    <div class="col-md-2">
+        <label>ID FAC (#)</label>
+        <input type="text" class="form-control" readonly placeholder="Auto"
+            value="{{ isset($factura->id) ? 'FAC-' . $factura->id : 'FAC-' . ($nextId ?? '') }}">
+    </div>
+
     {{-- Tipo de Comprobante --}}
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="form-group">
             <label for="tipo_comprobante">Tipo de Comprobante</label>
             <select name="tipo_comprobante" id="tipo_comprobante" class="form-control" required>
@@ -29,6 +36,17 @@
         </div>
     </div>
 
+    {{-- Motivo --}}
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="motivo">Motivo de la Operación</label>
+            <select name="motivo" id="motivo" class="form-control" required>
+                <option value="particular" {{ old('motivo') == 'particular' ? 'selected' : '' }}>Particular</option>
+                <option value="pedido" {{ old('motivo') == 'pedido' ? 'selected' : '' }}>Vinculado (Pedido)</option>
+            </select>
+        </div>
+    </div>
+
 </div>
 
 {{-- ============================
@@ -45,8 +63,9 @@
                     class="form-control"
                     required
                     onchange="actualizarCampoDolar()">
-                <option value="ARS" {{ old('moneda') == 'ARS' ? 'selected' : '' }}>ARS (Pesos)</option>
-                <option value="USD" {{ old('moneda') == 'USD' ? 'selected' : '' }}>USD (Dólares)</option>
+                <option value="Peso argentino" {{ old('moneda') == 'Peso argentino' ? 'selected' : '' }}>Peso argentino</option>
+                <option value="USD billete" {{ old('moneda') == 'USD billete' ? 'selected' : '' }}>USD billete</option>
+                <option value="USD divisa" {{ old('moneda') == 'USD divisa' ? 'selected' : '' }}>USD divisa</option>
             </select>
         </div>
     </div>
@@ -229,7 +248,7 @@
     </div>
 
     {{-- Email --}}
-    <div class="col-md-6">
+    <div class="col-md-3">
         <div class="form-group">
             <label for="email">Correo Electrónico</label>
             <input type="email" name="email" id="email"
@@ -238,30 +257,52 @@
         </div>
     </div>
 
+    {{-- Condición IIBB --}}
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="condicion_iibb">Condición IIBB</label>
+            <select name="condicion_iibb" id="condicion_iibb" class="form-control">
+                <option value="">Seleccione...</option>
+                <option value="L" {{ old('condicion_iibb') == 'L' ? 'selected' : '' }}>Local</option>
+                <option value="CM" {{ old('condicion_iibb') == 'CM' ? 'selected' : '' }}>Convenio Multilateral</option>
+                <option value="EX" {{ old('condicion_iibb') == 'EX' ? 'selected' : '' }}>Exento</option>
+            </select>
+            <input type="hidden" name="alicuota_iibb" id="alicuota_iibb" value="{{ old('alicuota_iibb', 0) }}">
+        </div>
+    </div>
+
 </div>
 
+<div id="section-remitos" style="display:none;">
+    <div class="row mb-2">
+        <div class="col-md-4">
+            <select id="select-remito-ajax" class="form-control">
+                <option value="">Buscar remito...</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-info btn-block" id="btn-vincular-remito">
+                <i class="fas fa-link"></i> Vincular
+            </button>
+        </div>
+    </div>
 
-{{-- ============================
-     REMITOS ASOCIADOS
-   ============================ --}}
-<h4 class="mt-4">Remitos Asociados</h4>
+    <table class="table table-bordered" id="tabla-remitos">
+        <thead>
+            <tr>
+                <th style="width: 150px;">ID REM</th>
+                <th style="width: 180px;">Comprobante</th>
+                <th style="width: 180px;">Fecha Remito</th>
+                <th style="width: 60px;"></th>
+            </tr>
+        </thead>
+        <tbody id="remitos-body">
+            <!-- Aquí se insertan -->
+        </tbody>
+    </table>
+</div>
 
-<table class="table table-bordered" id="tabla-remitos">
-    <thead>
-        <tr>
-            <th style="width: 150px;">Pto. Venta</th>
-            <th style="width: 180px;">Comprobante</th>
-            <th style="width: 180px;">Fecha Remito</th>
-            <th style="width: 60px;"></th>
-        </tr>
-    </thead>
-
-    <tbody id="remitos-body">
-        <!-- Aquí se insertan -->
-    </tbody>
-</table>
-
-<button type="button" class="btn btn-primary btn-sm" id="agregar-remito">Agregar Remito</button>
+<button type="button" class="btn btn-primary btn-sm" id="agregar-remito" style="display:none;">Agregar Remito Manual</button>
 
 <br><br>
 
@@ -453,6 +494,166 @@
 let fila = 0;
 let filaRemito = 0;
 
+/* ============================================================
+   LÓGICA DE MOTIVO (PEDIDO vs PARTICULAR)
+   ============================================================ */
+document.getElementById('motivo').addEventListener('change', function() {
+    const motivo = this.value;
+    const sectionRemitos = document.getElementById('section-remitos');
+    const btnAgregarItem = document.getElementById('agregar-item');
+    const btnAgregarRemitoManual = document.getElementById('agregar-remito');
+
+    if (motivo === 'pedido') {
+        sectionRemitos.style.display = 'block';
+        btnAgregarItem.style.display = 'none'; // ocultar agregar manual de items
+        btnAgregarRemitoManual.style.display = 'inline-block';
+        // Limpiar items si cambia a pedido? Tal vez avisar
+    } else {
+        sectionRemitos.style.display = 'none';
+        btnAgregarItem.style.display = 'inline-block';
+        btnAgregarRemitoManual.style.display = 'none';
+    }
+});
+
+// Al cargar
+window.addEventListener('load', () => {
+    document.getElementById('motivo').dispatchEvent(new Event('change'));
+});
+
+/* ============================================================
+   BÚSQUEDA DE REMITOS AJAX
+   ============================================================ */
+function cargarRemitosCliente() {
+    const clienteId = document.getElementById('cliente_id').value;
+    const selectRemito = document.getElementById('select-remito-ajax');
+
+    if (!clienteId) return;
+
+    fetch(`/api/remitos/cliente/${clienteId}`)
+        .then(r => r.json())
+        .then(data => {
+            selectRemito.innerHTML = '<option value="">Seleccione un remito...</option>';
+            data.forEach(rem => {
+                const opt = document.createElement('option');
+                opt.value = rem.id;
+                opt.textContent = `REM ${rem.numero_remito} - ${rem.fecha}`;
+                opt.dataset.json = JSON.stringify(rem);
+                selectRemito.appendChild(opt);
+            });
+        });
+}
+
+// Observar cambio de cliente para recargar remitos
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+            cargarRemitosCliente();
+        }
+    });
+});
+observer.observe(document.getElementById('cliente_id'), { attributes: true });
+
+/* ============================================================
+   VINCULAR REMITO Y CARGAR ÍTEMS
+   ============================================================ */
+document.getElementById('btn-vincular-remito').addEventListener('click', function() {
+    const select = document.getElementById('select-remito-ajax');
+    if (!select.value) return;
+
+    const opt = select.options[select.selectedIndex];
+    const remito = JSON.parse(opt.dataset.json);
+
+    // 1. Agregar a tabla remitos asociados
+    const tbodyRemitos = document.getElementById('remitos-body');
+    const trRemito = `
+        <tr data-id="${remito.id}">
+            <td>
+                ${remito.id}
+                <input type="hidden" name="remitos[]" value="${remito.id}">
+            </td>
+            <td>${remito.numero_remito}</td>
+            <td>${remito.fecha}</td>
+            <td><button type="button" class="btn btn-danger btn-sm eliminar-remito-asoc">&times;</button></td>
+        </tr>
+    `;
+    tbodyRemitos.insertAdjacentHTML('beforeend', trRemito);
+
+    // 2. Cargar sus ítems a la tabla de ítems de factura
+    if (remito.items) {
+        remito.items.forEach(item => {
+            agregarItemDesdeRemito(item, remito.id);
+        });
+    }
+
+    // Quitar de las opciones para no repetir?
+    opt.remove();
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.eliminar-remito-asoc')) {
+        e.target.closest('tr').remove();
+        // Nota: esto no quita los ítems que se agregaron automáticamente. 
+        // El usuario debería quitarlos manualmente o podríamos implementar lógica de limpieza.
+    }
+});
+
+function agregarItemDesdeRemito(item, remitoId) {
+    const tbody = document.getElementById('items-body');
+
+    let nuevaFila = `
+       <tr data-index="${fila}" data-remito-id="${remitoId}">
+        <td>
+            <input type="text" name="items[${fila}][codigo]" class="form-control item-codigo" value="${item.codigo || ''}" readonly>
+        </td>
+        <td>
+            <input type="text" name="items[${fila}][descripcion]" class="form-control item-desc" value="${item.articulo}" readonly>
+        </td>
+        <td>
+            <input type="number" name="items[${fila}][cantidad]" class="form-control item-cantidad" value="${item.cantidad}" min="0.01" step="0.01" required>
+            <small class="text-muted">Orig: ${item.cantidad}</small>
+        </td>
+        <td>
+            <select name="items[${fila}][unidad]" class="form-control">
+                <option value="7" selected>unidades</option>
+                <!-- mas opciones de unidad aca si es necesario -->
+            </select>
+        </td>
+        <td>
+            <input type="number" name="items[${fila}][precio]" class="form-control item-precio" min="0" step="0.01" required>
+        </td>
+        <td>
+            <select name="items[${fila}][iva]" class="form-control item-iva">
+                <option value="21" selected>21%</option>
+                <option value="10.5">10.5%</option>
+                <option value="27">27%</option>
+                <option value="0">Exento</option>
+            </select>
+        </td>
+        <td>
+            <input type="number" name="items[${fila}][bonificacion_porcentaje]" class="form-control item-bonif" min="0" max="100" step="0.01" value="0">
+        </td>
+        <td>
+            <input type="text" name="items[${fila}][bonificacion_importe]" class="form-control item-bonif-importe" readonly value="0.00">
+        </td>
+        <td>
+            <input type="text" class="form-control item-subtotal" readonly>
+            <input type="hidden" name="items[${fila}][subtotal_sin_iva]" class="subtotal-sin-iva-hidden">
+            <input type="hidden" name="items[${fila}][subtotal_con_iva]" class="subtotal-con-iva-hidden">
+            <input type="hidden" name="items[${fila}][remito_id]" value="${remitoId}">
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm eliminar-item">&times;</button>
+        </td>
+    </tr>
+    `;
+
+    tbody.insertAdjacentHTML('beforeend', nuevaFila);
+    fila++;
+    actualizarCodigos();
+    reindexarItems();
+    recalcular();
+}
+
 
 /* ============================================================
    AGREGAR NUEVA FILA DE ÍTEM
@@ -639,13 +840,16 @@ document.addEventListener('input', function (e) {
     // Cargar cotización dólar mayorista desde API
     // =============
     document.getElementById('btn-cargar-dolar').addEventListener('click', function () {
+        const moneda = document.getElementById('moneda').value;
+        const subId  = (moneda === 'USD billete') ? 'blue' : 'oficial';
+
         fetch("https://api.bluelytics.com.ar/v2/latest")
             .then(r => r.json())
             .then(data => {
-                if (data?.oficial?.value_sell){
-                    document.getElementById('valor_dolar').value = data.oficial.value_sell; // << CORRECTO
+                if (data[subId]?.value_sell){
+                    document.getElementById('valor_dolar').value = data[subId].value_sell;
                 } else {
-                    alert("No se pudo obtener el dólar oficial");
+                    alert("No se pudo obtener el valor del dólar.");
                 }
             })
             .catch(e => alert("Error consultando API"));
@@ -1160,28 +1364,40 @@ function renderSugerencias(clientes) {
             inputDireccion.value = cli.direccion ?? '';
             inputEmail.value = cli.email ?? '';
 
-            // setear condición IVA
+            // ============================
+            // 👉 SETEAR IVA
+            // ============================
             if (cli.condicion_iva) {
-                selectCondIva.value = cli.condicion_iva;
-                selectCondIva.dispatchEvent(new Event('change', { bubbles: true }));
+                if (selectCondIva) {
+                    selectCondIva.value = cli.condicion_iva;
+                    selectCondIva.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             }
 
             // ============================
-            // 👉 SETEAR ÍNDICE EN OTROS TRIBUTOS
+            // 👉 SETEAR IIBB Y ALÍCUOTA
             // ============================
+            if (cli.condicion_iibb) {
+                const selectCondIibb = document.getElementById('condicion_iibb');
+                if (selectCondIibb) {
+                    // Mapear según sea necesario o usar el código directo
+                    selectCondIibb.value = cli.condicion_iibb_codigo || cli.condicion_iibb; 
+                }
+            }
+
             if (cli.indice !== null && cli.indice !== undefined) {
 
-                const alicuotaIVA  = document.getElementById('percepcion_iva_alicuota');
                 const alicuotaIIBB = document.getElementById('percepcion_iibb_alicuota');
-
-                if (alicuotaIVA) {
-                    alicuotaIVA.value = cli.indice;
-                    alicuotaIVA.dispatchEvent(new Event('input', { bubbles: true }));
-                }
+                const alicuotaIva = document.getElementById('percepcion_iva_alicuota');
 
                 if (alicuotaIIBB) {
                     alicuotaIIBB.value = cli.indice;
+                    // Disparar evento para que calcule el importe automáticamente
                     alicuotaIIBB.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                if (alicuotaIva) {
+                    alicuotaIva.value = cli.indice;
                 }
             }
 

@@ -74,8 +74,16 @@ class FacturaController extends Controller
      */
     public function create()
     {
-        // Ya no se listan clientes, solo se muestra el formulario vacío
-        return view('admin.facturas.create');
+        $latest = \App\Models\Factura::latest('id')->first();
+        $nextId = $latest ? $latest->id + 1 : 1;
+        
+        return view('admin.facturas.create', compact('nextId'));
+    }
+
+    public function edit($id)
+    {
+        $factura = \App\Models\Factura::with(['cliente', 'items', 'remitos'])->findOrFail($id);
+        return view('admin.facturas.edit', compact('factura'));
     }
 
     /**
@@ -102,8 +110,9 @@ class FacturaController extends Controller
                 'fecha_emision'    => 'required|date',
                 'concepto'         => 'required|in:1,2,3',
                 'condicion_venta'  => 'required|string|max:100',
-                'moneda'           => 'required|in:ARS,USD',
+                'moneda'           => 'required|string',
                 'valor_dolar'      => 'nullable|numeric|min:0',
+                'motivo'           => 'required|in:pedido,particular',
 
                 // SERVICIOS
                 'fecha_desde'      => 'nullable|date',
@@ -112,9 +121,9 @@ class FacturaController extends Controller
 
                 // ITEMS
                 'items' => 'required|array|min:1',
-                'items.*.codigo'                  => 'required|string',
+                'items.*.codigo'                  => 'nullable|string',
                 'items.*.descripcion'             => 'required|string|max:255',
-                'items.*.cantidad'                => 'required|numeric|min:1',
+                'items.*.cantidad'                => 'required|numeric|min:0.01',
                 'items.*.unidad'                  => 'required|numeric|min:1',
                 'items.*.precio'                  => 'required|numeric|min:0',
                 'items.*.iva'                     => 'required|numeric|min:0',
@@ -122,12 +131,10 @@ class FacturaController extends Controller
                 'items.*.bonificacion_importe'    => 'required|numeric|min:0',
                 'items.*.subtotal_sin_iva'         => 'required|numeric|min:0',
                 'items.*.subtotal_con_iva'         => 'required|numeric|min:0',
+                'items.*.remito_id'               => 'nullable|integer',
 
-                // REMITOS
+                // REMITOS (IDs)
                 'remitos' => 'nullable|array',
-                'remitos.*.pto_venta'     => 'nullable|numeric|min:1',
-                'remitos.*.comprobante'   => 'nullable|numeric|min:1',
-                'remitos.*.fecha_emision' => 'nullable|date',
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -153,6 +160,8 @@ class FacturaController extends Controller
                 [
                     'razon_social'      => $validated['razon_social'],
                     'condicion_iva_id'  => \App\Models\CondicionIva::where('codigo', $validated['condicion_iva'])->value('id'),
+                    'condicion_iibb_id' => \App\Models\CondicionIibb::where('codigo', $request->condicion_iibb)->value('id'),
+                    'indice'            => $request->percepcion_iibb_alicuota ?? 0,
                     'direccion'         => $validated['direccion'],
                     'email'             => $validated['email'] ?? null,
                 ]
@@ -168,7 +177,8 @@ class FacturaController extends Controller
             $factura->condicion_venta  = $validated['condicion_venta'];
             $factura->moneda           = $validated['moneda'];
             $factura->valor_dolar      = $validated['valor_dolar'] ?? 1;
-            $factura->estado           = 'pendiente';
+            $factura->motivo           = $validated['motivo'];
+            $factura->estado           = Factura::ESTADO_BORRADOR;
             $factura->creado_por       = Auth::id();
 
             $factura->fecha_desde      = $validated['fecha_desde'] ?? null;
@@ -190,9 +200,12 @@ class FacturaController extends Controller
 
             $factura->save();
 
-            // 3) ITEMS
+            // 3) ITEMS & REMITOS (N:N Pivot)
             $subtotal_general  = 0;
             $total_iva_general = 0;
+            $cant_art_fac      = 0;
+            $nombres_articulos = [];
+            $vinculos_remitos  = [];
 
             foreach ($validated['items'] as $item) {
 
@@ -200,7 +213,7 @@ class FacturaController extends Controller
 
                 FacturaItem::create([
                     'factura_id'              => $factura->id,
-                    'codigo'                  => $item['codigo'],
+                    'codigo'                  => $item['codigo'] ?? null,
                     'unidad'                  => $item['unidad'],
                     'descripcion'             => $item['descripcion'],
                     'cantidad'                => $item['cantidad'],
@@ -215,31 +228,56 @@ class FacturaController extends Controller
 
                 $subtotal_general  += $item['subtotal_sin_iva'];
                 $total_iva_general += $iva_importe;
+                $cant_art_fac      += $item['cantidad'];
+                $nombres_articulos[] = $item['descripcion'];
+
+                // Si viene de un remito, guardamos para el pivot
+                if (isset($item['remito_id']) && $item['remito_id']) {
+                    $rid = $item['remito_id'];
+                    if (!isset($vinculos_remitos[$rid])) {
+                        $vinculos_remitos[$rid] = [
+                            'articulo' => $item['descripcion'],
+                            'cantidad' => 0
+                        ];
+                    }
+                    $vinculos_remitos[$rid]['cantidad'] += $item['cantidad'];
+                }
             }
 
-            // 4) TOTALIZAR
+            // 4) TOTALIZAR Y RESUMEN
             $factura->subtotal      = $subtotal_general;
             $factura->total_iva     = $total_iva_general;
             $factura->importe_total = $subtotal_general + $total_iva_general;
+            $factura->cant_art_fac  = $cant_art_fac;
+            $factura->art_fac       = implode(', ', array_unique($nombres_articulos));
             $factura->save();
 
-            // 5) REMITOS
-            if (!empty($validated['remitos'])) {
-                foreach ($validated['remitos'] as $remito) {
-                    if (
-                        empty($remito['pto_venta']) &&
-                        empty($remito['comprobante']) &&
-                        empty($remito['fecha_emision'])
-                    ) {
-                        continue;
-                    }
+            // 5) ATTACH REMITOS (Table remito_factura)
+            if ($validated['motivo'] === 'pedido' && !empty($vinculos_remitos)) {
+                foreach ($vinculos_remitos as $remito_id => $data) {
+                    
+                    // VALIDACIÓN DE CANTIDADES
+                    $remito = \App\Models\Remito::with('items')->find($remito_id);
+                    if ($remito) {
+                        $cant_en_remito = $remito->items()->sum('cantidad');
+                        $cant_ya_facturada = DB::table('remito_factura')
+                            ->where('id_rem', $remito_id)
+                            ->sum('cantidad');
+                        
+                        $disponible = $cant_en_remito - $cant_ya_facturada;
+                        
+                        if ($data['cantidad'] > $disponible) {
+                            throw new \Exception("La cantidad a facturar ({$data['cantidad']}) supera lo disponible en el Remito #{$remito->numero_remito} (Disponible: {$disponible})");
+                        }
 
-                    FacturaRemito::create([
-                        'factura_id'    => $factura->id,
-                        'pto_venta'     => $remito['pto_venta'],
-                        'comprobante'   => $remito['comprobante'],
-                        'fecha_emision' => $remito['fecha_emision'],
-                    ]);
+                        $factura->remitos()->attach($remito_id, [
+                            'articulo' => $data['articulo'],
+                            'cantidad' => $data['cantidad']
+                        ]);
+                        
+                        // Actualizar estado del remito
+                        $remito->actualizarEstado();
+                    }
                 }
             }
 
@@ -368,7 +406,7 @@ class FacturaController extends Controller
                     }
 
                     // ✅ ACTUALIZAR FACTURA EN BD (COMPLETO)
-                    $factura->estado = "aprobada";
+                    $factura->estado = Factura::ESTADO_EMITIDA;
                     $factura->cae = $cae;
                     $factura->vto_cae = \Carbon\Carbon::createFromFormat('Ymd', $vto);
                     $factura->numero_comprobante_afip = $numeroAfip; // 👈 CLAVE

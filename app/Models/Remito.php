@@ -55,6 +55,16 @@ class Remito extends Model
                     ->withTimestamps();
     }
 
+    /**
+     * Relación N a N con Factura según especificación 6.4
+     */
+    public function facturas()
+    {
+        return $this->belongsToMany(Factura::class, 'remito_factura', 'id_rem', 'id_fac')
+                    ->withPivot('articulo', 'cantidad')
+                    ->withTimestamps();
+    }
+
     public function items()
     {
         return $this->hasMany(RemitoItem::class, 'remito_id');
@@ -76,20 +86,13 @@ class Remito extends Model
 
     /**
      * Cantidad total de artículos facturados
-     * Se basa en la relación con FacturaRemito (lógica actual mantenida)
+     * Se basa en la relación N:N remito_factura
      */
     public function getCantArtFacAttribute()
     {
-        $facturaRemitos = FacturaRemito::where('comprobante', $this->numero_remito)->get();
-        
-        $total = 0;
-        foreach($facturaRemitos as $fr) {
-            $factura = $fr->factura;
-            if ($factura && in_array(strtolower($factura->estado), ['aprobada', 'facturada', 'confirmada', 'cae_asignado'])) {
-                $total += $factura->items()->sum('cantidad');
-            }
-        }
-        return $total;
+        return $this->facturas()
+                    ->whereIn('estado', [Factura::ESTADO_EMITIDA, Factura::ESTADO_PARCIAL, Factura::ESTADO_PAGADA])
+                    ->sum('remito_factura.cantidad');
     }
 
     /**
@@ -97,16 +100,10 @@ class Remito extends Model
      */
     public function getArtFacAttribute()
     {
-        $facturaRemitos = FacturaRemito::where('comprobante', $this->numero_remito)->get();
-        $articulos = collect();
-
-        foreach($facturaRemitos as $fr) {
-            $factura = $fr->factura;
-            if ($factura) {
-                $articulos = $articulos->concat($factura->items()->pluck('descripcion'));
-            }
-        }
-        return $articulos->unique()->implode(', ');
+        return $this->facturas()
+                    ->pluck('remito_factura.articulo')
+                    ->unique()
+                    ->implode(', ');
     }
 
     /*

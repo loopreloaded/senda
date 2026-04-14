@@ -275,4 +275,17 @@ class RemitoController extends Controller
 
         return $pdf->stream('remito_'.$remito->numero_remito.'.pdf');
     }
+
+    /**
+     * Obtener remitos por cliente (AJAX)
+     */
+    public function getByCliente($cliente_id)
+    {
+        $remitos = Remito::with('items')
+            ->where('id_cliente', $cliente_id)
+            ->whereIn('estado', ['Emitido', 'Confirmado', 'Parcial'])
+            ->get();
+
+        return response()->json($remitos);
+    }
 }

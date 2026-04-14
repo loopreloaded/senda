@@ -73,9 +73,11 @@
                 <label>Estado</label>
                 <select name="estado" class="form-control">
                     <option value="">Todos</option>
-                    <option value="pendiente" {{ request('estado')=='pendiente'?'selected':'' }}>Pendiente</option>
-                    <option value="aprobada" {{ request('estado')=='aprobada'?'selected':'' }}>Aprobada</option>
-                    <option value="enviada_afip" {{ request('estado')=='enviada_afip'?'selected':'' }}>Enviada AFIP</option>
+                    <option value="borrador" {{ request('estado')=='borrador'?'selected':'' }}>Borrador</option>
+                    <option value="emitida" {{ request('estado')=='emitida'?'selected':'' }}>Emitida</option>
+                    <option value="parcial" {{ request('estado')=='parcial'?'selected':'' }}>Parcial</option>
+                    <option value="pagada" {{ request('estado')=='pagada'?'selected':'' }}>Pagada</option>
+                    <option value="rechazada por arca" {{ request('estado')=='rechazada por arca'?'selected':'' }}>Rechazada por ARCA</option>
                 </select>
             </div>
 
@@ -105,36 +107,52 @@
             <table class="table table-bordered table-striped">
                 <thead class="thead-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>ID FAC (#)</th>
                         <th>Cliente</th>
-                        <th>Tipo</th>
                         <th>Fecha</th>
-                        <th>Fecha creacion</th>
-                        <th>Importe Total</th>
-                        <th>Estado</th>
+                        <th>Nro. Fac.</th>
+                        <th>Motivo</th>
+                        <th>Tipo Fac.</th>
+                        <th>Moneda</th>
+                        <th>Importe Fac.</th>
+                        <th>Importe Pagado</th>
+                        <th>Estados</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($facturas as $factura)
                         <tr>
-                            <td>{{ $factura->id }}</td>
+                            <td><span class="badge badge-dark">FAC-{{ $factura->id }}</span></td>
                             <td>
                                 {{ mb_convert_case($factura->cliente->razon_social ?? '—', MB_CASE_TITLE, 'UTF-8') }}
                             </td>
-                            <td>{{ $factura->tipo_comprobante ?? '—' }}</td>
                             <td>{{ \Carbon\Carbon::parse($factura->fecha_emision)->format('d/m/Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($factura->created_at)->format('d/m/Y') }}</td>
-                            <td>${{ number_format($factura->importe_total, 2, ',', '.') }}</td>
+                            <td>{{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}-{{ $factura->numero_comprobante_afip ?? '—' }}</td>
                             <td>
-                                @if($factura->estado == 'pendiente')
-                                    <span class="badge badge-warning">Pendiente</span>
-                                @elseif($factura->estado == 'aprobada')
-                                    <span class="badge badge-success">Aprobada</span>
-                                @elseif($factura->estado == 'enviada_afip')
-                                    <span class="badge badge-info">Enviada AFIP</span>
+                                @if($factura->motivo == 'pedido')
+                                    <span class="badge badge-info">Vinculado</span>
                                 @else
-                                    <span class="badge badge-secondary">{{ ucfirst($factura->estado) }}</span>
+                                    <span class="badge badge-secondary">Particular</span>
+                                @endif
+                            </td>
+                            <td>{{ $factura->tipo_comprobante ?? '—' }}</td>
+                            <td>{{ $factura->moneda ?? '—' }}</td>
+                            <td>${{ number_format($factura->importe_total, 2, ',', '.') }}</td>
+                            <td>${{ number_format($factura->importe_pagado, 2, ',', '.') }}</td>
+                            <td>
+                                @if($factura->estado == 'borrador')
+                                    <span class="badge badge-secondary">Borrador</span>
+                                @elseif($factura->estado == 'emitida')
+                                    <span class="badge badge-success">Emitida</span>
+                                @elseif($factura->estado == 'parcial')
+                                    <span class="badge badge-warning">Parcial</span>
+                                @elseif($factura->estado == 'pagada')
+                                    <span class="badge badge-primary">Pagada</span>
+                                @elseif($factura->estado == 'rechazada por arca')
+                                    <span class="badge badge-danger">Rechazada por ARCA</span>
+                                @else
+                                    <span class="badge badge-light">{{ ucfirst($factura->estado) }}</span>
                                 @endif
                             </td>
                             <td>

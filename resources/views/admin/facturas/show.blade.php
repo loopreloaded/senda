@@ -96,21 +96,26 @@
                     <strong>Receptor:</strong> {{ $factura->cliente->razon_social ?? 'Sin cliente' }}<br>
                     <strong>CUIT:</strong> {{ $factura->cliente->cuit ?? '-' }}<br>
                     <strong>Domicilio:</strong> {{ $factura->cliente->direccion ?? '-' }}<br>
-                    <strong>Condición IVA:</strong> {{ $factura->cliente->condicion_iva ?? '-' }}
+                    <strong>Email:</strong> {{ $factura->cliente->email ?? '-' }}<br>
+                    <strong>Condición IVA:</strong> {{ $factura->cliente->condicion_iva_texto ?? '-' }}<br>
+                    <strong>Condición IIBB:</strong> {{ $factura->cliente->condicion_iibb_texto ?? '-' }}
                 </div>
             </div>
 
             <hr>
 
             <div class="row mb-2">
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <strong>ID FAC (#):</strong> <span class="badge badge-dark">FAC-{{ $factura->id }}</span>
+                </div>
+                <div class="col-md-3">
                     <strong>Tipo:</strong> {{ $factura->tipo_comprobante }}
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <strong>Moneda:</strong> {{ $factura->moneda }}
                 </div>
-                <div class="col-md-4">
-                    <strong>Número:</strong> {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}-{{ str_pad($factura->id, 8, '0', STR_PAD_LEFT) }}
+                <div class="col-md-3">
+                    <strong>Nro. Comprobante AFIP:</strong> {{ str_pad($factura->punto_venta, 4, '0', STR_PAD_LEFT) }}-{{ str_pad($factura->numero_comprobante_afip ?? $factura->id, 8, '0', STR_PAD_LEFT) }}
                 </div>
                 <div class="col-md-4">
                     <strong>Fecha:</strong> {{ \Carbon\Carbon::parse($factura->fecha_emision)->format('d/m/Y') }}
@@ -300,9 +305,12 @@
             {{-- ESTADO --}}
             <p><strong>Estado:</strong>
                 <span class="badge
-                    @if($factura->estado == 'pendiente') bg-warning
-                    @elseif($factura->estado == 'aprobada') bg-success
-                    @else bg-secondary @endif">
+                    @if($factura->estado == \App\Models\Factura::ESTADO_BORRADOR) bg-secondary
+                    @elseif($factura->estado == \App\Models\Factura::ESTADO_EMITIDA) bg-success
+                    @elseif($factura->estado == \App\Models\Factura::ESTADO_PARCIAL) bg-warning
+                    @elseif($factura->estado == \App\Models\Factura::ESTADO_PAGADA) bg-primary
+                    @elseif($factura->estado == \App\Models\Factura::ESTADO_RECHAZADA) bg-danger
+                    @else bg-light text-dark @endif">
                     {{ ucfirst($factura->estado) }}
                 </span>
             </p>
@@ -331,20 +339,22 @@
 
                 <div class="d-flex gap-2">
 
-                    {{-- BOTÓN: Enviar a AFIP (solo Admin o Ingeniero y si está pendiente) --}}
-                    @if($factura->estado === 'pendiente' && auth()->user()->hasAnyRole(['admin','ingeniero']))
-                        <form action="{{ route('facturas.afip', $factura->id) }}"
-                            method="POST"
-                            onsubmit="return confirm('¿Enviar factura a AFIP?')">
-                            @csrf
-                            <button class="btn btn-primary">
-                                <i class="fas fa-paper-plane"></i> Enviar a AFIP
-                            </button>
-                        </form>
+                    {{-- BOTÓN: Enviar a AFIP (Admin/Ingeniero, solo si está en Borrador) --}}
+                    @if($factura->estado === \App\Models\Factura::ESTADO_BORRADOR)
+                        @hasrole('admin|ingeniero')
+                            <form action="{{ route('facturas.afip', $factura->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('¿Enviar factura a AFIP?')">
+                                @csrf
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Enviar a AFIP
+                                </button>
+                            </form>
+                        @endhasrole
                     @endif
 
                     {{-- BOTÓN: Editar factura --}}
-                    @if($factura->estado != 'aprobada')
+                    @if($factura->estado === \App\Models\Factura::ESTADO_BORRADOR)
                         <a href="{{ route('facturas.edit', $factura->id) }}" class="btn btn-warning">
                             <i class="fas fa-edit"></i> Editar
                         </a>

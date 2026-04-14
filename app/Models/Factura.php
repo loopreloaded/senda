@@ -11,9 +11,38 @@ class Factura extends Model
 
     protected $table = 'facturas';
 
-    /* =============================
-       CAMPOS MASIVOS (FILLABLE)
-    ============================== */
+    /**
+     * Lógica automática de estados basada en pagos y facturación
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($factura) {
+            // Solo si ya fue emitida o está en estados de pago
+            if (in_array($factura->estado, [self::ESTADO_EMITIDA, self::ESTADO_PARCIAL, self::ESTADO_PAGADA])) {
+                
+                $total = (float)($factura->importe_total ?? 0);
+                $pagado = (float)($factura->importe_pagado ?? 0);
+
+                if ($pagado <= 0) {
+                    $factura->estado = self::ESTADO_EMITIDA;
+                } elseif ($pagado < $total) {
+                    $factura->estado = self::ESTADO_PARCIAL;
+                } else {
+                    $factura->estado = self::ESTADO_PAGADA;
+                }
+            }
+        });
+    }
+
+    // Estados
+    const ESTADO_BORRADOR   = 'borrador';
+    const ESTADO_EMITIDA    = 'emitida';
+    const ESTADO_PARCIAL    = 'parcial';
+    const ESTADO_PAGADA     = 'pagada';
+    const ESTADO_RECHAZADA  = 'rechazada por arca';
+
     protected $fillable = [
 
         // Relaciones
@@ -25,11 +54,12 @@ class Factura extends Model
         'fecha_emision',
         'concepto',
         'condicion_venta',
-        'moneda',
+        'moneda',                        // Peso argentino / USD billete / USD divisa
         'valor_dolar',
 
-        // Estado AFIP
+        // Estado AFIP / Trazabilidad
         'estado',
+        'motivo',                        // pedido / particular
         'cae',
         'vto_cae',
         'numero_comprobante_afip',
@@ -39,6 +69,7 @@ class Factura extends Model
         'subtotal',
         'total_iva',
         'importe_total',
+        'importe_pagado',
         'importe_total_otros_tributos',
 
         // Percepción IVA
@@ -57,6 +88,10 @@ class Factura extends Model
         'fecha_desde',
         'fecha_hasta',
         'vencimiento_pago',
+
+        // Trazabilidad Remito (Summary)
+        'art_fac',
+        'cant_art_fac',
 
         // Otros
         'observaciones',
@@ -77,6 +112,7 @@ class Factura extends Model
         'subtotal'                     => 'decimal:2',
         'total_iva'                    => 'decimal:2',
         'importe_total'                => 'decimal:2',
+        'importe_pagado'               => 'decimal:2',
         'importe_total_otros_tributos' => 'decimal:2',
 
         'percepcion_iva_base'       => 'decimal:2',
@@ -88,6 +124,7 @@ class Factura extends Model
         'percepcion_iibb_importe'   => 'decimal:2',
 
         'valor_dolar' => 'decimal:2',
+        'cant_art_fac' => 'decimal:2',
     ];
 
     /* =============================
@@ -132,7 +169,9 @@ class Factura extends Model
 
     public function remitos()
     {
-        return $this->hasMany(FacturaRemito::class);
+        return $this->belongsToMany(Remito::class, 'remito_factura', 'id_fac', 'id_rem')
+                    ->withPivot('articulo', 'cantidad')
+                    ->withTimestamps();
     }
 
     public function creador()

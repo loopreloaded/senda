@@ -63,8 +63,8 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     Route::get('facturas/pendientes', [FacturaController::class, 'pendientes'])
         ->name('facturas.pendientes');
 
-    Route::post('facturas/{factura}/afip', [FacturaController::class, 'enviarAfip'])
-        ->name('facturas.afip');
+    Route::post('/facturas/{id}/afip', [FacturaController::class, 'enviarAfip'])->name('facturas.afip');
+    Route::get('/api/remitos/cliente/{cliente_id}', [RemitoController::class, 'getByCliente'])->name('api.remitos.cliente');
 
     Route::post('facturas/{id}/enviar-afip', [FacturaController::class, 'enviarAfip'])
         ->name('facturas.enviarAfip');
