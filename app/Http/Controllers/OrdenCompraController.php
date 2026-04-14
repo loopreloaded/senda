@@ -406,6 +406,8 @@ class OrdenCompraController extends Controller
         $orden->save();
 
         return back()->with('success', 'Observaciones actualizadas.');
+    }
+
     public function jsonItems(OrdenCompra $orden)
     {
         $orden->load('items');

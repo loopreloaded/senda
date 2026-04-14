@@ -29,7 +29,7 @@
         <table class="table table-bordered table-striped">
             <thead class="thead-light">
                 <tr>
-                    <th>#</th>
+                    <th>ID REM (#)</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
                     <th>Nro. Rem.</th>
@@ -45,7 +45,7 @@
             <tbody>
                 @forelse ($remitos as $remito)
                     <tr>
-                        <td>{{ $remito->id }}</td>
+                        <td><span class="badge badge-dark">REM-{{ $remito->id }}</span></td>
                         <td>{{ optional($remito->cliente)->razon_social ?? '-' }}</td>
                         <td>{{ $remito->fecha ? $remito->fecha->format('d/m/Y') : '-' }}</td>
                         <td>{{ $remito->numero_remito }}</td>

@@ -2,6 +2,12 @@
 
 <div class="row">
 
+    {{-- ID REM (Auto) --}}
+    <div class="col-md-4 mb-3">
+        <label>ID REM (#)</label>
+        <input type="text" class="form-control" value="{{ isset($remito) ? 'REM-'.$remito->id : 'REM-'.($nextId ?? '') }}" readonly>
+    </div>
+
     {{-- Número de Remito --}}
     <div class="col-md-4 mb-3">
         <label class="form-label">Número de Remito</label>
@@ -205,7 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let ocId = document.getElementById('select-oc').value;
         if(!ocId) return alert('Seleccione una OC');
 
-        fetch(`/admin/ordenes/${ocId}/json-items`)
+        let url = "{{ route('ordenes.jsonItems', ['orden' => ':id']) }}".replace(':id', ocId);
+        fetch(url)
             .then(response => response.json())
             .then(items => {
                 items.forEach(item => {

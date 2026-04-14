@@ -101,8 +101,8 @@ class OrdenCompra extends Model
         // Sumar todos los items de remitos asociados (Emitidos o Confirmados)
         // La tabla remitos usa 'id' como PK y remito_items usa 'remito_id' como FK
         $remitoIds = $this->remitos()
-            ->whereIn('estado', ['Emitido', 'Confirmado'])
-            ->pluck('id');
+            ->whereIn('remitos.estado', ['Emitido', 'Confirmado'])
+            ->pluck('remitos.id');
 
         return RemitoItem::whereIn('remito_id', $remitoIds)->sum('cantidad');
     }
@@ -110,8 +110,8 @@ class OrdenCompra extends Model
     public function getArtRemAttribute()
     {
         $remitoIds = $this->remitos()
-            ->whereIn('estado', ['Emitido', 'Confirmado'])
-            ->pluck('id');
+            ->whereIn('remitos.estado', ['Emitido', 'Confirmado'])
+            ->pluck('remitos.id');
 
         return RemitoItem::whereIn('remito_id', $remitoIds)
                          ->pluck('articulo')

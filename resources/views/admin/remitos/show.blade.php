@@ -32,6 +32,10 @@
             <div class="card-body">
                 <table class="table table-sm">
                     <tr>
+                        <th width="150">ID REM (#):</th>
+                        <td><span class="badge badge-dark">REM-{{ $remito->id }}</span></td>
+                    </tr>
+                    <tr>
                         <th width="150">Cliente:</th>
                         <td>{{ $remito->cliente->razon_social ?? '-' }}</td>
                     </tr>

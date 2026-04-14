@@ -34,7 +34,11 @@ class RemitoController extends Controller
         $ordenes = OrdenCompra::all();
         $facturas = Factura::all();
 
-        return view('admin.remitos.create', compact('clientes', 'ordenes', 'facturas'));
+        // Obtener el próximo ID autoincremental de la tabla remitos
+        $statement = DB::select("SHOW TABLE STATUS LIKE 'remitos'");
+        $nextId = $statement[0]->Auto_increment ?? 1;
+
+        return view('admin.remitos.create', compact('clientes', 'ordenes', 'facturas', 'nextId'));
     }
 
     /**

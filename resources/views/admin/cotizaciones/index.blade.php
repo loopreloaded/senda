@@ -81,7 +81,7 @@
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>#</th>
+            <th>ID COT (#)</th>
             <th>Cliente</th>
             <th>Fecha</th>
             <th>Nro. Cot.</th>
@@ -98,7 +98,7 @@
         @foreach($cotizaciones as $cotizacion)
             <tr>
                 {{-- Nº Cotización --}}
-                <td>{{ $cotizacion->id_cotizacion }}</td>
+                <td><span class="badge badge-dark">COT-{{ $cotizacion->id_cotizacion }}</span></td>
 
                 {{-- Cliente --}}
                 <td>{{ $cotizacion->cliente->razon_social ?? '—' }}</td>
