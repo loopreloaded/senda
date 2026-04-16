@@ -177,8 +177,8 @@
                                             #{{ $r->nro_recibo }}
                                         </a>
                                     </td>
-                                    <td>{{ $r->fecha ? \Carbon\Carbon::parse($r->fecha)->format('d/m/Y') : '-' }}</td>
-                                    <td class="text-right text-bold text-orange">${{ number_format($r->pivot->monto, 2, ',', '.') }}</td>
+                                    <td>{{ $r->fecha ? $r->fecha->format('d/m/Y') : 'N/A' }}</td>
+                                    <td class="text-right text-bold text-orange">${{ number_format($r->pivot->saldado, 2, ',', '.') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

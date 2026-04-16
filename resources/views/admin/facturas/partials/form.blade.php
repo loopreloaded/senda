@@ -63,9 +63,9 @@
                     class="form-control"
                     required
                     onchange="actualizarCampoDolar()">
-                <option value="Peso argentino" {{ old('moneda') == 'Peso argentino' ? 'selected' : '' }}>Peso argentino</option>
-                <option value="USD billete" {{ old('moneda') == 'USD billete' ? 'selected' : '' }}>USD billete</option>
-                <option value="USD divisa" {{ old('moneda') == 'USD divisa' ? 'selected' : '' }}>USD divisa</option>
+                <option value="ARS" {{ old('moneda') == 'ARS' ? 'selected' : '' }}>Peso argentino</option>
+                <option value="USD" {{ old('moneda') == 'USD' ? 'selected' : '' }}>USD billete</option>
+                <option value="USD div" {{ old('moneda') == 'USD div' ? 'selected' : '' }}>USD divisa</option>
             </select>
         </div>
     </div>

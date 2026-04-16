@@ -39,9 +39,9 @@
     {{-- Motivo (Pedido / Particular) --}}
     <div class="col-md-4 mb-3">
         <label class="form-label">Motivo</label>
-        <select name="motivo" id="motivo" class="form-control" required>
-            <option value="pedido" {{ old('motivo', $remito->motivo ?? 'pedido') == 'pedido' ? 'selected' : '' }}>Vinculado (Pedido)</option>
-            <option value="particular" {{ old('motivo', $remito->motivo ?? '') == 'particular' ? 'selected' : '' }}>Particular</option>
+        <select name="motivo" id="motivo" class="form-control select2" required>
+            <option value="pedido" {{ old('motivo', isset($remito) ? $remito->motivo : 'pedido') == 'pedido' ? 'selected' : '' }}>Vinculado (Pedido)</option>
+            <option value="particular" {{ old('motivo', isset($remito) ? $remito->motivo : '') == 'particular' ? 'selected' : '' }}>Particular</option>
         </select>
     </div>
 

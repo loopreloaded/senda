@@ -49,13 +49,37 @@ class OrdenPago extends Model
 
     public function recibos()
     {
-        return $this->belongsToMany(Recibo::class, 'orden_pago_recibo', 'orden_pago_id', 'recibo_id')
-                    ->withPivot('monto')
+        return $this->belongsToMany(Recibo::class, 'op_recibo', 'id_op', 'id_rec')
+                    ->withPivot('saldado')
                     ->withTimestamps();
     }
 
     public function getFormattedIdAttribute()
     {
         return 'OP-' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Sincroniza el importe saldado sumando lo vinculado en la tabla pivote
+     */
+    public function syncSaldado()
+    {
+        $totalSaldado = \Illuminate\Support\Facades\DB::table('op_recibo')
+            ->where('id_op', $this->id)
+            ->sum('saldado');
+
+        $this->importe_saldado = $totalSaldado;
+
+        if ($this->estado !== self::ESTADO_ANULADA) {
+            if ($this->importe_saldado >= $this->importe_pagado && $this->importe_pagado > 0) {
+                $this->estado = self::ESTADO_PAGADA;
+            } elseif ($this->importe_saldado > 0) {
+                $this->estado = self::ESTADO_PARCIAL;
+            } else {
+                $this->estado = self::ESTADO_RECIBIDA;
+            }
+        }
+
+        $this->save();
     }
 }

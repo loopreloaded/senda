@@ -190,4 +190,17 @@ class Factura extends Model
                     ->withPivot('pagado')
                     ->withTimestamps();
     }
+
+    /**
+     * Recalcula el importe total pagado basado en las OPs vinculadas que no estén anuladas.
+     */
+    public function actualizarImportePagado()
+    {
+        $totalPagado = $this->ordenesPago()
+            ->where('estado', '!=', OrdenPago::ESTADO_ANULADA)
+            ->sum('factura_op.pagado');
+
+        $this->importe_pagado = $totalPagado;
+        $this->save(); // El boot se encarga de actualizar el estado
+    }
 }

@@ -141,7 +141,7 @@ class NotaDebitoController extends Controller
 
             if ($det && $det->Resultado === "A") {
 
-                $nota->estado = 'aprobada';
+                $nota->estado = 'emitida';
                 $nota->cae = $det->CAE;
                 $nota->vto_cae = $det->CAEFchVto;
                 $nota->aprobado_por = Auth::id();

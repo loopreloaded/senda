@@ -44,7 +44,7 @@
         </table>
 
         @can('enviar nota de debito afip')
-            @if($nota->estado != 'aprobada')
+            @if($nota->estado != 'emitida')
                 <form action="{{ route('notasdebito.afip',$nota->id) }}" method="POST">
                     @csrf
                     <button class="btn btn-success">Enviar a AFIP</button>

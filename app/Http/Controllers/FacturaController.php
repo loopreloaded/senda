@@ -311,12 +311,12 @@ class FacturaController extends Controller
     public function aprobar($id)
     {
         $factura = Factura::findOrFail($id);
-        $factura->estado = 'aprobada';
+        $factura->estado = Factura::ESTADO_EMITIDA;
         $factura->aprobado_por = Auth::id();
         $factura->save();
 
-        return redirect()->route('admin.facturas.index')
-                         ->with('success', 'Factura aprobada correctamente.');
+        return redirect()->route('facturas.index')
+                         ->with('success', 'Factura emitida correctamente.');
     }
 
     /**
@@ -532,7 +532,7 @@ class FacturaController extends Controller
 
             "importe" => round((float) $factura->importe_total, 2),
 
-            "moneda" => $factura->moneda === 'USD' ? 'DOL' : 'ARS',
+            "moneda" => (strpos($factura->moneda, 'USD') !== false) ? 'DOL' : 'ARS',
 
             "ctz"     => 1,
 

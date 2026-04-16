@@ -157,11 +157,13 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
      ======================= */
     Route::resource('recibos', ReciboController::class);
 
-    Route::post('recibos/{id}/aprobar', [ReciboController::class, 'aprobar'])
+    Route::post('recibos/{recibo}/aprobar', [ReciboController::class, 'aprobar'])
         ->name('recibos.aprobar');
 
     Route::get('recibos/{recibo}/pdf', [ReciboController::class, 'generar_pdf_recibo'])
         ->name('recibos.pdf');
+    Route::get('recibos/ordenes-pago/{cliente_id}', [ReciboController::class, 'getOrdenesPago'])
+        ->name('recibos.ops');
 
     /* =======================
     | REMITOS
@@ -180,7 +182,10 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     /* =======================
      | ÓRDENES DE PAGO
      ======================= */
-    Route::resource('ordenes-pago', OrdenPagoController::class);
+    Route::resource('ordenes-pago', OrdenPagoController::class)
+        ->parameters([
+            'ordenes-pago' => 'ordenPago'
+        ]);
     Route::post('ordenes-pago/{ordenPago}/anular', [OrdenPagoController::class, 'anular'])->name('ordenes-pago.anular');
     Route::get('ordenes-pago/facturas/{cliente_id}', [OrdenPagoController::class, 'getFacturas'])->name('ordenes-pago.facturas');
 

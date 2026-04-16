@@ -160,8 +160,8 @@ class AfipService
         // ==============================
         // 4) MONEDA
         // ==============================
-        $monId    = $factura->moneda === 'USD' ? 'DOL' : 'PES';
-        $monCotiz = $factura->moneda === 'USD'
+        $monId    = (strpos($factura->moneda, 'USD') !== false) ? 'DOL' : 'PES';
+        $monCotiz = (strpos($factura->moneda, 'USD') !== false)
             ? max(1, (float)$factura->valor_dolar)
             : 1;
 

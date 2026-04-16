@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-4 mb-3">
         <label>ID OP (#)</label>
-        <input type="text" class="form-control" value="{{ $formattedId ?? $ordenPago->formatted_id }}" readonly>
+        <input type="text" class="form-control" value="{{ $formattedId ?? ($ordenPago->formatted_id ?? '') }}" readonly>
     </div>
 
     <div class="col-md-4 mb-3">
@@ -41,9 +41,9 @@
 
     <div class="col-md-4 mb-3">
         <label>Motivo</label>
-        <select name="motivo" id="motivo" class="form-control" required>
-            <option value="pedido" {{ old('motivo', $ordenPago->motivo ?? 'pedido') == 'pedido' ? 'selected' : '' }}>Vinculado (Pedido)</option>
-            <option value="particular" {{ old('motivo', $ordenPago->motivo ?? '') == 'particular' ? 'selected' : '' }}>Particular</option>
+        <select name="motivo" id="motivo" class="form-control select2" required>
+            <option value="pedido" {{ old('motivo', isset($ordenPago) ? $ordenPago->motivo : 'pedido') == 'pedido' ? 'selected' : '' }}>Vinculado (Pedido)</option>
+            <option value="particular" {{ old('motivo', isset($ordenPago) ? $ordenPago->motivo : '') == 'particular' ? 'selected' : '' }}>Particular</option>
         </select>
     </div>
 

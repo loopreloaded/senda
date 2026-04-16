@@ -106,6 +106,9 @@ class OrdenPagoController extends Controller
                 foreach ($request->facturas as $f) {
                     if (isset($f['pagado']) && $f['pagado'] > 0) {
                         $op->facturas()->attach($f['id'], ['pagado' => $f['pagado']]);
+                        
+                        // Sincronizar importe pagado en la factura
+                        Factura::find($f['id'])->actualizarImportePagado();
                     }
                 }
             }
@@ -182,6 +185,8 @@ class OrdenPagoController extends Controller
                 $data['archivo'] = $path;
             }
 
+            $oldInvoiceIds = $ordenPago->facturas()->pluck('facturas.id')->toArray();
+
             if ($request->motivo === 'particular') {
                 $data['importe_pagado'] = $request->importe_pagado ?? 0;
                 $ordenPago->facturas()->detach();
@@ -199,6 +204,17 @@ class OrdenPagoController extends Controller
             }
 
             $ordenPago->update($data);
+
+            // Sincronizar facturas (las antiguas y las nuevas)
+            $newInvoiceIds = $ordenPago->facturas()->pluck('facturas.id')->toArray();
+            $allInvoiceIds = array_unique(array_merge($oldInvoiceIds, $newInvoiceIds));
+            
+            foreach ($allInvoiceIds as $fid) {
+                $fac = Factura::find($fid);
+                if ($fac) {
+                    $fac->actualizarImportePagado();
+                }
+            }
 
             DB::commit();
 
@@ -219,6 +235,11 @@ class OrdenPagoController extends Controller
     {
         $ordenPago->update(['estado' => OrdenPago::ESTADO_ANULADA]);
 
+        // Sincronizar facturas vinculadas
+        foreach ($ordenPago->facturas as $fac) {
+            $fac->actualizarImportePagado();
+        }
+
         return back()->with('success', 'Orden de Pago anulada.');
     }
 
@@ -227,10 +248,20 @@ class OrdenPagoController extends Controller
      */
     public function destroy(OrdenPago $ordenPago)
     {
+        $invoiceIds = $ordenPago->facturas()->pluck('facturas.id')->toArray();
+
         if ($ordenPago->archivo) {
             Storage::disk('public')->delete($ordenPago->archivo);
         }
         $ordenPago->delete();
+
+        // Sincronizar facturas que estaban vinculadas
+        foreach ($invoiceIds as $fid) {
+            $fac = Factura::find($fid);
+            if ($fac) {
+                $fac->actualizarImportePagado();
+            }
+        }
 
         return redirect()->route('ordenes-pago.index')->with('success', 'Orden de Pago eliminada.');
     }

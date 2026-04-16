@@ -68,7 +68,7 @@ class WsfeClient
             $factura->update([
                 'cae' => $cae,
                 'vto_cae' => date('Y-m-d', strtotime($vto)),
-                'estado' => 'aprobada',
+                'estado' => 'emitida',
             ]);
         } else {
             $factura->update(['estado' => 'error']);
