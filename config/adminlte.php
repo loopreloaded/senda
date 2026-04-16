@@ -397,6 +397,26 @@ return [
                 ],
             ],
         ],
+        // ÓRDENES DE PAGO
+        [
+            'text'    => 'Órdenes de Pago',
+            'icon'    => 'fas fa-fw fa-money-bill-wave',
+            'can'     => 'ver ordenes', 
+            'submenu' => [
+                [
+                    'text'  => 'Nueva Orden de Pago',
+                    'route' => 'ordenes-pago.create',
+                    'icon'  => 'fas fa-fw fa-plus-circle',
+                    'can'   => 'crear ordenes',
+                ],
+                [
+                    'text'  => 'Listado de OP',
+                    'route' => 'ordenes-pago.index',
+                    'icon'  => 'fas fa-fw fa-list',
+                    'can'   => 'ver ordenes',
+                ],
+            ],
+        ],
         // NOTAS DE DÉBITO
         [
             'text'    => 'Notas de Débito',

@@ -18,6 +18,7 @@ use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\PedidoCotizacionController;
 use App\Http\Controllers\RemitoController;
+use App\Http\Controllers\OrdenPagoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -175,6 +176,13 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
     Route::post('remitos/{remito}/confirmar',
         [RemitoController::class, 'confirmar']
     )->name('remitos.confirmar');
+
+    /* =======================
+     | ÓRDENES DE PAGO
+     ======================= */
+    Route::resource('ordenes-pago', OrdenPagoController::class);
+    Route::post('ordenes-pago/{ordenPago}/anular', [OrdenPagoController::class, 'anular'])->name('ordenes-pago.anular');
+    Route::get('ordenes-pago/facturas/{cliente_id}', [OrdenPagoController::class, 'getFacturas'])->name('ordenes-pago.facturas');
 
 
 });

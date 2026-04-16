@@ -60,4 +60,9 @@ class Cliente extends Model
         return $this->hasMany(OrdenCompra::class, 'id_cliente');
     }
 
+    public function ordenesPago()
+    {
+        return $this->hasMany(OrdenPago::class, 'cliente_id');
+    }
+
 }

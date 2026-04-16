@@ -183,4 +183,11 @@ class Factura extends Model
     {
         return $this->belongsTo(User::class, 'aprobado_por');
     }
+
+    public function ordenesPago()
+    {
+        return $this->belongsToMany(OrdenPago::class, 'factura_op', 'factura_id', 'orden_pago_id')
+                    ->withPivot('pagado')
+                    ->withTimestamps();
+    }
 }
