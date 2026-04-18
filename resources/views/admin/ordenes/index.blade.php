@@ -80,9 +80,8 @@
             <th>Fecha</th>
             <th>Motivo</th>
             <th>Cant. Art. OC</th>
-            <th>Art. Cotizados</th>
             <th>Cant. Art. Rem.</th>
-            <th>Art. Remitidos</th>
+            <th>Art. Rem.</th>
             <th>Status</th>
             <th>Acciones</th>
         </tr>
@@ -117,17 +116,10 @@
             {{-- Cant. Art. OC --}}
             <td class="text-center">{{ number_format($orden->cant_art_oc, 2) }}</td>
 
-            {{-- Art. Cotizados --}}
-            <td>
-                <small title="{{ $orden->art_cot }}">
-                    {{ Str::limit($orden->art_cot, 20) }}
-                </small>
-            </td>
-
             {{-- Cant. Art. Rem. --}}
             <td class="text-center">{{ number_format($orden->cant_art_rem, 2) }}</td>
 
-            {{-- Art. Remitidos --}}
+            {{-- Art. Rem. --}}
             <td>
                 <small title="{{ $orden->art_rem }}">
                     {{ Str::limit($orden->art_rem, 20) }}

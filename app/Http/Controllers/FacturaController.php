@@ -233,14 +233,11 @@ class FacturaController extends Controller
 
                 // Si viene de un remito, guardamos para el pivot
                 if (isset($item['remito_id']) && $item['remito_id']) {
-                    $rid = $item['remito_id'];
-                    if (!isset($vinculos_remitos[$rid])) {
-                        $vinculos_remitos[$rid] = [
-                            'articulo' => $item['descripcion'],
-                            'cantidad' => 0
-                        ];
-                    }
-                    $vinculos_remitos[$rid]['cantidad'] += $item['cantidad'];
+                    $vinculos_remitos[] = [
+                        'remito_id' => $item['remito_id'],
+                        'articulo'  => $item['descripcion'],
+                        'cantidad'  => $item['cantidad']
+                    ];
                 }
             }
 
@@ -254,7 +251,8 @@ class FacturaController extends Controller
 
             // 5) ATTACH REMITOS (Table remito_factura)
             if ($validated['motivo'] === 'pedido' && !empty($vinculos_remitos)) {
-                foreach ($vinculos_remitos as $remito_id => $data) {
+                foreach ($vinculos_remitos as $v) {
+                    $remito_id = $v['remito_id'];
                     
                     // VALIDACIÓN DE CANTIDADES
                     $remito = \App\Models\Remito::with('items')->find($remito_id);
@@ -266,13 +264,13 @@ class FacturaController extends Controller
                         
                         $disponible = $cant_en_remito - $cant_ya_facturada;
                         
-                        if ($data['cantidad'] > $disponible) {
-                            throw new \Exception("La cantidad a facturar ({$data['cantidad']}) supera lo disponible en el Remito #{$remito->numero_remito} (Disponible: {$disponible})");
+                        if ($v['cantidad'] > $disponible) {
+                            throw new \Exception("La cantidad a facturar ({$v['cantidad']}) supera lo disponible en el Remito #{$remito->numero_remito} (Disponible: {$disponible})");
                         }
 
                         $factura->remitos()->attach($remito_id, [
-                            'articulo' => $data['articulo'],
-                            'cantidad' => $data['cantidad']
+                            'articulo' => $v['articulo'],
+                            'cantidad' => $v['cantidad']
                         ]);
                         
                         // Actualizar estado del remito

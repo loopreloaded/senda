@@ -23,7 +23,6 @@ class OrdenCompra extends Model
         'email',
         'moneda',
         'condicion_compra',
-        'solicitud_compra',
         'motivo',
         'subtotal',
         'total',

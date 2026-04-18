@@ -158,8 +158,8 @@
                 </tr>
 
                 <tr>
-                    <td style="font-weight:bold;">Solicitud de compra:</td>
-                    <td>{{ $orden->solicitud_compra ?: '-' }}</td>
+                    <td style="font-weight:bold;">Nro OC:</td>
+                    <td>{{ $orden->numero_oc ?: '-' }}</td>
                 </tr>
 
             </table>

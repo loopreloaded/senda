@@ -34,6 +34,19 @@ class Factura extends Model
                 }
             }
         });
+
+        // Al guardar (crear/editar) o eliminar, actualizamos estados de remitos vinculados
+        static::saved(function ($factura) {
+            foreach ($factura->remitos as $remito) {
+                $remito->actualizarEstado();
+            }
+        });
+
+        static::deleted(function ($factura) {
+            foreach ($factura->remitos as $remito) {
+                $remito->actualizarEstado();
+            }
+        });
     }
 
     // Estados

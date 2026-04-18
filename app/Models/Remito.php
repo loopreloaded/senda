@@ -95,7 +95,7 @@ class Remito extends Model
     public function getCantArtFacAttribute()
     {
         return $this->facturas()
-                    ->whereIn('estado', [Factura::ESTADO_EMITIDA, Factura::ESTADO_PARCIAL, Factura::ESTADO_PAGADA])
+                    ->whereIn('estado', [Factura::ESTADO_BORRADOR, Factura::ESTADO_EMITIDA, Factura::ESTADO_PARCIAL, Factura::ESTADO_PAGADA])
                     ->sum('remito_factura.cantidad');
     }
 
@@ -105,6 +105,7 @@ class Remito extends Model
     public function getArtFacAttribute()
     {
         return $this->facturas()
+                    ->whereIn('estado', [Factura::ESTADO_BORRADOR, Factura::ESTADO_EMITIDA, Factura::ESTADO_PARCIAL, Factura::ESTADO_PAGADA])
                     ->pluck('remito_factura.articulo')
                     ->unique()
                     ->implode(', ');

@@ -61,7 +61,6 @@ class OrdenCompraController extends Controller
             'moneda'            => 'required|in:ARS,USD_BILLETE,USD_DIVISA',
             'fecha_entrega'     => 'nullable|date',
             'condicion_compra'  => 'required|string|max:191',
-            'solicitud_compra'  => 'nullable|string|max:191',
             'motivo'            => 'required|in:pedido,particular',
             'observaciones'     => 'nullable|string',
             'archivo'           => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:5120',
@@ -237,7 +236,6 @@ class OrdenCompraController extends Controller
             'moneda'            => 'required|in:ARS,USD_BILLETE,USD_DIVISA',
             'fecha_entrega'     => 'nullable|date',
             'condicion_compra'  => 'required|string|max:191',
-            'solicitud_compra'  => 'nullable|string|max:191',
             'motivo'            => 'required|in:pedido,particular',
             'observaciones'     => 'nullable|string',
 

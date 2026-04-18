@@ -93,8 +93,8 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
 
-                                {{-- EDITAR / ANULAR (Solo si es Emitido o Parcial) --}}
-                                @if(in_array($remito->estado, ['Emitido', 'Parcial']))
+                                {{-- EDITAR / ANULAR (Solo si es Emitido) --}}
+                                @if($remito->estado === 'Emitido')
                                     <a href="{{ route('remitos.edit', $remito) }}"
                                        class="btn btn-sm btn-primary"
                                        title="Editar">
