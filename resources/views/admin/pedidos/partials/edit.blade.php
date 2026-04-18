@@ -7,7 +7,7 @@
         <input type="date"
                 name="fecha"
                 class="form-control @error('fecha') is-invalid @enderror"
-                value="{{ old('fecha', \Carbon\Carbon::parse($pedido_cotizacion->fecha)->format('Y-m-d')) }}"
+                value="{{ old('fecha', \Carbon\Carbon::parse($pedido->fecha)->format('Y-m-d')) }}"
                 required>
         @error('fecha')
             <div class="invalid-feedback">{{ $message }}</div>
@@ -23,7 +23,7 @@
             <option value="">-- Seleccionar --</option>
             @foreach($clientes as $cliente)
                 <option value="{{ $cliente->id }}"
-                    {{ old('id_cliente', $pedido_cotizacion->id_cliente) == $cliente->id ? 'selected' : '' }}>
+                    {{ old('id_cliente', $pedido->id_cliente) == $cliente->id ? 'selected' : '' }}>
                     {{ $cliente->razon_social }}
                 </option>
             @endforeach
@@ -40,7 +40,7 @@
                name="nro_solicitud"
                class="form-control @error('nro_solicitud') is-invalid @enderror"
                placeholder="Ingrese N° de solicitud..."
-               value="{{ old('nro_solicitud', $pedido_cotizacion->nro_solicitud ?? '') }}">
+               value="{{ old('nro_solicitud', $pedido->nro_solicitud ?? '') }}">
         @error('nro_solicitud')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
@@ -58,7 +58,7 @@
                class="form-control @error('cantidad') is-invalid @enderror"
                min="1"
                placeholder="Total"
-               value="{{ old('cantidad', $pedido_cotizacion->cantidad ?? '') }}"
+               value="{{ old('cantidad', $pedido->cantidad ?? '') }}"
                required>
         @error('cantidad')
             <div class="invalid-feedback">{{ $message }}</div>
@@ -77,9 +77,9 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
 
-        @if($pedido_cotizacion->archivo)
+        @if($pedido->archivo)
             <div class="mt-2">
-                <a href="{{ asset('storage/'.$pedido_cotizacion->archivo) }}"
+                <a href="{{ asset('storage/'.$pedido->archivo) }}"
                     target="_blank"
                     class="btn btn-sm btn-outline-primary">
                     Ver archivo actual
@@ -93,7 +93,7 @@
         <label class="form-label">Observaciones</label>
         <textarea name="observaciones"
                     rows="3"
-                    class="form-control @error('observaciones') is-invalid @enderror">{{ old('observaciones', $pedido_cotizacion->observaciones) }}</textarea>
+                    class="form-control @error('observaciones') is-invalid @enderror">{{ old('observaciones', $pedido->observaciones) }}</textarea>
         @error('observaciones')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror

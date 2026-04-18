@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PedidoCotizacion;
+use App\Models\Pedido;
 use App\Models\Cotizacion;
 use Illuminate\Http\Request;
 use App\Models\Cliente;
 
-class PedidoCotizacionController extends Controller
+class PedidoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PedidoCotizacion::with(['cliente', 'cotizaciones.items'])
+        $query = Pedido::with(['cliente', 'cotizaciones.items'])
             ->where('estado_pc', '!=', 'b'); // 🔥 Excluir bajas lógicas
 
         // Filtro cliente
@@ -30,7 +30,7 @@ class PedidoCotizacionController extends Controller
         $pedidos = $query->orderByDesc('id_ped_cot')
             ->paginate(10);
 
-        return view('admin.pedidos-cotizacion.index', compact('pedidos'));
+        return view('admin.pedidos.index', compact('pedidos'));
     }
 
     /**
@@ -42,7 +42,7 @@ class PedidoCotizacionController extends Controller
         $id_cliente = $request->query('cliente_id');
         $include_id = $request->query('include_id');
 
-        $query = PedidoCotizacion::query()
+        $query = Pedido::query()
             ->where('estado_pc', '!=', 'b'); // Excluir bajas
 
         if ($id_cliente) {
@@ -69,7 +69,7 @@ class PedidoCotizacionController extends Controller
     public function create()
     {
         $cotizaciones = Cotizacion::all();
-        return view('admin.pedidos-cotizacion.create', compact('cotizaciones'));
+        return view('admin.pedidos.create', compact('cotizaciones'));
     }
 
     public function store(Request $request)
@@ -109,32 +109,32 @@ class PedidoCotizacionController extends Controller
         // Archivo
         if ($request->hasFile('archivo')) {
             $data['archivo'] = $request->file('archivo')
-                ->store('pedidos-cotizacion', 'public');
+                ->store('pedidos', 'public');
         }
 
-        PedidoCotizacion::create($data);
+        Pedido::create($data);
 
         return redirect()
-            ->route('pedidos-cotizacion.index')
+            ->route('pedidos.index')
             ->with('success', 'Pedido registrado correctamente');
     }
 
-    public function show(PedidoCotizacion $pedido_cotizacion)
+    public function show(Pedido $pedido)
     {
-        return view('admin.pedidos-cotizacion.show', compact('pedido_cotizacion'));
+        return view('admin.pedidos.show', ['pedido' => $pedido]);
     }
 
-    public function edit(PedidoCotizacion $pedido_cotizacion)
+    public function edit(Pedido $pedido)
     {
         $clientes = Cliente::orderBy('razon_social')->get();
 
-        return view('admin.pedidos-cotizacion.edit', [
-            'pedido_cotizacion' => $pedido_cotizacion,
+        return view('admin.pedidos.edit', [
+            'pedido' => $pedido,
             'clientes' => $clientes
         ]);
     }
 
-    public function update(Request $request, PedidoCotizacion $pedido_cotizacion)
+    public function update(Request $request, Pedido $pedido)
     {
         $validated = $request->validate([
             'id_cliente'    => 'required|exists:clientes,id',
@@ -151,27 +151,38 @@ class PedidoCotizacionController extends Controller
         } else {
 
             // Si se sube uno nuevo, eliminamos el anterior
-            if ($pedido_cotizacion->archivo) {
-                \Storage::disk('public')->delete($pedido_cotizacion->archivo);
+            if ($pedido->archivo) {
+                \Storage::disk('public')->delete($pedido->archivo);
             }
 
             $validated['archivo'] = $request->file('archivo')
-                ->store('pedidos-cotizacion', 'public');
+                ->store('pedidos', 'public');
         }
 
-        $pedido_cotizacion->update($validated);
+        // Verificar que la nueva cantidad no sea menor a lo ya cotizado
+        $yaCotizado = \DB::table('pedido_cotizacion')
+            ->where('id_pedido_cot', $pedido->id_ped_cot)
+            ->sum('cantidad');
+
+        if ($request->cantidad < $yaCotizado) {
+            return back()->withErrors([
+                'cantidad' => "No se puede reducir la cantidad a {$request->cantidad} porque ya se han cotizado {$yaCotizado} unidades para este pedido."
+            ])->withInput();
+        }
+
+        $pedido->update($validated);
 
         return redirect()
-            ->route('pedidos-cotizacion.index')
+            ->route('pedidos.index')
             ->with('success', 'Pedido actualizado correctamente');
     }
 
-    public function destroy(PedidoCotizacion $pedido_cotizacion)
+    public function destroy(Pedido $pedido)
     {
-        $pedido_cotizacion->estado_pc = 'b'; // baja lógica
-        $pedido_cotizacion->save();
+        $pedido->estado_pc = 'b'; // baja lógica
+        $pedido->save();
 
-        return redirect()->route('pedidos-cotizacion.index')
+        return redirect()->route('pedidos.index')
             ->with('success', 'Pedido eliminado correctamente');
     }
 
@@ -182,7 +193,7 @@ class PedidoCotizacionController extends Controller
             'comentarios' => 'required|string'
         ]);
 
-        PedidoCotizacion::where('id_ped_cot', $request->pedido_id)
+        Pedido::where('id_ped_cot', $request->pedido_id)
             ->update([
                 'comentarios' => $request->comentarios
             ]);
@@ -192,7 +203,7 @@ class PedidoCotizacionController extends Controller
 
     public function noCotizo($id)
     {
-        $pedido = PedidoCotizacion::findOrFail($id);
+        $pedido = Pedido::findOrFail($id);
 
         $pedido->estado_pc = 'n';
         $pedido->save();

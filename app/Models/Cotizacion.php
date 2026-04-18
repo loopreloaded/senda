@@ -62,7 +62,7 @@ class Cotizacion extends Model
      */
     public function pedidos()
     {
-        return $this->belongsToMany(PedidoCotizacion::class, 'pedido_cotizacion', 'id_cotizacion', 'id_pedido_cot')
+        return $this->belongsToMany(Pedido::class, 'pedido_cotizacion', 'id_cotizacion', 'id_pedido_cot')
                     ->withPivot('producto', 'cantidad')
                     ->withTimestamps();
     }

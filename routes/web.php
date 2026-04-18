@@ -16,7 +16,7 @@ use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\NotaDebitoController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\CotizacionController;
-use App\Http\Controllers\PedidoCotizacionController;
+use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\RemitoController;
 use App\Http\Controllers\OrdenPagoController;
 
@@ -104,26 +104,25 @@ Route::middleware(['auth', 'role:secretaria|admin|ingeniero'])->group(function (
 
 
     /* =======================
-     | pedido cotizacion
+     | pedidos
      ======================= */
-    // Route::resource('pedidos-cotizacion', PedidoCotizacionController::class);
 
-    Route::get('pedidos-cotizacion/buscar', [PedidoCotizacionController::class, 'buscar'])
-        ->name('pedidos-cotizacion.buscar');
+    Route::get('pedidos/buscar', [PedidoController::class, 'buscar'])
+        ->name('pedidos.buscar');
 
-    Route::resource('pedidos-cotizacion', PedidoCotizacionController::class)
+    Route::resource('pedidos', PedidoController::class)
     ->parameters([
-        'pedidos-cotizacion' => 'pedido_cotizacion'
+        'pedidos' => 'pedido'
     ]);
 
-    Route::post('/pedidos-cotizacion/comentarios',
-        [PedidoCotizacionController::class, 'storeComentario']
-    )->name('pedidos-cotizacion.comentarios.store');
+    Route::post('/pedidos/comentarios',
+        [PedidoController::class, 'storeComentario']
+    )->name('pedidos.comentarios.store');
 
 
-    Route::patch('/pedidos-cotizacion/{id}/no-cotizo',
-        [PedidoCotizacionController::class,'noCotizo'])
-    ->name('pedidos-cotizacion.no-cotizo');
+    Route::patch('/pedidos/{id}/no-cotizo',
+        [PedidoController::class,'noCotizo'])
+    ->name('pedidos.no-cotizo');
 
     /* =======================
      | NOTAS DE DÉBITO

@@ -293,7 +293,7 @@ SCRIPT GLOBAL COTIZACIONES
                 const selectedId = $select.attr('data-selected');
 
                 // Incluir el ID seleccionado actualmente para asegurar que el server lo devuelva
-                const url = `{{ route('pedidos-cotizacion.buscar') }}?cliente_id=${clienteId}&include_id=${selectedId || ''}`;
+                const url = `{{ route('pedidos.buscar') }}?cliente_id=${clienteId}&include_id=${selectedId || ''}`;
 
                 const resp = await fetch(url, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }

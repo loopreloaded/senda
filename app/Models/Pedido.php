@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PedidoCotizacion extends Model
+class Pedido extends Model
 {
-    protected $table = 'pedidos_cotizacion';
+    protected $table = 'pedidos';
     protected $primaryKey = 'id_ped_cot';
     public $incrementing = true;
     protected $keyType = 'int';

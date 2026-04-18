@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cotizacion;
 use App\Models\Cliente;
-use App\Models\PedidoCotizacion;
+use App\Models\Pedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -124,6 +124,7 @@ class CotizacionController extends Controller
 
         ]);
 
+        $this->validarCantidades($request);
 
         DB::beginTransaction();
 
@@ -235,6 +236,8 @@ class CotizacionController extends Controller
             'items.*.id_pedido_cot' => 'required_if:motivo,pedido'
         ]);
 
+        $this->validarCantidades($request, $cotizacion->id_cotizacion);
+
         DB::beginTransaction();
         try {
             $cotizacion->update($request->except('items'));
@@ -271,7 +274,7 @@ class CotizacionController extends Controller
             $todosLosAfectados = array_unique(array_merge($pedidoIdsPrevios, $pedidoIdsActuales));
 
             foreach ($todosLosAfectados as $pedidoId) {
-                $pedido = PedidoCotizacion::find($pedidoId);
+                $pedido = Pedido::find($pedidoId);
                 if ($pedido) {
                     $this->actualizarEstadoPedido($pedido);
                 }
@@ -341,7 +344,7 @@ class CotizacionController extends Controller
     /**
      * Lógica para actualizar el estado del pedido basado en lo cotizado
      */
-    protected function actualizarEstadoPedido(PedidoCotizacion $pedido)
+    protected function actualizarEstadoPedido(Pedido $pedido)
     {
         // Calcular lo cotizado para este pedido a través de la tabla intermedia
         $totalCotizado = DB::table('pedido_cotizacion')
@@ -359,6 +362,40 @@ class CotizacionController extends Controller
         }
 
         $pedido->update(['estado_pc' => $nuevoEstado]);
+    }
+
+    /**
+     * Valida que lo solicitado no supere la cantidad restante del pedido
+     */
+    protected function validarCantidades(Request $request, $idCotizacionOmitir = null)
+    {
+        $itemsByPedido = [];
+        foreach ($request->items as $item) {
+            if (!empty($item['id_pedido_cot'])) {
+                $id = $item['id_pedido_cot'];
+                $itemsByPedido[$id] = ($itemsByPedido[$id] ?? 0) + $item['cantidad'];
+            }
+        }
+
+        foreach ($itemsByPedido as $idPedido => $cantidadNueva) {
+            $pedido = \App\Models\Pedido::findOrFail($idPedido);
+
+            // Sumar lo ya cotizado en otros registros
+            $yaCotizado = DB::table('pedido_cotizacion')
+                ->where('id_pedido_cot', $idPedido)
+                ->when($idCotizacionOmitir, function ($query) use ($idCotizacionOmitir) {
+                    return $query->where('id_cotizacion', '!=', $idCotizacionOmitir);
+                })
+                ->sum('cantidad');
+
+            if (($yaCotizado + $cantidadNueva) > $pedido->cantidad) {
+                $msg = "No se puede asignar {$cantidadNueva} unidades al pedido {$pedido->nro_solicitud} porque el máximo permitido es {$pedido->cantidad}.";
+                
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'items' => [$msg]
+                ]);
+            }
+        }
     }
 }
 

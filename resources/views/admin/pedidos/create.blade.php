@@ -23,12 +23,12 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" action="{{ route('pedidos-cotizacion.store') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('pedidos.store') }}" enctype="multipart/form-data">
             @csrf
-            @include('admin.pedidos-cotizacion.partials.form')
+            @include('admin.pedidos.partials.form')
             <div class="mt-4 text-right">
                 <button type="submit" class="btn btn-success">Guardar Pedido</button>
-                <a href="{{ route('pedidos-cotizacion.index') }}" class="btn btn-secondary">Cancelar</a>
+                <a href="{{ route('pedidos.index') }}" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>

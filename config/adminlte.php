@@ -336,7 +336,7 @@ return [
             'submenu' => [
                 [
                     'text'    => 'Pedidos de Cotización',
-                    'route'   => 'pedidos-cotizacion.index',
+                    'route'   => 'pedidos.index',
                     'icon'    => 'fas fa-fw fa-paperclip',
                     'can'     => 'ver pedidos cotizacion'
                 ],

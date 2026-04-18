@@ -9,7 +9,7 @@
 @section('content')
 
 @can('crear pedidos cotizacion')
-<a href="{{ route('pedidos-cotizacion.create') }}"
+<a href="{{ route('pedidos.create') }}"
    class="btn btn-primary mb-3">
     Nuevo Pedido
 </a>
@@ -19,7 +19,7 @@
      FILTROS
 ========================= --}}
 <form method="GET"
-      action="{{ route('pedidos-cotizacion.index') }}"
+      action="{{ route('pedidos.index') }}"
       class="mb-3">
 
     <div class="row">
@@ -56,7 +56,7 @@
         </div>
 
         <div class="col-md-2 d-flex align-items-end">
-            <a href="{{ route('pedidos-cotizacion.index') }}"
+            <a href="{{ route('pedidos.index') }}"
                class="btn btn-secondary w-100">
                 <i class="fas fa-broom"></i>
             </a>
@@ -174,7 +174,7 @@
 
                     {{-- EDITAR --}}
                     @if($pedido->estado_pc == 'p')
-                        <a href="{{ route('pedidos-cotizacion.edit', $pedido->id_ped_cot) }}"
+                        <a href="{{ route('pedidos.edit', $pedido->id_ped_cot) }}"
                         class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -187,7 +187,7 @@
 
                     {{-- BOTÓN NO COTIZÓ --}}
                     @if($pedido->estado_pc == 'p')
-                        <form action="{{ route('pedidos-cotizacion.no-cotizo', $pedido->id_ped_cot) }}"
+                        <form action="{{ route('pedidos.no-cotizo', $pedido->id_ped_cot) }}"
                             method="POST"
                             style="display:inline">
 
@@ -217,7 +217,7 @@
 
                     {{-- ELIMINAR --}}
                     @if($pedido->estado_pc == 'p')
-                        <form action="{{ route('pedidos-cotizacion.destroy', $pedido->id_ped_cot) }}"
+                        <form action="{{ route('pedidos.destroy', $pedido->id_ped_cot) }}"
                             method="POST"
                             style="display:inline">
                             @csrf
